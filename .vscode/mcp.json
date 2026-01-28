@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=${SUPABASE_PROJECT_REF}&read_only=true",
+      "type": "http"
+    },
+    "Figma Desktop": {
+      "type": "http",
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "storybook-mcp": {
+      "url": "http://localhost:6006/mcp",
+      "type": "http",
+      "headers": {
+        "X-MCP-Toolsets": "dev,docs"
+      }
+    }
+  }
+}
