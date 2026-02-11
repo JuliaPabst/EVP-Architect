@@ -30,6 +30,9 @@ pnpm-debug.log*
 .env*.local
 .env
 
+# npm auth
+.npmrc
+
 # vercel
 .vercel
 
