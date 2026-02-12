@@ -11,7 +11,8 @@
     "lint:style": "stylelint '**/*.scss'",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "validate": "pnpm run lint && pnpm run test:coverage"
   },
   "dependencies": {
     "@kununu/common": "^21.1.1",

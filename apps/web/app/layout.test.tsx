@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import {render, screen} from '@testing-library/react';
 
 import RootLayout, {metadata} from './layout';
@@ -21,6 +22,18 @@ describe('RootLayout', () => {
     );
 
     expect(screen.getByTestId('child-element')).toBeInTheDocument();
+  });
+
+  it('should render with multiple children', () => {
+    render(
+      <RootLayout>
+        <div>First Child</div>
+        <div>Second Child</div>
+      </RootLayout>,
+    );
+
+    expect(screen.getByText('First Child')).toBeInTheDocument();
+    expect(screen.getByText('Second Child')).toBeInTheDocument();
   });
 });
 

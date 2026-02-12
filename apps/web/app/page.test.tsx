@@ -8,4 +8,12 @@ describe('Home', () => {
 
     expect(screen.getByText('Hello World')).toBeInTheDocument();
   });
+
+  it('should render Hello World in a div', () => {
+    render(<Home />);
+
+    const element = screen.getByText('Hello World');
+
+    expect(element.tagName).toBe('DIV');
+  });
 });
