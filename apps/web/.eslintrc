@@ -1,0 +1,22 @@
+{
+  "extends": ["@kununu/eslint-config", "plugin:react/jsx-runtime"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.test.ts", "*.test.tsx", "*.spec.ts", "*.spec.tsx"],
+      "rules": {
+        "testing-library/no-container": "warn",
+        "testing-library/no-node-access": "warn",
+        "import/no-extraneous-dependencies": ["error", {
+          "devDependencies": true
+        }]
+      }
+    }
+  ]
+}
