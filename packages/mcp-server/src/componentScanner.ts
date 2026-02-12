@@ -1,22 +1,22 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import {fileURLToPath} from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 interface Component {
-  name: string;
   category: string;
-  path: string;
   hasStyles: boolean;
   hasTests: boolean;
+  name: string;
+  path: string;
 }
 
 interface ComponentInfo extends Component {
+  description?: string;
   props?: string;
   sourcePreview?: string;
-  description?: string;
 }
 
 const CATEGORIES = ['atoms', 'molecules', 'organisms', 'compositions', 'hooks'];
@@ -26,7 +26,7 @@ const CATEGORIES = ['atoms', 'molecules', 'organisms', 'compositions', 'hooks'];
  */
 export async function scanComponents(
   uiPath: string,
-  category: string = 'all'
+  category = 'all',
 ): Promise<Component[]> {
   const components: Component[] = [];
   const basePath = path.resolve(__dirname, uiPath);
@@ -35,9 +35,13 @@ export async function scanComponents(
 
   for (const cat of categoriesToScan) {
     const categoryPath = path.join(basePath, cat);
-    
+
     try {
-      const exists = await fs.access(categoryPath).then(() => true).catch(() => false);
+      const exists = await fs
+        .access(categoryPath)
+        .then(() => true)
+        .catch(() => false);
+
       if (!exists) continue;
 
       const items = await fs.readdir(categoryPath);
@@ -47,16 +51,19 @@ export async function scanComponents(
         const stats = await fs.stat(itemPath);
 
         if (stats.isDirectory()) {
-          const hasIndex = await fs.access(path.join(itemPath, 'index.tsx'))
+          const hasIndex = await fs
+            .access(path.join(itemPath, 'index.tsx'))
             .then(() => true)
             .catch(() => false);
-          
+
           if (hasIndex) {
-            const hasStyles = await fs.access(path.join(itemPath, 'index.scss'))
+            const hasStyles = await fs
+              .access(path.join(itemPath, 'index.scss'))
               .then(() => true)
               .catch(() => false);
-            
-            const hasTests = await fs.access(path.join(itemPath, 'index.spec.tsx'))
+
+            const hasTests = await fs
+              .access(path.join(itemPath, 'index.spec.tsx'))
               .then(() => true)
               .catch(() => false);
 
@@ -83,11 +90,11 @@ export async function scanComponents(
  */
 export async function getComponentInfo(
   uiPath: string,
-  componentName: string
+  componentName: string,
 ): Promise<ComponentInfo> {
   const components = await scanComponents(uiPath, 'all');
   const component = components.find(
-    (c) => c.name.toLowerCase() === componentName.toLowerCase()
+    c => c.name.toLowerCase() === componentName.toLowerCase(),
   );
 
   if (!component) {
@@ -100,9 +107,11 @@ export async function getComponentInfo(
 
   try {
     const source = await fs.readFile(indexPath, 'utf-8');
-    
+
     // Extract props interface/type
-    const propsMatch = source.match(/interface\s+\w*Props\s*{[\s\S]*?}|type\s+\w*Props\s*=\s*{[\s\S]*?}/);
+    const propsMatch = source.match(
+      /interface\s+\w*Props\s*{[\s\S]*?}|type\s+\w*Props\s*=\s*{[\s\S]*?}/,
+    );
     const props = propsMatch ? propsMatch[0] : undefined;
 
     // Extract JSDoc comment if exists
@@ -128,14 +137,15 @@ export async function getComponentInfo(
  */
 export async function searchComponents(
   uiPath: string,
-  query: string
+  query: string,
 ): Promise<Component[]> {
   const allComponents = await scanComponents(uiPath, 'all');
   const lowerQuery = query.toLowerCase();
 
-  return allComponents.filter((component) =>
-    component.name.toLowerCase().includes(lowerQuery) ||
-    component.category.toLowerCase().includes(lowerQuery)
+  return allComponents.filter(
+    component =>
+      component.name.toLowerCase().includes(lowerQuery) ||
+      component.category.toLowerCase().includes(lowerQuery),
   );
 }
 
@@ -145,11 +155,11 @@ export async function searchComponents(
 export async function getComponentSource(
   uiPath: string,
   componentName: string,
-  fileType: string = 'tsx'
+  fileType = 'tsx',
 ): Promise<string> {
   const components = await scanComponents(uiPath, 'all');
   const component = components.find(
-    (c) => c.name.toLowerCase() === componentName.toLowerCase()
+    c => c.name.toLowerCase() === componentName.toLowerCase(),
   );
 
   if (!component) {
@@ -158,8 +168,9 @@ export async function getComponentSource(
 
   const basePath = path.resolve(__dirname, uiPath);
   const componentPath = path.join(basePath, component.category, component.name);
-  
+
   let filePath: string;
+
   switch (fileType) {
     case 'tsx':
       filePath = path.join(componentPath, 'index.tsx');
@@ -176,6 +187,7 @@ export async function getComponentSource(
 
   try {
     const source = await fs.readFile(filePath, 'utf-8');
+
     return source;
   } catch (error) {
     throw new Error(`Failed to read ${fileType} file: ${error}`);

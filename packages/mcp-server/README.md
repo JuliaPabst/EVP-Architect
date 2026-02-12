@@ -55,7 +55,7 @@ Add to your VS Code settings (`.vscode/settings.json` or user settings):
 List all available UI components, optionally filtered by category.
 
 **Parameters:**
-- `category` (optional): Filter by category - "atoms", "molecules", "organisms", "compositions", or "all" (default)
+- `category` (optional): Filter by category - "atoms", "molecules", "organisms", "compositions", "hooks", or "all" (default)
 
 **Example:**
 ```

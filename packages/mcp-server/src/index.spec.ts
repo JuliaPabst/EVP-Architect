@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import {describe, it, expect} from '@jest/globals';
 
 /**
  * Basic smoke tests for MCP Server
@@ -19,14 +19,21 @@ describe('MCP Server Configuration', () => {
 
   describe('Tool schemas', () => {
     it('should support all component categories', () => {
-      const categories = ['atoms', 'molecules', 'organisms', 'compositions', 'all'];
+      const categories = [
+        'atoms',
+        'molecules',
+        'organisms',
+        'compositions',
+        'all',
+      ];
+
       expect(categories).toHaveLength(5);
     });
 
     it('should support all file types', () => {
       const fileTypes = ['tsx', 'scss', 'spec'];
+
       expect(fileTypes).toHaveLength(3);
     });
   });
 });
-
