@@ -9,7 +9,7 @@
       "url": "http://127.0.0.1:3845/mcp"
     },
     "storybook-mcp": {
-      "url": "http://localhost:6006/mcp",
+      "url": "http://localhost:3000/mcp",
       "type": "http",
       "headers": {
         "X-MCP-Toolsets": "dev,docs"
