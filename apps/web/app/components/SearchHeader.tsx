@@ -1,6 +1,7 @@
 'use client';
 
 import React, {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import Button, {ButtonColor, ButtonType} from '@kununu/ui/atoms/Button';
 import TextInput from '@kununu/ui/atoms/TextInput';
 import Icon, {IconSize} from '@kununu/ui/atoms/Icon';
@@ -21,14 +22,16 @@ const KUNUNU_PROFILE_URL_REGEX =
   /^https:\/\/www\.kununu\.com\/[a-z]{2}\/[\w-]+\/?$/i;
 
 export default function SearchHeader() {
+  const router = useRouter();
   const [companyUrl, setCompanyUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateKununuUrl = (url: string): boolean => {
     return KUNUNU_PROFILE_URL_REGEX.test(url);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate the URL
@@ -41,9 +44,33 @@ export default function SearchHeader() {
 
     // Clear any previous error
     setErrorMessage('');
+    setIsLoading(true);
     
-    console.log('Loading EVP Project for:', companyUrl);
-    // TODO: Implement EVP project loading logic
+    try {
+      const response = await fetch('/api/projects/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({companyUrl}),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create project');
+      }
+
+      // Redirect to the project page on success
+      router.push(`/evp-architect/project/${data.projectId}`);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      setErrorMessage(
+        'Sorry, this should not have happened. Please, try again later.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +114,8 @@ export default function SearchHeader() {
               <Button
                 color={ButtonColor.PRIMARY}
                 type={ButtonType.SUBMIT}
-                disabled={!companyUrl.trim()}
+                disabled={!companyUrl.trim() || isLoading}
+                isLoading={isLoading}
                 text="Load EVP Project"
               />
             </form>
