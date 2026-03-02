@@ -1,0 +1,135 @@
+/* SearchHeader styles matching Figma design */
+
+.searchHeaderWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.searchHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px; /* py: space-3xl (64px), px: space-m (24px) */
+  position: relative;
+  width: 100%;
+  box-shadow: 0px 24px 32px -32px rgba(0, 0, 0, 0.08);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 1232px;
+  width: 100%;
+  position: relative;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  max-width: 807.195px;
+  width: 100%;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mainHeading {
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 44px;
+  letter-spacing: -0.5px;
+  color: #1b1c20; /* Text/Dark/90 */
+  text-align: center;
+  margin: 0;
+}
+
+.subheadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subheading {
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.3px;
+  color: #333438; /* Text/Dark/80 */
+  text-align: center;
+  opacity: 0.96;
+  margin: 0;
+}
+
+.inputForm {
+  display: flex;
+  gap: 8px; /* space-2xs */
+  align-items: flex-start;
+  padding: 16px; /* space-s */
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 8px; /* space-2xs */
+  max-width: 608px;
+  width: 100%;
+}
+
+.inputWrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.linkWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  color: #333438; /* Text/Dark/80 */
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  opacity: 0.96;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: #1b1c20;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .searchHeader {
+    padding: 48px 16px;
+  }
+
+  .mainHeading {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .inputForm {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .wrapper {
+    max-width: 100%;
+  }
+}

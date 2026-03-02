@@ -3,6 +3,7 @@
 import React from 'react';
 import Header from '@kununu/ui/organisms/Header';
 import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
+import SearchHeader from '../components/SearchHeader';
 
 export default function EvpArchitect() {
   return (
@@ -16,10 +17,7 @@ export default function EvpArchitect() {
           />
         }
       />
-      <main style={{padding: '2rem'}}>
-        <h1>EVP Architect</h1>
-        <p>Welcome to the Employee Value Proposition Architect</p>
-      </main>
+      <SearchHeader />
     </div>
   );
 }
