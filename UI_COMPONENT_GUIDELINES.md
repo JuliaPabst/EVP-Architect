@@ -1,8 +1,16 @@
-# Technical Development Guidelines for GitHub Copilot
+# RULE PRIORITY
 
-**Purpose:** This file contains strict technical requirements for building components from Figma designs using the kununu design system. Follow these rules exactly when generating code.
+This document governs ONLY UI component implementation.
 
----
+For:
+- Routing
+- Database
+- API logic
+- LLM calls
+- Folder structure outside /app/components
+
+Refer to:
+AI_IMPLEMENTATION_GUIDELINES.md
 
 ## CRITICAL: Component Selection Priority
 
