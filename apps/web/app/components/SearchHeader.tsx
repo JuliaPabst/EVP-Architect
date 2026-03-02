@@ -62,7 +62,7 @@ export default function SearchHeader() {
           <div className={styles.wrapper}>
             <div className={styles.heading}>
               <h1 className={styles.mainHeading}>
-                Do you want to find your Employer Value preposition?
+                Do you want to find your Employer Value Proposition?
               </h1>
             </div>
 

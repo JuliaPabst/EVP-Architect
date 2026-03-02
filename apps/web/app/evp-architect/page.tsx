@@ -4,6 +4,7 @@ import React from 'react';
 import Header from '@kununu/ui/organisms/Header';
 import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
 import SearchHeader from '../components/SearchHeader';
+import SelectedTopicsModule from '../components/SelectedTopicsModule';
 
 export default function EvpArchitect() {
   return (
@@ -18,6 +19,7 @@ export default function EvpArchitect() {
         }
       />
       <SearchHeader />
+      <SelectedTopicsModule />
     </div>
   );
 }

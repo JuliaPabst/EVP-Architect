@@ -1,0 +1,210 @@
+/* SelectedTopicsModule styles matching Figma design */
+
+.topicsModule {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 48px 48px;
+  background-color: white;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  max-width: 1232px;
+  width: 100%;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 32px 0 32px 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 24px 32px -32px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+}
+
+.cardContent {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+  padding: 32px;
+  background-color: white;
+  width: 100%;
+}
+
+.leftColumn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.heading {
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: 0.2px;
+  color: #1b1c20;
+  margin: 0;
+  width: 100%;
+}
+
+.description {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+  color: #333438;
+  width: 100%;
+}
+
+.description p {
+  margin: 0 0 8px 0;
+}
+
+.stepsHeading {
+  margin-top: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+.stepsList {
+  margin: 0;
+  padding-left: 22.5px;
+  list-style-type: decimal;
+  list-style-position: outside;
+}
+
+.stepsList li {
+  margin-bottom: 0;
+  padding-left: 0;
+  line-height: 22px;
+  text-align: left;
+}
+
+.rightColumn {
+  position: relative;
+  width: 233px;
+  height: 346px;
+  flex-shrink: 0;
+}
+
+.heroImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.badgeContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.badge {
+  position: absolute;
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Positioning for each badge to create the attractive layout */
+.badge:nth-child(1) {
+  top: 24px;
+  left: 26px;
+}
+
+.badge:nth-child(2) {
+  top: 71px;
+  left: 75px;
+}
+
+.badge:nth-child(3) {
+  top: 118px;
+  left: 10px;
+}
+
+.badge:nth-child(4) {
+  top: 212px;
+  left: 12px;
+}
+
+.badge:nth-child(5) {
+  top: 165px;
+  left: 59px;
+}
+
+.badge:nth-child(6) {
+  top: 259px;
+  left: 49px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .topicsModule {
+    padding: 32px 24px;
+  }
+
+  .cardContent {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .rightColumn {
+    width: 100%;
+    height: 200px;
+    align-self: center;
+  }
+
+  .badgeContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .badge {
+    position: static;
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
