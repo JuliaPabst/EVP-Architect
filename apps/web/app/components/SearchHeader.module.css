@@ -89,6 +89,12 @@
   min-width: 0;
 }
 
+.errorWrapper {
+  width: 100%;
+  max-width: 608px;
+  margin-top: -16px; /* Adjust spacing after form */
+}
+
 .linkWrapper {
   display: flex;
   align-items: center;
