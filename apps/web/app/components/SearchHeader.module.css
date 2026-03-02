@@ -75,7 +75,7 @@
 .inputForm {
   display: flex;
   gap: 8px; /* space-2xs */
-  align-items: flex-start;
+  align-items: stretch;
   padding: 16px; /* space-s */
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
