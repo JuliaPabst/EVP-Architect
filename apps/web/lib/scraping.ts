@@ -101,7 +101,7 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
     const content = $(el).html() || '';
 
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
-      const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+      const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
 
       if (industryMatch && industryMatch[1]) {
         foundIndustry = industryMatch[1].trim();
@@ -110,7 +110,7 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
     }
 
     if (content.includes('__NEXT_DATA__') || content.includes('window.__')) {
-      const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+      const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
 
       if (industryMatch && industryMatch[1]) {
         foundIndustry = industryMatch[1].trim();
@@ -119,7 +119,7 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
     }
 
     if (content.includes('window.')) {
-      const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+      const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
 
       if (industryMatch && industryMatch[1]) {
         foundIndustry = industryMatch[1].trim();
@@ -145,7 +145,7 @@ function extractProfileUuid($: cheerio.CheerioAPI): string | null {
 
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
       const uuidMatch = content.match(
-        /"uuid"\s*:\s*"([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+)"/i,
+        /"uuid"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/i,
       );
 
       if (uuidMatch && uuidMatch[1]) {
@@ -158,6 +158,25 @@ function extractProfileUuid($: cheerio.CheerioAPI): string | null {
   });
 
   return foundUuid;
+}
+
+/**
+ * Safely extracts numbers from text, avoiding ReDoS by limiting input length
+ * Supports formats: 123, 1.234, 50-100, 1.000-5.000, 500+
+ */
+function extractNumberFromText(text: string): string | null {
+  // Limit input length to prevent ReDoS attacks
+  const safeText = text.slice(0, 200);
+
+  // Simple pattern without nested quantifiers
+  // Match: digits with optional dots and optional range/plus
+  const match = safeText.match(/\b(\d[\d.]*(?:[-–]\d[\d.]*)?\+?)\b/);
+
+  if (match && match[1]) {
+    return match[1];
+  }
+
+  return null;
 }
 
 /**
@@ -174,13 +193,9 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
 
       if (labelText.includes('Mitarbeitende')) {
         const valueText = $(el).find('span').last().text().trim();
-        const numberMatch = valueText.match(
-          /(\d+(?:\.\d{3})*|\d+[-–]\d+(?:\.\d{3})*|\d+\+?)/,
-        );
+        const extractedNumber = extractNumberFromText(valueText);
 
-        if (numberMatch) {
-          const [, extractedNumber] = numberMatch;
-
+        if (extractedNumber) {
           employeeCount = extractedNumber;
           return false;
         }
@@ -192,9 +207,10 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
 
   if (employeeCount) return employeeCount;
 
-  const mitarbeitendeMatch = $('body')
-    .text()
-    .match(/Mitarbeitende[:\s]+(?:Rund\s+)?(\d+(?:\.\d{3})*|\d+[-–]\d+)/i);
+  const bodyText = $('body').text().slice(0, 50000); // Limit to prevent ReDoS
+  const mitarbeitendeMatch = bodyText.match(
+    /Mitarbeitende[:\s]+(?:Rund\s+)?(\d[\d.\-–]{0,20})/i,
+  );
 
   if (mitarbeitendeMatch && mitarbeitendeMatch[1]) {
     return mitarbeitendeMatch[1];
@@ -212,17 +228,17 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
 
     if (element.length) {
       const text = element.text();
-      const match = text.match(
-        /(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter/i,
-      );
 
-      if (match && match[1]) return match[1];
+      if (text.includes('Mitarbeiter')) {
+        const extractedNumber = extractNumberFromText(text);
+
+        if (extractedNumber) return extractedNumber;
+      }
     }
   }
 
-  const bodyText = $('body').text();
   const employeeMatch = bodyText.match(
-    /(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter(?!:innen\s+bestätigt)/i,
+    /(\d[\d.\-–]{0,20})\s*Mitarbeiter(?!:innen\s+bestätigt)/i,
   );
 
   if (employeeMatch && employeeMatch[1]) {

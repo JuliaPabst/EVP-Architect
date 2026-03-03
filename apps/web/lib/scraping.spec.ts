@@ -71,7 +71,7 @@ describe('scrapeCompanyProfile', () => {
             </div>
             <div class="index__subtitle__-YLLN p-small-regular"> als Arbeitgeber</div>
           </h1>
-          <script>window.dataLayer = [{"uuid":"test-uuid-1234","industry":"28"}];</script>
+          <script>window.dataLayer = [{"uuid":"test-uuid-1234","industry":28}];</script>
         </body>
       </html>
     `;
@@ -96,7 +96,7 @@ describe('scrapeCompanyProfile', () => {
           <h1><div class="index__title__0q4vx">Test Company</div></h1>
           <script>
             window.dataLayer = window.dataLayer || []; 
-            window.dataLayer.push({"industry":"13","uuid":"test-uuid-1234"});
+            window.dataLayer.push({"industry":13,"uuid":"test-uuid-1234"});
           </script>
         </body>
       </html>
@@ -122,7 +122,7 @@ describe('scrapeCompanyProfile', () => {
           <script>
             window.dataLayer.push({
               "uuid":"dfd5a004-7e68-4774-a21c-448c713148c0",
-              "industry":"28"
+              "industry":28
             });
           </script>
         </body>
@@ -394,8 +394,8 @@ describe('scrapeCompanyProfile', () => {
             window.dataLayer.push({
               "city":"München",
               "country":"de",
-              "uuid":"abc123-def456-ghi789-jkl012-mno345pq",
-              "industry":"42"
+              "uuid":"abc12345-def4-5678-9abc-def012345678",
+              "industry":42
             });
           </script>
         </body>
@@ -418,7 +418,7 @@ describe('scrapeCompanyProfile', () => {
       location: 'München',
       profile_image_url: 'https://assets.kununu.com/og-image.jpg',
       profile_url: 'https://www.kununu.com/de/complete-test',
-      profile_uuid: 'abc123-def456-ghi789-jkl012-mno345pq',
+      profile_uuid: 'abc12345-def4-5678-9abc-def012345678',
     });
   });
 });
