@@ -1,5 +1,8 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {supabase} from '@/lib/supabase';
+import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -13,23 +16,78 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Add actual project creation logic here
-    // For now, generate a mock project ID
-    const projectId = `project-${Date.now()}`;
+    // Validate URL format
+    if (!isValidKununuUrl(companyUrl)) {
+      return NextResponse.json(
+        {error: 'Invalid kununu company profile URL'},
+        {status: 400},
+      );
+    }
 
-    // In a real implementation, you would:
-    // 1. Parse the company URL to extract company info
-    // 2. Create a new project record in the database
-    // 3. Return the created project ID
+    // Scrape company profile
+    let companyData;
+    try {
+      companyData = await scrapeCompanyProfile(companyUrl);
+    } catch (scrapingError) {
+      // Check if it's a missing company_name error
+      if (
+        scrapingError instanceof Error &&
+        scrapingError.message.includes('Could not extract company name')
+      ) {
+        return NextResponse.json(
+          {error: 'Could not extract required company information from profile'},
+          {status: 422},
+        );
+      }
+
+      // Other scraping errors
+      console.error('Scraping error:', scrapingError);
+      return NextResponse.json(
+        {
+          error: 'Failed to extract company information',
+          details:
+            scrapingError instanceof Error
+              ? scrapingError.message
+              : 'Unknown error',
+        },
+        {status: 500},
+      );
+    }
+
+    // Insert into database
+    const {data, error} = await supabase
+      .from('evp_projects')
+      .insert({
+        profile_url: companyData.profile_url,
+        company_name: companyData.company_name,
+        industry: companyData.industry,
+        employee_count: companyData.employee_count,
+        location: companyData.location,
+        profile_image_url: companyData.profile_image_url,
+        status: 'initialized',
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Database error:', error);
+      return NextResponse.json(
+        {error: 'Failed to create project in database', details: error.message},
+        {status: 500},
+      );
+    }
 
     return NextResponse.json(
-      {projectId},
+      {projectId: data.id},
       {status: 201},
     );
   } catch (error) {
     console.error('Error creating project:', error);
     return NextResponse.json(
-      {error: 'Failed to create project'},
+      {
+        error: 'Failed to create project',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       {status: 500},
     );
   }

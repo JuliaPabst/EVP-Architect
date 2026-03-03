@@ -17,6 +17,8 @@
   "dependencies": {
     "@kununu/common": "^21.1.1",
     "@kununu/ui": "^32.10.0",
+    "@supabase/supabase-js": "^2.98.0",
+    "cheerio": "1.0.0-rc.12",
     "next": "14.2.35",
     "react": "18.2.0",
     "react-dom": "18.2.0"
