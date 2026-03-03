@@ -12,6 +12,9 @@ import Group from '@kununu/ui/atoms/Icon/Icons/Group';
 import Handshake from '@kununu/ui/atoms/Icon/Icons/Handshake';
 import Plant from '@kununu/ui/atoms/Icon/Icons/Plant';
 import Target from '@kununu/ui/atoms/Icon/Icons/Target';
+import UnunuBackground, {
+  UnunuBackgroundColors,
+} from '@kununu/ui/atoms/UnunuBackground';
 
 import styles from './index.module.scss';
 
@@ -102,11 +105,11 @@ export default function SelectedTopicsModule({
                 </div>
               </div>
               <div className={styles.rightColumn} data-testid="right-column">
-                <img
-                  alt=""
-                  className={styles.heroImage}
-                  src="http://localhost:3845/assets/d48e8316a9b9befb9b512ff27b65c453f841d3f9.png"
-                />
+                <div className={styles.heroImage}>
+                  {' '}
+                  <img alt="" src="/hero-image-placeholder.png" />{' '}
+                  <UnunuBackground color={UnunuBackgroundColors.WHITE} />
+                </div>
                 <div
                   className={styles.badgeContainer}
                   data-testid="badge-container"

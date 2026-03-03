@@ -18,7 +18,7 @@ Created `evp_projects` table in Supabase with the following structure:
 - `created_at` (timestamp, default now())
 - `profile_url` (text, required)
 - `company_name` (text, required)
-- `industry` (text, nullable)
+- `industry` (number, nullable)
 - `employee_count` (text, nullable)
 - `location` (text, nullable)
 - `profile_image_url` (text, nullable)

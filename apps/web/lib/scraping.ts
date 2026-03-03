@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 export interface CompanyHardFacts {
   company_name: string;
   employee_count: string | null;
-  industry: string | null;
+  industry: number | null;
   location: string | null;
   profile_image_url: string | null;
   profile_url: string;
@@ -99,8 +99,8 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
  * Extracts the industry ID from the HTML
  * Looking for industry data in window.dataLayer or similar JavaScript objects
  */
-function extractIndustry($: cheerio.CheerioAPI): string | null {
-  let foundIndustry: string | null = null;
+function extractIndustry($: cheerio.CheerioAPI): number | null {
+  let foundIndustry: number | null = null;
 
   $('script').each((i, el) => {
     const content = $(el).html() || '';
@@ -109,7 +109,7 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
       const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
 
       if (industryMatch && industryMatch[1]) {
-        foundIndustry = industryMatch[1].trim();
+        foundIndustry = parseInt(industryMatch[1].trim(), 10);
         return false;
       }
     }
@@ -118,7 +118,7 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
       const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
 
       if (industryMatch && industryMatch[1]) {
-        foundIndustry = industryMatch[1].trim();
+        foundIndustry = parseInt(industryMatch[1].trim(), 10);
         return false;
       }
     }
@@ -127,7 +127,7 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
       const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
 
       if (industryMatch && industryMatch[1]) {
-        foundIndustry = industryMatch[1].trim();
+        foundIndustry = parseInt(industryMatch[1].trim(), 10);
         return false;
       }
     }

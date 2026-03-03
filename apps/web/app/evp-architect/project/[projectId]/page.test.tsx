@@ -60,7 +60,7 @@ describe('ProjectPage', () => {
       const link = screen.getByLabelText('Go to kununu');
 
       expect(link).toHaveAttribute('href', 'https://www.kununu.com/');
-      expect(screen.getByText('Lets make work better.')).toBeInTheDocument();
+      expect(screen.getByText("Let's make work better.")).toBeInTheDocument();
     });
 
     it('should render main content area', () => {

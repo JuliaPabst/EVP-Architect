@@ -15,13 +15,8 @@ import UnunuBackground, {
 
 import styles from './index.module.scss';
 
-// Regex to validate kununu profile URLs
-// Matches: https://www.kununu.com/{country_code}/{company_slug}
-// Examples: https://www.kununu.com/at/oesterreichische-post
-//           https://www.kununu.com/de/oesterreichische-post
-//           https://www.kununu.com/ch/oesterreichische-post
-const KUNUNU_PROFILE_URL_REGEX =
-  /^https:\/\/www\.kununu\.com\/[a-z]{2}\/[\w-]+\/?$/i;
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import {isValidKununuUrl} from '@/lib/scraping';
 
 export default function SearchHeader() {
   const router = useRouter();
@@ -29,15 +24,20 @@ export default function SearchHeader() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateKununuUrl = (url: string): boolean => {
-    return KUNUNU_PROFILE_URL_REGEX.test(url);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Trim the URL
+    const trimmedUrl = companyUrl.trim();
+
+    // Check for spaces within the URL
+    if (trimmedUrl.includes(' ')) {
+      setErrorMessage('URL cannot contain spaces');
+      return;
+    }
+
     // Validate the URL
-    if (!validateKununuUrl(companyUrl)) {
+    if (!isValidKununuUrl(trimmedUrl)) {
       setErrorMessage(
         'Please enter a valid kununu profile URL (e.g., https://www.kununu.com/at/company-name)',
       );
@@ -50,7 +50,7 @@ export default function SearchHeader() {
 
     try {
       const response = await fetch('/api/projects/create', {
-        body: JSON.stringify({companyUrl}),
+        body: JSON.stringify({companyUrl: trimmedUrl}),
         headers: {
           'Content-Type': 'application/json',
         },

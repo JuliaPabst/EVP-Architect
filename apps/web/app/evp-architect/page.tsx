@@ -15,7 +15,7 @@ export default function EvpArchitect() {
           <HeaderLogo
             href="https://www.kununu.com/"
             label="Go to kununu"
-            motto="Lets make work better."
+            motto="Let's make work better."
           />
         }
       />

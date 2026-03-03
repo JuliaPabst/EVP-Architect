@@ -251,6 +251,22 @@ return false;
   - ✗ Test that `preventDefault()` was called
 - If you need form submission, click the submit button rather than submitting the form directly
 
+### Test Coverage Requirements
+- **Minimum coverage target**: 80% for all metrics (statements, branches, functions, lines)
+- Run coverage checks with: `pnpm run test:coverage`
+- Coverage is enforced in the validation pipeline: `pnpm run validate`
+- Focus on testing:
+  - API route handlers (input validation, error handling, success flows)
+  - Business logic in `/lib` (scraping, LLM calls, database operations)
+  - UI components with user interactions (form submissions, state changes, error displays)
+- Exclude from coverage:
+  - Configuration files (`*.config.{js,ts}`)
+  - Type definitions (`*.d.ts`)
+  - Story files (`*.stories.{js,jsx,ts,tsx}`)
+  - Test files themselves
+- Write meaningful tests, not just tests for coverage numbers
+- All new features must include tests before being merged
+
 ### Consistent Returns in Callbacks
 - Always return a value in `.each()` callbacks (return `false` to break, `undefined` to continue)
 - TypeScript expects consistent return types

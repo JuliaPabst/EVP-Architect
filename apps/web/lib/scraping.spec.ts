@@ -111,7 +111,7 @@ describe('scrapeCompanyProfile', () => {
       'https://www.kununu.com/de/test-company',
     );
 
-    expect(result.industry).toBe('13');
+    expect(result.industry).toBe(13);
   });
 
   it('should extract profile_uuid from window.dataLayer', async () => {
@@ -414,7 +414,7 @@ describe('scrapeCompanyProfile', () => {
     expect(result).toMatchObject({
       company_name: 'Complete Test Company',
       employee_count: '1.500',
-      industry: '42',
+      industry: 42,
       location: 'München',
       profile_image_url: 'https://assets.kununu.com/og-image.jpg',
       profile_url: 'https://www.kununu.com/de/complete-test',
