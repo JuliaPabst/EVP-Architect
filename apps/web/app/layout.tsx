@@ -1,6 +1,6 @@
 import type {Metadata} from 'next';
-import './fonts.css';
-import './globals.css';
+import './fonts.scss';
+import './globals.scss';
 import './kununu-styles.scss';
 
 export const metadata: Metadata = {

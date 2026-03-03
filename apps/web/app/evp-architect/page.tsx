@@ -3,8 +3,8 @@
 import React from 'react';
 import Header from '@kununu/ui/organisms/Header';
 import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
-import SearchHeader from '../components/SearchHeader';
-import SelectedTopicsModule from '../components/SelectedTopicsModule';
+import SearchHeader from '../components/StartPage/SearchHeader';
+import SelectedTopicsModule from '../components/StartPage/SelectedTopicsModule';
 
 export default function EvpArchitect() {
   return (

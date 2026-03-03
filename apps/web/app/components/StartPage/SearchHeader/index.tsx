@@ -11,7 +11,7 @@ import UnunuBackground, {
   UnunuBackgroundColors,
 } from '@kununu/ui/atoms/UnunuBackground';
 
-import styles from './SearchHeader.module.css';
+import styles from './index.module.scss';
 
 // Regex to validate kununu profile URLs
 // Matches: https://www.kununu.com/{country_code}/{company_slug}

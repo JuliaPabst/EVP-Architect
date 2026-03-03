@@ -14,7 +14,7 @@ import Handshake from '@kununu/ui/atoms/Icon/Icons/Handshake';
 import Chat from '@kununu/ui/atoms/Icon/Icons/Chat';
 import Target from '@kununu/ui/atoms/Icon/Icons/Target';
 
-import styles from './SelectedTopicsModule.module.css';
+import styles from './index.module.scss';
 
 export interface Topic {
   id: string;
