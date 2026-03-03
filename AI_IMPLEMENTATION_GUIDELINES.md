@@ -242,9 +242,14 @@ return false;
 ```
 
 ### Testing Best Practices
-- Prefer Testing Library queries over direct DOM access
-- Use `getByRole`, `getByText` instead of `container.querySelector`
-- Warnings for `testing-library/no-node-access` are acceptable in complex cases
+- **Never use direct DOM node access** in tests (`testing-library/no-node-access`)
+- Avoid: `.closest()`, `.querySelector()`, `.parentElement`, `.dispatchEvent()`
+- Use Testing Library queries: `screen.getByRole()`, `screen.getByText()`, `screen.getByPlaceholderText()`
+- Simulate user interactions: `fireEvent.click(button)` instead of `fireEvent.submit(form)`
+- Test user-facing behavior, not implementation details
+  - ✓ Test that error messages appear after invalid input
+  - ✗ Test that `preventDefault()` was called
+- If you need form submission, click the submit button rather than submitting the form directly
 
 ### Consistent Returns in Callbacks
 - Always return a value in `.each()` callbacks (return `false` to break, `undefined` to continue)
@@ -277,6 +282,25 @@ const [, extractedValue] = match;
 ### Accessibility
 - Never use `<a href="#">` - use `<button>` instead for non-navigation links
 - Ensure all interactive elements have proper semantics
+
+### SCSS/Stylelint Rules
+- **Property ordering**: Follow the `@kununu/stylelint-config` order (typography, box, border, visuals, etc.)
+  - Example: `font-weight` must come before `font-family`, `width` before `max-width`, `gap` before `align-items`
+- **Color functions**: Use `rgb()` with **legacy comma-separated format** for hardcoded colors
+  - ✓ Correct: `rgb(0, 0, 0, 0.08)` or `box-shadow: 0 4px 8px rgb(0, 0, 0, 0.08);`
+  - ✗ Wrong: `rgba(0, 0, 0, 0.08)` or `rgb(0 0 0 / 0.08)` or `rgb(0 0 0 / 8%)`
+  - Note: Modern space-separated syntax `rgb(0 0 0 / 0.08)` conflicts with stylelint config
+- **Alpha values**: Use decimals (0.08), not percentages (8%)
+- **Font-family quotes**: Remove quotes from single-word font names
+  - ✓ Correct: `font-family: Inter;`
+  - ✗ Wrong: `font-family: 'Inter';`
+  - Keep quotes for multi-word fonts: `font-family: 'Sharp Grotesk Semibold';`
+- **SCSS variables with alpha**: When using SCSS color variables with transparency, use `rgba()` with disable comment
+  - Example: `/* stylelint-disable-next-line color-function-alias-notation */`
+  - Then use: `background: rgba(colors.$kun-color-bg-white, 0.8);`
+- **Keyframe naming**: Use kebab-case for keyframe names
+  - ✓ Correct: `@keyframes fade-in-up`
+  - ✗ Wrong: `@keyframes fadeInUp`
 
 **Run linting frequently:**
 ```bash

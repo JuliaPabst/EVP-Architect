@@ -4,21 +4,22 @@
 
 .topicsModule {
   position: relative;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: spacings.$kun-spacing-3xl spacings.$kun-spacing-2xl spacings.$kun-spacing-2xl;
+  width: 100%;
+  padding: spacings.$kun-spacing-3xl spacings.$kun-spacing-2xl
+    spacings.$kun-spacing-2xl;
   background-color: colors.$kun-color-bg-white;
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: spacings.$kun-spacing-2xl;
-  max-width: 1232px;
+  align-items: center;
   width: 100%;
+  max-width: 1232px;
 }
 
 .contentWrapper {
@@ -26,7 +27,8 @@
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  padding: spacings.$kun-spacing-l 0 spacings.$kun-spacing-l spacings.$kun-spacing-s;
+  padding: spacings.$kun-spacing-l 0 spacings.$kun-spacing-l
+    spacings.$kun-spacing-s;
 }
 
 .card {
@@ -35,10 +37,10 @@
   align-items: flex-start;
   width: 100%;
   border-radius: spacings.$kun-spacing-2xs;
-  box-shadow: 
-    0 spacings.$kun-spacing-4xs spacings.$kun-spacing-2xs rgba(0, 0, 0, 0.04),
-    0 spacings.$kun-spacing-2xs spacings.$kun-spacing-s rgba(0, 0, 0, 0.08),
-    0 spacings.$kun-spacing-s spacings.$kun-spacing-l rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 spacings.$kun-spacing-4xs spacings.$kun-spacing-2xs rgb(0, 0, 0, 0.04),
+    0 spacings.$kun-spacing-2xs spacings.$kun-spacing-s rgb(0, 0, 0, 0.08),
+    0 spacings.$kun-spacing-s spacings.$kun-spacing-l rgb(0, 0, 0, 0.12);
   overflow: hidden;
 }
 
@@ -46,39 +48,39 @@
   display: flex;
   gap: spacings.$kun-spacing-2xl;
   align-items: flex-start;
+  width: 100%;
   padding: spacings.$kun-spacing-l;
   background-color: colors.$kun-color-bg-white;
-  width: 100%;
 }
 
 .leftColumn {
   display: flex;
   flex: 1;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
   gap: spacings.$kun-spacing-s;
+  justify-content: center;
+  align-items: flex-start;
   min-width: 0;
 }
 
 .heading {
-  font-family: 'Sharp Grotesk Semibold', sans-serif;
-  font-size: 20px;
+  width: 100%;
+  margin: 0;
+  color: colors.$kun-color-text-title;
   font-weight: 600;
+  font-size: 20px;
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
   line-height: 28px;
   letter-spacing: 0.2px;
-  color: colors.$kun-color-text-title;
-  margin: 0;
-  width: 100%;
 }
 
 .description {
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 22px;
-  color: colors.$kun-color-text-primary;
   width: 100%;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  line-height: 22px;
 }
 
 .description p {
@@ -93,8 +95,8 @@
 .stepsList {
   margin: 0;
   padding-left: 0;
-  list-style-type: decimal;
   list-style-position: inside;
+  list-style-type: decimal;
 }
 
 .stepsList li {
@@ -106,9 +108,9 @@
 
 .rightColumn {
   position: relative;
+  flex-shrink: 0;
   width: 233px;
   height: 346px;
-  flex-shrink: 0;
 }
 
 .heroImage {
@@ -129,8 +131,8 @@
 
 .badge {
   position: absolute;
-  animation: fadeInUp 0.6s ease-out forwards;
   opacity: 0;
+  animation: fade-in-up 0.6s ease-out forwards;
 }
 
 /* Positioning for each badge to create the attractive layout */
@@ -164,11 +166,12 @@
   left: 49px;
 }
 
-@keyframes fadeInUp {
+@keyframes fade-in-up {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -187,28 +190,29 @@
   }
 
   .rightColumn {
+    align-self: center;
     width: 100%;
     height: 200px;
-    align-self: center;
   }
 
   .badgeContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: spacings.$kun-spacing-xs;
+    justify-content: center;
   }
 
   .badge {
     position: static;
-    animation: fadeIn 0.4s ease-out forwards;
+    animation: fade-in 0.4s ease-out forwards;
   }
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
