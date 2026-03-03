@@ -7,6 +7,7 @@ export interface CompanyHardFacts {
   location: string | null;
   profile_image_url: string | null;
   profile_url: string;
+  profile_uuid: string | null;
 }
 
 /**
@@ -50,13 +51,19 @@ async function fetchHtml(url: string): Promise<string> {
  */
 function extractCompanyName($: cheerio.CheerioAPI): string | null {
   // First try the structured kununu format with specific classes
-  const nameContainer = $('h1 .index__title__0q4vx, h1.index__container__ZSjKg');
-  if (nameContainer.length) {
+  // Target only the title div, not the subtitle
+  const titleDiv = $('.index__title__0q4vx');
+  if (titleDiv.length) {
     // Get all text parts and join them
-    const text = nameContainer.text().replace(/\s+/g, ' ').trim();
-    // Remove " als Arbeitgeber" suffix if present
-    const cleanText = text.replace(/\s+als Arbeitgeber\s*$/i, '').trim();
-    if (cleanText) return cleanText;
+    const text = titleDiv.text().replace(/\s+/g, ' ').trim();
+    if (text) return text;
+  }
+
+  // Try to extract from the nameStart and nameEnd divs specifically
+  const nameStart = $('.index__nameStart__jZu5l').text().trim();
+  const nameEnd = $('.index__nameEndText__ICZGu').text().trim();
+  if (nameStart || nameEnd) {
+    return `${nameStart} ${nameEnd}`.trim();
   }
 
   // Fallback to simpler selectors
@@ -80,32 +87,106 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
 }
 
 /**
- * Extracts the industry from the HTML
- * Looking for "Branchendurchschnitt: {industry}" pattern in the DOM
+ * Extracts the industry ID from the HTML
+ * Looking for industry data in window.dataLayer or similar JavaScript objects
  */
 function extractIndustry($: cheerio.CheerioAPI): string | null {
-  // Look for text containing "Branchendurchschnitt: " followed by the industry name
-  const bodyText = $('body').text();
+  // Look for industry ID in script tags containing window objects
+  let foundIndustry: string | null = null;
   
-  // Match the pattern with various possible characters after the colon
-  const match = bodyText.match(/Branchendurchschnitt:\s*([^\n]+?)(?=\s{2,}|$)/i);
-  if (match && match[1]) {
-    const industry = match[1].trim();
-    // Make sure we got a real industry name, not just whitespace or short text
-    if (industry.length > 2) {
-      return industry;
+  $('script').each((i, el) => {
+    const content = $(el).html() || '';
+    
+    // Look for industry in window.dataLayer
+    if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
+      // Try to match "industry":"value"
+      const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+      if (industryMatch && industryMatch[1]) {
+        foundIndustry = industryMatch[1].trim();
+        return false; // Break the loop
+      }
     }
-  }
+    
+    // Look for industry in __NEXT_DATA__ or other structured data
+    if (content.includes('__NEXT_DATA__') || content.includes('window.__')) {
+      const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+      if (industryMatch && industryMatch[1]) {
+        foundIndustry = industryMatch[1].trim();
+        return false;
+      }
+    }
+    
+    // Look for any window variable with industry data
+    if (content.includes('window.')) {
+      const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+      if (industryMatch && industryMatch[1]) {
+        foundIndustry = industryMatch[1].trim();
+        return false;
+      }
+    }
+  });
 
-  return null;
+  return foundIndustry;
+}
+
+/**
+ * Extracts the profile UUID from the HTML
+ * Looking for uuid data in window.dataLayer
+ */
+function extractProfileUuid($: cheerio.CheerioAPI): string | null {
+  let foundUuid: string | null = null;
+  
+  $('script').each((i, el) => {
+    const content = $(el).html() || '';
+    
+    // Look for uuid in window.dataLayer
+    if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
+      // Try to match "uuid":"value" (UUID format with hyphens)
+      const uuidMatch = content.match(/"uuid"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/i);
+      if (uuidMatch && uuidMatch[1]) {
+        foundUuid = uuidMatch[1].trim();
+        return false; // Break the loop
+      }
+    }
+  });
+
+  return foundUuid;
 }
 
 /**
  * Extracts the employee count from the HTML
- * kununu displays this as "51-100 Mitarbeiter", etc.
+ * kununu displays this in the metrics section as "Mitarbeitende: 390" or ranges like "51-100 Mitarbeiter"
+ * Numbers may be formatted with dots as thousand separators (e.g., "600.000")
  */
 function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
-  // Look for employee count in data-testid attributes
+  // First priority: Look for "Mitarbeitende" label in metrics section
+  // This is typically in the company metrics/kennzahlen area
+  let employeeCount: string | null = null;
+  
+  $('.index__metricsContainer__yi\\+nh, [class*="metricsContainer"]').each((i, el) => {
+    const labelText = $(el).find('[class*="label"]').text();
+    if (labelText.includes('Mitarbeitende')) {
+      // Get the value from the next element or span
+      const valueText = $(el).find('span').last().text().trim();
+      // Extract number with optional thousand separators (dots) or ranges
+      const numberMatch = valueText.match(/(\d+(?:\.\d{3})*|\d+[-–]\d+(?:\.\d{3})*|\d+\+?)/);
+      if (numberMatch && numberMatch[1]) {
+        employeeCount = numberMatch[1];
+        return false; // Break the loop
+      }
+    }
+  });
+  
+  if (employeeCount) return employeeCount;
+
+  // Second priority: Look for direct pattern "Mitarbeitende" followed by number
+  // Handle German number formatting with dots (e.g., 600.000)
+  const mitarbeitendeMatch = $('body').text().match(/Mitarbeitende[:\s]+(?:Rund\s+)?(\d+(?:\.\d{3})*|\d+[-–]\d+)/i);
+  if (mitarbeitendeMatch && mitarbeitendeMatch[1]) {
+    return mitarbeitendeMatch[1];
+  }
+
+  // Third priority: Look for employee count in data-testid attributes
   const selectors = [
     '[data-testid*="employee"]',
     '[data-testid="/company-info"]',
@@ -117,16 +198,17 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
     const element = $(selector);
     if (element.length) {
       const text = element.text();
-      // Look for patterns like "51-100 Mitarbeiter"
-      const match = text.match(/(\d+[-–]\d+|\d+\+?)\s*Mitarbeiter/i);
+      // Look for patterns like "51-100 Mitarbeiter" or "600.000 Mitarbeiter"
+      const match = text.match(/(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter/i);
       if (match && match[1]) return match[1];
     }
   }
 
-  // Search entire body for patterns like "51-100 Mitarbeiter"
+  // Last fallback: Search entire body for patterns like "51-100 Mitarbeiter"
+  // But avoid patterns that are clearly from benefits descriptions
   const bodyText = $('body').text();
   const employeeMatch = bodyText.match(
-    /(\d+[-–]\d+|\d+\+?)\s*Mitarbeiter/i,
+    /(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter(?!:innen\s+bestätigt)/i,
   );
   if (employeeMatch && employeeMatch[1]) {
     return employeeMatch[1];
@@ -251,6 +333,7 @@ export async function scrapeCompanyProfile(
   const employee_count = extractEmployeeCount($);
   const location = extractLocation($);
   const profile_image_url = extractProfileImageUrl($);
+  const profile_uuid = extractProfileUuid($);
 
   return {
     company_name,
@@ -259,5 +342,6 @@ export async function scrapeCompanyProfile(
     location,
     profile_image_url,
     profile_url: url,
+    profile_uuid,
   };
 }

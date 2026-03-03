@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
         employee_count: companyData.employee_count,
         location: companyData.location,
         profile_image_url: companyData.profile_image_url,
+        profile_uuid: companyData.profile_uuid,
         status: 'initialized',
       })
       .select('id')
