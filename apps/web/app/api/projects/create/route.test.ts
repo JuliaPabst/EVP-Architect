@@ -5,6 +5,11 @@ import {NextRequest} from 'next/server';
 
 import {POST} from './route';
 
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import {supabase} from '@/lib/supabase';
+
 // Mock external dependencies
 jest.mock('@/lib/scraping', () => ({
   isValidKununuUrl: jest.fn(),
@@ -17,17 +22,13 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
-import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
-// eslint-disable-next-line import/extensions, import/no-unresolved
-import {supabase} from '@/lib/supabase';
-
 describe('POST /api/projects/create', () => {
   const mockIsValidKununuUrl = isValidKununuUrl as jest.MockedFunction<
     typeof isValidKununuUrl
   >;
-  const mockScrapeCompanyProfile =
-    scrapeCompanyProfile as jest.MockedFunction<typeof scrapeCompanyProfile>;
+  const mockScrapeCompanyProfile = scrapeCompanyProfile as jest.MockedFunction<
+    typeof scrapeCompanyProfile
+  >;
   const mockSupabaseFrom = supabase.from as jest.MockedFunction<
     typeof supabase.from
   >;
@@ -62,7 +63,9 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(400);
     expect(data).toEqual({error: 'Invalid kununu company profile URL'});
-    expect(mockIsValidKununuUrl).toHaveBeenCalledWith('https://invalid-url.com');
+    expect(mockIsValidKununuUrl).toHaveBeenCalledWith(
+      'https://invalid-url.com',
+    );
   });
 
   it('should return 422 when company name cannot be extracted', async () => {
@@ -144,7 +147,7 @@ describe('POST /api/projects/create', () => {
           }),
         }),
       }),
-    } as any);
+    } as unknown as ReturnType<typeof supabase.from>);
 
     const request = new NextRequest('http://localhost/api/projects/create', {
       body: JSON.stringify({companyUrl: 'https://kununu.com/de/company'}),
@@ -184,7 +187,7 @@ describe('POST /api/projects/create', () => {
 
     mockSupabaseFrom.mockReturnValue({
       insert: mockInsert,
-    } as any);
+    } as unknown as ReturnType<typeof supabase.from>);
 
     const request = new NextRequest('http://localhost/api/projects/create', {
       body: JSON.stringify({companyUrl: 'https://kununu.com/de/company'}),
@@ -227,7 +230,7 @@ describe('POST /api/projects/create', () => {
   it('should handle non-Error exceptions in main try-catch', async () => {
     const request = {
       json: jest.fn().mockRejectedValue('non-error object'),
-    } as any;
+    } as unknown as NextRequest;
 
     const response = await POST(request);
     const data = await response.json();
@@ -260,7 +263,7 @@ describe('POST /api/projects/create', () => {
           }),
         }),
       }),
-    } as any);
+    } as unknown as ReturnType<typeof supabase.from>);
 
     const request = new NextRequest('http://localhost/api/projects/create', {
       body: JSON.stringify({

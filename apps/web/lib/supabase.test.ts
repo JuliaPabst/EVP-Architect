@@ -1,5 +1,3 @@
-import {createClient} from '@supabase/supabase-js';
-
 // Set up environment before importing
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-key';
@@ -8,6 +6,7 @@ describe('supabase', () => {
   it('should export supabase client as named export', () => {
     // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
     const {supabase} = require('./supabase');
+
     expect(supabase).toBeDefined();
     expect(typeof supabase).toBe('object');
   });
@@ -15,6 +14,7 @@ describe('supabase', () => {
   it('should export supabase client as default export', () => {
     // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
     const supabaseDefault = require('./supabase').default;
+
     expect(supabaseDefault).toBeDefined();
     expect(typeof supabaseDefault).toBe('object');
   });
@@ -22,6 +22,7 @@ describe('supabase', () => {
   it('should create supabase client with correct environment variables', () => {
     // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
     const {supabase} = require('./supabase');
+
     // Verify the client was created (it will have typical Supabase client properties)
     expect(supabase).toHaveProperty('auth');
     expect(supabase).toHaveProperty('from');
@@ -32,6 +33,7 @@ describe('supabase', () => {
     const {supabase} = require('./supabase');
     // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
     const supabaseDefault = require('./supabase').default;
+
     expect(supabase).toBe(supabaseDefault);
   });
 });

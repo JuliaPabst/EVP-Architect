@@ -82,7 +82,12 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
     if (element.length) {
       let text = element.text().replace(/\s+/g, ' ').trim();
 
-      text = text.replace(/\s+als Arbeitgeber\s*$/i, '').trim();
+      // Remove "als Arbeitgeber" suffix safely without regex backtracking
+      const suffix = ' als Arbeitgeber';
+
+      if (text.toLowerCase().endsWith(suffix.toLowerCase())) {
+        text = text.slice(0, -suffix.length).trim();
+      }
       if (text) return text;
     }
   }
