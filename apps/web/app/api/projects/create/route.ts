@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Other scraping errors
-      console.error('Scraping error:', scrapingError);
       return NextResponse.json(
         {
           details:
@@ -78,7 +77,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Database error:', error);
       return NextResponse.json(
         {details: error.message, error: 'Failed to create project in database'},
         {status: 500},
@@ -87,7 +85,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({projectId: data.id}, {status: 201});
   } catch (error) {
-    console.error('Error creating project:', error);
     return NextResponse.json(
       {
         details: error instanceof Error ? error.message : 'Unknown error',

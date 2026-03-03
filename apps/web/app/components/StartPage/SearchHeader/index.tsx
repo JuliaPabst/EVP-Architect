@@ -66,7 +66,6 @@ export default function SearchHeader() {
       // Redirect to the project page on success
       router.push(`/evp-architect/project/${data.projectId}`);
     } catch (error) {
-      console.error('Error creating project:', error);
       setErrorMessage(
         'Sorry, this should not have happened. Please, try again later.',
       );
@@ -84,7 +83,7 @@ export default function SearchHeader() {
   };
 
   return (
-    <section className={styles.searchHeaderWrapper}>
+    <section className={styles.searchHeaderWrapper} data-testid="search-header">
       <UnunuBackground color={UnunuBackgroundColors.YELLOW} />
       <div className={styles.searchHeader}>
         <div className={styles.content}>

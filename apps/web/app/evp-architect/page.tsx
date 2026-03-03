@@ -8,8 +8,9 @@ import SelectedTopicsModule from '../components/StartPage/SelectedTopicsModule';
 
 export default function EvpArchitect() {
   return (
-    <div>
+    <div data-testid="evp-architect-page">
       <Header
+        data-testid="header"
         logo={
           <HeaderLogo
             href="https://www.kununu.com/"

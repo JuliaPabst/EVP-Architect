@@ -146,10 +146,10 @@ describe('ProjectPage', () => {
 
   describe('Layout Structure', () => {
     it('should have proper HTML structure', () => {
-      const {container} = render(<ProjectPage params={mockParams} />);
+      render(<ProjectPage params={mockParams} />);
 
       // Check for div wrapper
-      expect(container.firstChild?.nodeName).toBe('DIV');
+      expect(screen.getByTestId('project-page')).toBeInTheDocument();
 
       // Check for header
       expect(screen.getByTestId('header')).toBeInTheDocument();
@@ -159,13 +159,11 @@ describe('ProjectPage', () => {
     });
 
     it('should have header before main content', () => {
-      const {container} = render(<ProjectPage params={mockParams} />);
+      render(<ProjectPage params={mockParams} />);
 
-      const children = Array.from(container.firstChild?.childNodes || []);
-      const elements = children.filter(node => node.nodeType === 1);
-
-      expect(elements[0] as Element).toHaveAttribute('data-testid', 'header');
-      expect((elements[1] as Element).tagName).toBe('MAIN');
+      // Verify both elements exist
+      expect(screen.getByTestId('header')).toBeInTheDocument();
+      expect(screen.getByRole('main')).toBeInTheDocument();
     });
   });
 

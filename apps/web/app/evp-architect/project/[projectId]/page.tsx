@@ -13,8 +13,9 @@ export default function ProjectPage({params}: ProjectPageProps) {
   const {projectId} = params;
 
   return (
-    <div>
+    <div data-testid="project-page">
       <Header
+        data-testid="header"
         logo={
           <HeaderLogo
             href="https://www.kununu.com/"

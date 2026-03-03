@@ -178,38 +178,33 @@ describe('SelectedTopicsModule', () => {
 
   describe('Layout and structure', () => {
     it('should have a section element', () => {
-      const {container} = render(<SelectedTopicsModule />);
+      render(<SelectedTopicsModule />);
 
-      const section = container.querySelector('section');
+      const section = screen.getByTestId('topics-module');
 
       expect(section).toBeInTheDocument();
+      expect(section.tagName).toBe('SECTION');
     });
 
     it('should have content wrapper structure', () => {
-      const {container} = render(<SelectedTopicsModule />);
+      render(<SelectedTopicsModule />);
 
-      const section = container.querySelector('section');
+      const content = screen.getByTestId('topics-content');
 
-      expect(section?.querySelector('[class*="content"]')).toBeInTheDocument();
+      expect(content).toBeInTheDocument();
     });
 
     it('should have left and right columns', () => {
-      const {container} = render(<SelectedTopicsModule />);
+      render(<SelectedTopicsModule />);
 
-      expect(
-        container.querySelector('[class*="leftColumn"]'),
-      ).toBeInTheDocument();
-      expect(
-        container.querySelector('[class*="rightColumn"]'),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId('left-column')).toBeInTheDocument();
+      expect(screen.getByTestId('right-column')).toBeInTheDocument();
     });
 
     it('should have badge container in right column', () => {
-      const {container} = render(<SelectedTopicsModule />);
+      render(<SelectedTopicsModule />);
 
-      expect(
-        container.querySelector('[class*="badgeContainer"]'),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId('badge-container')).toBeInTheDocument();
     });
   });
 
@@ -249,13 +244,9 @@ describe('SelectedTopicsModule', () => {
         },
       ];
 
-      const {container} = render(
-        <SelectedTopicsModule topics={customTopics} />,
-      );
+      render(<SelectedTopicsModule topics={customTopics} />);
 
-      const badgeContainer = container.querySelector(
-        '[class*="badgeContainer"]',
-      );
+      const badgeContainer = screen.getByTestId('badge-container');
 
       expect(badgeContainer).toBeInTheDocument();
 
@@ -302,9 +293,9 @@ describe('SelectedTopicsModule', () => {
 
   describe('Accessibility', () => {
     it('should have proper semantic HTML structure', () => {
-      const {container} = render(<SelectedTopicsModule />);
+      render(<SelectedTopicsModule />);
 
-      const heading = container.querySelector('h3');
+      const heading = screen.getByRole('heading', {level: 3});
 
       expect(heading).toBeInTheDocument();
 

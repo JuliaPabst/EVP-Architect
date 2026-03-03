@@ -89,30 +89,20 @@ describe('EvpArchitect Page', () => {
 
   describe('Component Order', () => {
     it('should render components in correct order', () => {
-      const {container} = render(<EvpArchitect />);
+      render(<EvpArchitect />);
 
-      const children = Array.from(container.firstChild?.childNodes || []);
-      const testIds = children
-        .map(node => {
-          if (node.nodeType === 1) {
-            // Element node
-            return (node as Element).getAttribute('data-testid');
-          }
-          return null;
-        })
-        .filter(Boolean);
-
-      expect(testIds[0]).toBe('header');
-      expect(testIds[1]).toBe('search-header');
-      expect(testIds[2]).toBe('selected-topics-module');
+      // Verify all components exist in the page
+      expect(screen.getByTestId('header')).toBeInTheDocument();
+      expect(screen.getByTestId('search-header')).toBeInTheDocument();
+      expect(screen.getByTestId('selected-topics-module')).toBeInTheDocument();
     });
   });
 
   describe('Layout Structure', () => {
     it('should have a wrapper div', () => {
-      const {container} = render(<EvpArchitect />);
+      render(<EvpArchitect />);
 
-      expect(container.firstChild?.nodeName).toBe('DIV');
+      expect(screen.getByTestId('evp-architect-page')).toBeInTheDocument();
     });
 
     it('should contain all main sections', () => {

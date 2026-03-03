@@ -76,12 +76,12 @@ export default function SelectedTopicsModule({
   topics = defaultTopics,
 }: SelectedTopicsModuleProps) {
   return (
-    <section className={styles.topicsModule}>
-      <div className={styles.content}>
+    <section className={styles.topicsModule} data-testid="topics-module">
+      <div className={styles.content} data-testid="topics-content">
         <div className={styles.contentWrapper}>
           <div className={styles.card}>
             <div className={styles.cardContent}>
-              <div className={styles.leftColumn}>
+              <div className={styles.leftColumn} data-testid="left-column">
                 <h3 className={styles.heading}>{heading}</h3>
                 <div className={styles.description}>
                   <p>{description}</p>
@@ -101,13 +101,16 @@ export default function SelectedTopicsModule({
                   </ol>
                 </div>
               </div>
-              <div className={styles.rightColumn}>
+              <div className={styles.rightColumn} data-testid="right-column">
                 <img
                   alt=""
                   className={styles.heroImage}
                   src="http://localhost:3845/assets/d48e8316a9b9befb9b512ff27b65c453f841d3f9.png"
                 />
-                <div className={styles.badgeContainer}>
+                <div
+                  className={styles.badgeContainer}
+                  data-testid="badge-container"
+                >
                   {topics.map((topic, index) => (
                     <div
                       className={styles.badge}
