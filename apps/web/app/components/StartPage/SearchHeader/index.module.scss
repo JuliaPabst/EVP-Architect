@@ -1,4 +1,6 @@
 /* SearchHeader styles matching Figma design */
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
 
 .searchHeaderWrapper {
   position: relative;
@@ -12,10 +14,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 24px; /* py: space-3xl (64px), px: space-m (24px) */
+  padding: spacings.$kun-spacing-3xl spacings.$kun-spacing-m;
   position: relative;
   width: 100%;
-  box-shadow: 0px 24px 32px -32px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px spacings.$kun-spacing-m spacings.$kun-spacing-l calc(-1 * spacings.$kun-spacing-l) rgba(0, 0, 0, 0.08);
 }
 
 .content {
@@ -32,7 +34,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: spacings.$kun-spacing-m;
   width: 100%;
 }
 
@@ -48,7 +50,7 @@
   font-weight: 700;
   line-height: 44px;
   letter-spacing: -0.5px;
-  color: #1b1c20; /* Text/Dark/90 */
+  color: colors.$kun-color-text-title;
   text-align: center;
   margin: 0;
 }
@@ -65,7 +67,7 @@
   font-weight: 500;
   line-height: 24px;
   letter-spacing: 0.3px;
-  color: #333438; /* Text/Dark/80 */
+  color: colors.$kun-color-text-primary;
   text-align: center;
   opacity: 0.96;
   margin: 0;
@@ -73,12 +75,12 @@
 
 .inputForm {
   display: flex;
-  gap: 8px; /* space-2xs */
+  gap: spacings.$kun-spacing-2xs;
   align-items: stretch;
-  padding: 16px; /* space-s */
-  background: rgba(255, 255, 255, 0.8);
+  padding: spacings.$kun-spacing-s;
+  background: rgba(colors.$kun-color-bg-white, 0.8);
   backdrop-filter: blur(20px);
-  border-radius: 8px; /* space-2xs */
+  border-radius: spacings.$kun-spacing-2xs;
   max-width: 608px;
   width: 100%;
 }
@@ -91,7 +93,7 @@
 .errorWrapper {
   width: 100%;
   max-width: 608px;
-  margin-top: -16px; /* Adjust spacing after form */
+  margin-top: calc(-1 * spacings.$kun-spacing-s);
 }
 
 .linkWrapper {
@@ -106,7 +108,7 @@
   font-weight: 500;
   line-height: 24px;
   letter-spacing: -0.2px;
-  color: #333438; /* Text/Dark/80 */
+  color: colors.$kun-color-text-primary;
   text-align: center;
   text-decoration: underline;
   text-decoration-skip-ink: none;
@@ -115,13 +117,13 @@
 }
 
 .link:hover {
-  color: #1b1c20;
+  color: colors.$kun-color-text-title;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .searchHeader {
-    padding: 48px 16px;
+    padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-s;
   }
 
   .mainHeading {

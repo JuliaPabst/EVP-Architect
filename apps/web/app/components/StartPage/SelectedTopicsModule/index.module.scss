@@ -1,4 +1,6 @@
 /* SelectedTopicsModule styles matching Figma design */
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
 
 .topicsModule {
   position: relative;
@@ -6,15 +8,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 64px 48px 48px;
-  background-color: white;
+  padding: spacings.$kun-spacing-3xl spacings.$kun-spacing-2xl spacings.$kun-spacing-2xl;
+  background-color: colors.$kun-color-bg-white;
 }
 
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 48px;
+  gap: spacings.$kun-spacing-2xl;
   max-width: 1232px;
   width: 100%;
 }
@@ -24,7 +26,7 @@
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  padding: 32px 0 32px 16px;
+  padding: spacings.$kun-spacing-l 0 spacings.$kun-spacing-l spacings.$kun-spacing-s;
 }
 
 .card {
@@ -32,20 +34,20 @@
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  border-radius: 8px;
+  border-radius: spacings.$kun-spacing-2xs;
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 8px 16px rgba(0, 0, 0, 0.08),
-    0 16px 32px rgba(0, 0, 0, 0.12);
+    0 spacings.$kun-spacing-4xs spacings.$kun-spacing-2xs rgba(0, 0, 0, 0.04),
+    0 spacings.$kun-spacing-2xs spacings.$kun-spacing-s rgba(0, 0, 0, 0.08),
+    0 spacings.$kun-spacing-s spacings.$kun-spacing-l rgba(0, 0, 0, 0.12);
   overflow: hidden;
 }
 
 .cardContent {
   display: flex;
-  gap: 48px;
+  gap: spacings.$kun-spacing-2xl;
   align-items: flex-start;
-  padding: 32px;
-  background-color: white;
+  padding: spacings.$kun-spacing-l;
+  background-color: colors.$kun-color-bg-white;
   width: 100%;
 }
 
@@ -55,7 +57,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 16px;
+  gap: spacings.$kun-spacing-s;
   min-width: 0;
 }
 
@@ -65,7 +67,7 @@
   font-weight: 600;
   line-height: 28px;
   letter-spacing: 0.2px;
-  color: #1b1c20;
+  color: colors.$kun-color-text-title;
   margin: 0;
   width: 100%;
 }
@@ -75,17 +77,17 @@
   font-size: 15px;
   font-weight: 400;
   line-height: 22px;
-  color: #333438;
+  color: colors.$kun-color-text-primary;
   width: 100%;
 }
 
 .description p {
-  margin: 0 0 8px 0;
+  margin: 0 0 spacings.$kun-spacing-2xs 0;
 }
 
 .stepsHeading {
-  margin-top: 8px !important;
-  margin-bottom: 4px !important;
+  margin-top: spacings.$kun-spacing-2xs !important;
+  margin-bottom: spacings.$kun-spacing-3xs !important;
 }
 
 .stepsList {
@@ -133,7 +135,7 @@
 
 /* Positioning for each badge to create the attractive layout */
 .badge:nth-child(1) {
-  top: 24px;
+  top: spacings.$kun-spacing-m;
   left: 26px;
 }
 
@@ -149,7 +151,7 @@
 
 .badge:nth-child(4) {
   top: 212px;
-  left: 12px;
+  left: spacings.$kun-spacing-xs;
 }
 
 .badge:nth-child(5) {
@@ -176,12 +178,12 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .topicsModule {
-    padding: 32px 24px;
+    padding: spacings.$kun-spacing-l spacings.$kun-spacing-m;
   }
 
   .cardContent {
     flex-direction: column;
-    gap: 32px;
+    gap: spacings.$kun-spacing-l;
   }
 
   .rightColumn {
@@ -194,7 +196,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
+    gap: spacings.$kun-spacing-xs;
   }
 
   .badge {
