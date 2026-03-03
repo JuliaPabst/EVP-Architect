@@ -90,7 +90,7 @@ Created server-side Supabase client using service role key for database operatio
 #### 5. Dependencies
 
 Added to `package.json`:
-- `cheerio@1.2.0` - HTML parsing
+- `cheerio@1.0.0-rc.12` - HTML parsing
 - `@supabase/supabase-js@2.98.0` - Database client
 
 ### Error Handling

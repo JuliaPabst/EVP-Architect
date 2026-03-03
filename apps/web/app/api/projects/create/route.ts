@@ -5,6 +5,40 @@ import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
 
+/**
+ * POST /api/projects/create
+ *
+ * Purpose:
+ *   Creates a new EVP project by scraping a Kununu company profile and
+ *   inserting the extracted company information into the `evp_projects` table.
+ *
+ * Input:
+ *   JSON body:
+ *     {
+ *       "companyUrl": string; // Required Kununu company profile URL
+ *     }
+ *
+ * Successful response:
+ *   201 Created
+ *   Body:
+ *     {
+ *       "projectId": number | string; // ID of the created project
+ *     }
+ *
+ * Possible error responses:
+ *   400 Bad Request
+ *     - Missing "companyUrl" in request body.
+ *     - "companyUrl" is not a valid Kununu company profile URL.
+ *
+ *   422 Unprocessable Entity
+ *     - Scraping succeeded but required fields (e.g., company name)
+ *       could not be extracted from the profile.
+ *
+ *   500 Internal Server Error
+ *     - Unexpected error while scraping the profile.
+ *     - Failure inserting the project into the database.
+ *     - Any other unexpected error during request handling.
+ */
 // eslint-disable-next-line import/prefer-default-export
 export async function POST(request: NextRequest) {
   try {
