@@ -148,6 +148,144 @@ Do not mix scraping logic into frontend.
 
 ------------------------------------------------------------------
 
+## 7.5 LINTING & CODE STANDARDS
+
+The project uses `@kununu/eslint-config` with strict rules.
+**Always follow these conventions when writing code:**
+
+### Object & Interface Key Ordering
+- **Always sort object keys alphabetically** (case-insensitive)
+- **Always sort interface/type keys alphabetically** (required fields first)
+- Applies to: function params, return objects, test mocks, config objects
+
+**Example - Wrong:**
+```typescript
+const data = {
+  profile_url: url,
+  company_name: name,
+  industry: industry,
+  employee_count: count,
+};
+```
+
+**Example - Correct:**
+```typescript
+const data = {
+  company_name: name,
+  employee_count: count,
+  industry: industry,
+  profile_url: url,
+};
+```
+
+### JSX Props Ordering
+- **Always sort JSX props alphabetically**
+
+**Example - Wrong:**
+```tsx
+<Button onClick={handleClick} disabled={true} className={styles.btn} />
+```
+
+**Example - Correct:**
+```tsx
+<Button className={styles.btn} disabled={true} onClick={handleClick} />
+```
+
+### Import Ordering
+- Add blank line between import groups (React, external libs, internal modules)
+- Sort imports within groups
+
+**Example - Correct:**
+```typescript
+import {NextRequest, NextResponse} from 'next/server';
+
+import {scrapeCompanyProfile} from '@/lib/scraping';
+import {supabase} from '@/lib/supabase';
+```
+
+### React Imports in Next.js
+- **Never import React explicitly** in Next.js 14+ components
+- The jsx-runtime handles it automatically
+- Remove `import React from 'react';` from all components
+
+### Variable Naming
+- Use **camelCase** for local variables (not snake_case)
+- Database fields can remain snake_case in interface definitions
+- Convert to camelCase when using internally
+
+**Example:**
+```typescript
+const companyName = extractCompanyName($);  // ✓ camelCase
+const profile_image_url = extractUrl($);    // ✗ snake_case
+```
+
+### Console Statements
+- Avoid `console.log()`, `console.error()` in production code paths
+- Use proper logging for server-side errors
+- Keep console statements only for development debugging
+
+### Early Returns
+- Prefer early returns over nested conditionals
+- Avoid complex ternary returns in validation functions
+
+**Example - Wrong:**
+```typescript
+return (condition1 && condition2) ? true : false;
+```
+
+**Example - Correct:**
+```typescript
+if (condition1 && condition2) {
+  return true;
+}
+return false;
+```
+
+### Testing Best Practices
+- Prefer Testing Library queries over direct DOM access
+- Use `getByRole`, `getByText` instead of `container.querySelector`
+- Warnings for `testing-library/no-node-access` are acceptable in complex cases
+
+### Consistent Returns in Callbacks
+- Always return a value in `.each()` callbacks (return `false` to break, `undefined` to continue)
+- TypeScript expects consistent return types
+
+**Example:**
+```typescript
+$('script').each((i, el) => {
+  if (found) {
+    return false; // break
+  }
+  return undefined; // continue
+});
+```
+
+### Destructuring Arrays
+- Use array destructuring when accessing regex match groups
+- Don't use `match[1]` directly
+
+**Example - Correct:**
+```typescript
+const [, extractedValue] = match;
+```
+
+### Module Exports
+- Prefer named exports for utilities
+- Use default exports for React components
+- If a file has only one export, provide both named and default
+
+### Accessibility
+- Never use `<a href="#">` - use `<button>` instead for non-navigation links
+- Ensure all interactive elements have proper semantics
+
+**Run linting frequently:**
+```bash
+pnpm run lint        # Full lint (includes stylelint)
+pnpm run lint:eslint # JavaScript/TypeScript only
+```
+
+------------------------------------------------------------------
+
 ## 8. LLM RULES
 
 All prompts must include:

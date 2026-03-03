@@ -1,11 +1,13 @@
-import { isValidKununuUrl, scrapeCompanyProfile } from './scraping';
+import {isValidKununuUrl, scrapeCompanyProfile} from './scraping';
 
 // Mock fetch globally
 global.fetch = jest.fn();
 
 describe('isValidKununuUrl', () => {
   it('should accept valid kununu.com URLs with www', () => {
-    expect(isValidKununuUrl('https://www.kununu.com/de/company-name')).toBe(true);
+    expect(isValidKununuUrl('https://www.kununu.com/de/company-name')).toBe(
+      true,
+    );
   });
 
   it('should accept valid kununu.com URLs without www', () => {
@@ -13,11 +15,21 @@ describe('isValidKununuUrl', () => {
   });
 
   it('should accept URLs with different country codes', () => {
-    expect(isValidKununuUrl('https://www.kununu.com/at/company-name')).toBe(true);
-    expect(isValidKununuUrl('https://www.kununu.com/ch/company-name')).toBe(true);
-    expect(isValidKununuUrl('https://www.kununu.com/us/company-name')).toBe(true);
-    expect(isValidKununuUrl('https://www.kununu.com/uk/company-name')).toBe(true);
-    expect(isValidKununuUrl('https://www.kununu.com/fr/company-name')).toBe(true);
+    expect(isValidKununuUrl('https://www.kununu.com/at/company-name')).toBe(
+      true,
+    );
+    expect(isValidKununuUrl('https://www.kununu.com/ch/company-name')).toBe(
+      true,
+    );
+    expect(isValidKununuUrl('https://www.kununu.com/us/company-name')).toBe(
+      true,
+    );
+    expect(isValidKununuUrl('https://www.kununu.com/uk/company-name')).toBe(
+      true,
+    );
+    expect(isValidKununuUrl('https://www.kununu.com/fr/company-name')).toBe(
+      true,
+    );
   });
 
   it('should reject URLs without country code', () => {
@@ -41,9 +53,9 @@ describe('scrapeCompanyProfile', () => {
   });
 
   it('should throw error for invalid URL', async () => {
-    await expect(scrapeCompanyProfile('https://www.example.com/company')).rejects.toThrow(
-      'Invalid kununu company profile URL'
-    );
+    await expect(
+      scrapeCompanyProfile('https://www.example.com/company'),
+    ).rejects.toThrow('Invalid kununu company profile URL');
   });
 
   it('should extract company name correctly', async () => {
@@ -69,8 +81,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.company_name).toBe('Test Company');
     expect(result.profile_url).toBe('https://www.kununu.com/de/test-company');
   });
@@ -93,8 +107,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.industry).toBe('13');
   });
 
@@ -118,8 +134,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.profile_uuid).toBe('dfd5a004-7e68-4774-a21c-448c713148c0');
   });
 
@@ -141,8 +159,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.employee_count).toBe('390');
   });
 
@@ -164,8 +184,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.employee_count).toBe('600.000');
   });
 
@@ -187,8 +209,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.location).toBe('Berlin');
   });
 
@@ -209,9 +233,13 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
-    expect(result.profile_image_url).toBe('https://assets.kununu.com/images/logo.jpg');
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
+    expect(result.profile_image_url).toBe(
+      'https://assets.kununu.com/images/logo.jpg',
+    );
   });
 
   it('should handle relative image URLs', async () => {
@@ -231,9 +259,13 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
-    expect(result.profile_image_url).toBe('https://www.kununu.com/images/logo.jpg');
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
+    expect(result.profile_image_url).toBe(
+      'https://www.kununu.com/images/logo.jpg',
+    );
   });
 
   it('should handle protocol-relative image URLs', async () => {
@@ -253,8 +285,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.profile_image_url).toBe('https://assets.kununu.com/logo.jpg');
   });
 
@@ -272,8 +306,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/test-company');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/test-company',
+    );
+
     expect(result.company_name).toBe('Test Company');
     expect(result.industry).toBeNull();
     expect(result.employee_count).toBeNull();
@@ -296,9 +332,9 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    await expect(scrapeCompanyProfile('https://www.kununu.com/de/test-company')).rejects.toThrow(
-      'Could not extract company name from profile'
-    );
+    await expect(
+      scrapeCompanyProfile('https://www.kununu.com/de/test-company'),
+    ).rejects.toThrow('Could not extract company name from profile');
   });
 
   it('should throw error if fetch fails', async () => {
@@ -307,9 +343,9 @@ describe('scrapeCompanyProfile', () => {
       statusText: 'Not Found',
     });
 
-    await expect(scrapeCompanyProfile('https://www.kununu.com/de/test-company')).rejects.toThrow(
-      'Failed to fetch URL: Not Found'
-    );
+    await expect(
+      scrapeCompanyProfile('https://www.kununu.com/de/test-company'),
+    ).rejects.toThrow('Failed to fetch URL: Not Found');
   });
 
   it('should handle complex company names with special formatting', async () => {
@@ -334,8 +370,10 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/merkur-bets');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/merkur-bets',
+    );
+
     expect(result.company_name).toBe('MERKUR BETS');
   });
 
@@ -369,12 +407,14 @@ describe('scrapeCompanyProfile', () => {
       text: async () => mockHtml,
     });
 
-    const result = await scrapeCompanyProfile('https://www.kununu.com/de/complete-test');
-    
+    const result = await scrapeCompanyProfile(
+      'https://www.kununu.com/de/complete-test',
+    );
+
     expect(result).toMatchObject({
       company_name: 'Complete Test Company',
-      industry: '42',
       employee_count: '1.500',
+      industry: '42',
       location: 'München',
       profile_image_url: 'https://assets.kununu.com/og-image.jpg',
       profile_url: 'https://www.kununu.com/de/complete-test',

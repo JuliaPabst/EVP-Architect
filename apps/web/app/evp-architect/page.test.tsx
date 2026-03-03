@@ -12,7 +12,9 @@ jest.mock('../components/StartPage/SearchHeader', () => {
 
 jest.mock('../components/StartPage/SelectedTopicsModule', () => {
   return function MockSelectedTopicsModule() {
-    return <div data-testid="selected-topics-module">Selected Topics Module</div>;
+    return (
+      <div data-testid="selected-topics-module">Selected Topics Module</div>
+    );
   };
 });
 
@@ -35,7 +37,7 @@ jest.mock('@kununu/ui/organisms/Header/HeaderLogo', () => {
   }) {
     return (
       <div data-testid="header-logo">
-        <a href={href} aria-label={label}>
+        <a aria-label={label} href={href}>
           {motto}
         </a>
       </div>
@@ -47,37 +49,40 @@ describe('EvpArchitect Page', () => {
   describe('Rendering', () => {
     it('should render without crashing', () => {
       render(<EvpArchitect />);
-      
+
       expect(screen.getByTestId('header')).toBeInTheDocument();
     });
 
     it('should render the Header component', () => {
       render(<EvpArchitect />);
-      
+
       const header = screen.getByTestId('header');
+
       expect(header).toBeInTheDocument();
     });
 
     it('should render HeaderLogo with correct props', () => {
       render(<EvpArchitect />);
-      
+
       const headerLogo = screen.getByTestId('header-logo');
+
       expect(headerLogo).toBeInTheDocument();
-      
+
       const link = screen.getByLabelText('Go to kununu');
+
       expect(link).toHaveAttribute('href', 'https://www.kununu.com/');
       expect(screen.getByText('Lets make work better.')).toBeInTheDocument();
     });
 
     it('should render SearchHeader component', () => {
       render(<EvpArchitect />);
-      
+
       expect(screen.getByTestId('search-header')).toBeInTheDocument();
     });
 
     it('should render SelectedTopicsModule component', () => {
       render(<EvpArchitect />);
-      
+
       expect(screen.getByTestId('selected-topics-module')).toBeInTheDocument();
     });
   });
@@ -85,10 +90,10 @@ describe('EvpArchitect Page', () => {
   describe('Component Order', () => {
     it('should render components in correct order', () => {
       const {container} = render(<EvpArchitect />);
-      
+
       const children = Array.from(container.firstChild?.childNodes || []);
       const testIds = children
-        .map((node) => {
+        .map(node => {
           if (node.nodeType === 1) {
             // Element node
             return (node as Element).getAttribute('data-testid');
@@ -106,13 +111,13 @@ describe('EvpArchitect Page', () => {
   describe('Layout Structure', () => {
     it('should have a wrapper div', () => {
       const {container} = render(<EvpArchitect />);
-      
+
       expect(container.firstChild?.nodeName).toBe('DIV');
     });
 
     it('should contain all main sections', () => {
       render(<EvpArchitect />);
-      
+
       expect(screen.getByTestId('header')).toBeInTheDocument();
       expect(screen.getByTestId('search-header')).toBeInTheDocument();
       expect(screen.getByTestId('selected-topics-module')).toBeInTheDocument();
@@ -122,12 +127,12 @@ describe('EvpArchitect Page', () => {
   describe('Integration', () => {
     it('should render all child components together', () => {
       render(<EvpArchitect />);
-      
+
       // All components should be present
       expect(screen.getByTestId('header')).toBeInTheDocument();
       expect(screen.getByTestId('search-header')).toBeInTheDocument();
       expect(screen.getByTestId('selected-topics-module')).toBeInTheDocument();
-      
+
       // Check content from mocked components
       expect(screen.getByText('Search Header')).toBeInTheDocument();
       expect(screen.getByText('Selected Topics Module')).toBeInTheDocument();

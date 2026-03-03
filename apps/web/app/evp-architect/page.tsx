@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
 import Header from '@kununu/ui/organisms/Header';
 import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
+
 import SearchHeader from '../components/StartPage/SearchHeader';
 import SelectedTopicsModule from '../components/StartPage/SelectedTopicsModule';
 

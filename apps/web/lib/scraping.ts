@@ -2,8 +2,8 @@ import * as cheerio from 'cheerio';
 
 export interface CompanyHardFacts {
   company_name: string;
-  industry: string | null;
   employee_count: string | null;
+  industry: string | null;
   location: string | null;
   profile_image_url: string | null;
   profile_url: string;
@@ -17,11 +17,16 @@ export interface CompanyHardFacts {
 export function isValidKununuUrl(url: string): boolean {
   try {
     const urlObj = new URL(url);
-    return (
+
+    if (
       (urlObj.hostname === 'www.kununu.com' ||
         urlObj.hostname === 'kununu.com') &&
       /\/(de|at|ch|us|uk|fr|it|es|pt|nl|pl|br)\//.test(urlObj.pathname)
-    );
+    ) {
+      return true;
+    }
+
+    return false;
   } catch {
     return false;
   }
@@ -51,13 +56,16 @@ async function fetchHtml(url: string): Promise<string> {
  */
 function extractCompanyName($: cheerio.CheerioAPI): string | null {
   const titleDiv = $('.index__title__0q4vx');
+
   if (titleDiv.length) {
     const text = titleDiv.text().replace(/\s+/g, ' ').trim();
+
     if (text) return text;
   }
 
   const nameStart = $('.index__nameStart__jZu5l').text().trim();
   const nameEnd = $('.index__nameEndText__ICZGu').text().trim();
+
   if (nameStart || nameEnd) {
     return `${nameStart} ${nameEnd}`.trim();
   }
@@ -70,8 +78,10 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
 
   for (const selector of selectors) {
     const element = $(selector).first();
+
     if (element.length) {
       let text = element.text().replace(/\s+/g, ' ').trim();
+
       text = text.replace(/\s+als Arbeitgeber\s*$/i, '').trim();
       if (text) return text;
     }
@@ -86,33 +96,38 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
  */
 function extractIndustry($: cheerio.CheerioAPI): string | null {
   let foundIndustry: string | null = null;
-  
+
   $('script').each((i, el) => {
     const content = $(el).html() || '';
-    
+
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
       const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+
       if (industryMatch && industryMatch[1]) {
         foundIndustry = industryMatch[1].trim();
         return false;
       }
     }
-    
+
     if (content.includes('__NEXT_DATA__') || content.includes('window.__')) {
       const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+
       if (industryMatch && industryMatch[1]) {
         foundIndustry = industryMatch[1].trim();
         return false;
       }
     }
-    
+
     if (content.includes('window.')) {
       const industryMatch = content.match(/"industry"\s*:\s*"?([^",}\s]+)"?/i);
+
       if (industryMatch && industryMatch[1]) {
         foundIndustry = industryMatch[1].trim();
         return false;
       }
     }
+
+    return undefined;
   });
 
   return foundIndustry;
@@ -124,17 +139,22 @@ function extractIndustry($: cheerio.CheerioAPI): string | null {
  */
 function extractProfileUuid($: cheerio.CheerioAPI): string | null {
   let foundUuid: string | null = null;
-  
+
   $('script').each((i, el) => {
     const content = $(el).html() || '';
-    
+
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
-      const uuidMatch = content.match(/"uuid"\s*:\s*"([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+)"/i);
+      const uuidMatch = content.match(
+        /"uuid"\s*:\s*"([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+)"/i,
+      );
+
       if (uuidMatch && uuidMatch[1]) {
         foundUuid = uuidMatch[1].trim();
         return false;
       }
     }
+
+    return undefined;
   });
 
   return foundUuid;
@@ -147,22 +167,35 @@ function extractProfileUuid($: cheerio.CheerioAPI): string | null {
  */
 function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
   let employeeCount: string | null = null;
-  
-  $('.index__metricsContainer__yi\\+nh, [class*="metricsContainer"]').each((i, el) => {
-    const labelText = $(el).find('[class*="label"]').text();
-    if (labelText.includes('Mitarbeitende')) {
-      const valueText = $(el).find('span').last().text().trim();
-      const numberMatch = valueText.match(/(\d+(?:\.\d{3})*|\d+[-–]\d+(?:\.\d{3})*|\d+\+?)/);
-      if (numberMatch && numberMatch[1]) {
-        employeeCount = numberMatch[1];
-        return false;
+
+  $('.index__metricsContainer__yi\\+nh, [class*="metricsContainer"]').each(
+    (i, el) => {
+      const labelText = $(el).find('[class*="label"]').text();
+
+      if (labelText.includes('Mitarbeitende')) {
+        const valueText = $(el).find('span').last().text().trim();
+        const numberMatch = valueText.match(
+          /(\d+(?:\.\d{3})*|\d+[-–]\d+(?:\.\d{3})*|\d+\+?)/,
+        );
+
+        if (numberMatch) {
+          const [, extractedNumber] = numberMatch;
+
+          employeeCount = extractedNumber;
+          return false;
+        }
       }
-    }
-  });
-  
+
+      return undefined;
+    },
+  );
+
   if (employeeCount) return employeeCount;
 
-  const mitarbeitendeMatch = $('body').text().match(/Mitarbeitende[:\s]+(?:Rund\s+)?(\d+(?:\.\d{3})*|\d+[-–]\d+)/i);
+  const mitarbeitendeMatch = $('body')
+    .text()
+    .match(/Mitarbeitende[:\s]+(?:Rund\s+)?(\d+(?:\.\d{3})*|\d+[-–]\d+)/i);
+
   if (mitarbeitendeMatch && mitarbeitendeMatch[1]) {
     return mitarbeitendeMatch[1];
   }
@@ -176,9 +209,13 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
 
   for (const selector of selectors) {
     const element = $(selector);
+
     if (element.length) {
       const text = element.text();
-      const match = text.match(/(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter/i);
+      const match = text.match(
+        /(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter/i,
+      );
+
       if (match && match[1]) return match[1];
     }
   }
@@ -187,6 +224,7 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
   const employeeMatch = bodyText.match(
     /(\d+(?:\.\d{3})*[-–]\d+(?:\.\d{3})*|\d+(?:\.\d{3})*\+?)\s*Mitarbeiter(?!:innen\s+bestätigt)/i,
   );
+
   if (employeeMatch && employeeMatch[1]) {
     return employeeMatch[1];
   }
@@ -209,23 +247,32 @@ function extractLocation($: cheerio.CheerioAPI): string | null {
 
   for (const selector of selectors) {
     const element = $(selector).first();
+
     if (element.length) {
       let text = element.text().replace(/\s+/g, ' ').trim();
+
       text = text.replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '').trim();
       if (text && text.length > 0) return text;
     }
   }
 
   let cityFromDataLayer: string | null = null;
+
   $('script').each((i, el) => {
     const content = $(el).html() || '';
+
     if (content.includes('window.dataLayer')) {
       const cityMatch = content.match(/"city"\s*:\s*"([^"]+)"/);
-      if (cityMatch && cityMatch[1]) {
-        cityFromDataLayer = cityMatch[1];
+
+      if (cityMatch) {
+        const [, extractedCity] = cityMatch;
+
+        cityFromDataLayer = extractedCity;
         return false;
       }
     }
+
+    return undefined;
   });
 
   if (cityFromDataLayer) return cityFromDataLayer;
@@ -251,17 +298,21 @@ function extractProfileImageUrl($: cheerio.CheerioAPI): string | null {
 
   for (const selector of selectors) {
     const element = $(selector).first();
+
     if (element.length) {
-      let src =
+      const src =
         element.attr('src') ||
         element.attr('data-src') ||
         element.attr('data-lazy-src');
+
       if (src) {
         if (src.startsWith('http')) {
           return src;
-        } else if (src.startsWith('//')) {
+        }
+        if (src.startsWith('//')) {
           return `https:${src}`;
-        } else if (src.startsWith('/')) {
+        }
+        if (src.startsWith('/')) {
           return `https://www.kununu.com${src}`;
         }
       }
@@ -269,6 +320,7 @@ function extractProfileImageUrl($: cheerio.CheerioAPI): string | null {
   }
 
   const ogImage = $('meta[property="og:image"]').attr('content');
+
   if (ogImage) return ogImage;
 
   return null;
@@ -290,24 +342,25 @@ export async function scrapeCompanyProfile(
   const html = await fetchHtml(url);
   const $ = cheerio.load(html);
 
-  const company_name = extractCompanyName($);
-  if (!company_name) {
+  const companyName = extractCompanyName($);
+
+  if (!companyName) {
     throw new Error('Could not extract company name from profile');
   }
 
   const industry = extractIndustry($);
-  const employee_count = extractEmployeeCount($);
+  const employeeCount = extractEmployeeCount($);
   const location = extractLocation($);
-  const profile_image_url = extractProfileImageUrl($);
-  const profile_uuid = extractProfileUuid($);
+  const profileImageUrl = extractProfileImageUrl($);
+  const profileUuid = extractProfileUuid($);
 
   return {
-    company_name,
+    company_name: companyName,
+    employee_count: employeeCount,
     industry,
-    employee_count,
     location,
-    profile_image_url,
+    profile_image_url: profileImageUrl,
     profile_url: url,
-    profile_uuid,
+    profile_uuid: profileUuid,
   };
 }

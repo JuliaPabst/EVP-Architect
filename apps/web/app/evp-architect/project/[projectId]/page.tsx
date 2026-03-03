@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Header from '@kununu/ui/organisms/Header';
 import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
 

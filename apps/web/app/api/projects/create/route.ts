@@ -1,8 +1,11 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-import {supabase} from '@/lib/supabase';
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import {supabase} from '@/lib/supabase';
 
+// eslint-disable-next-line import/prefer-default-export
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -26,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Scrape company profile
     let companyData;
+
     try {
       companyData = await scrapeCompanyProfile(companyUrl);
     } catch (scrapingError) {
@@ -35,7 +39,10 @@ export async function POST(request: NextRequest) {
         scrapingError.message.includes('Could not extract company name')
       ) {
         return NextResponse.json(
-          {error: 'Could not extract required company information from profile'},
+          {
+            error:
+              'Could not extract required company information from profile',
+          },
           {status: 422},
         );
       }
@@ -44,11 +51,11 @@ export async function POST(request: NextRequest) {
       console.error('Scraping error:', scrapingError);
       return NextResponse.json(
         {
-          error: 'Failed to extract company information',
           details:
             scrapingError instanceof Error
               ? scrapingError.message
               : 'Unknown error',
+          error: 'Failed to extract company information',
         },
         {status: 500},
       );
@@ -58,12 +65,12 @@ export async function POST(request: NextRequest) {
     const {data, error} = await supabase
       .from('evp_projects')
       .insert({
-        profile_url: companyData.profile_url,
         company_name: companyData.company_name,
-        industry: companyData.industry,
         employee_count: companyData.employee_count,
+        industry: companyData.industry,
         location: companyData.location,
         profile_image_url: companyData.profile_image_url,
+        profile_url: companyData.profile_url,
         profile_uuid: companyData.profile_uuid,
         status: 'initialized',
       })
@@ -73,21 +80,18 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Database error:', error);
       return NextResponse.json(
-        {error: 'Failed to create project in database', details: error.message},
+        {details: error.message, error: 'Failed to create project in database'},
         {status: 500},
       );
     }
 
-    return NextResponse.json(
-      {projectId: data.id},
-      {status: 201},
-    );
+    return NextResponse.json({projectId: data.id}, {status: 201});
   } catch (error) {
     console.error('Error creating project:', error);
     return NextResponse.json(
       {
-        error: 'Failed to create project',
         details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to create project',
       },
       {status: 500},
     );

@@ -1,12 +1,14 @@
 'use client';
 
 import React, {useState} from 'react';
+
 import {useRouter} from 'next/navigation';
+
 import Button, {ButtonColor, ButtonType} from '@kununu/ui/atoms/Button';
-import TextInput from '@kununu/ui/atoms/TextInput';
 import Icon, {IconSize} from '@kununu/ui/atoms/Icon';
 import Connect from '@kununu/ui/atoms/Icon/Icons/Connect';
 import Message, {MessageType} from '@kununu/ui/atoms/Message';
+import TextInput from '@kununu/ui/atoms/TextInput';
 import UnunuBackground, {
   UnunuBackgroundColors,
 } from '@kununu/ui/atoms/UnunuBackground';
@@ -33,7 +35,7 @@ export default function SearchHeader() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate the URL
     if (!validateKununuUrl(companyUrl)) {
       setErrorMessage(
@@ -45,14 +47,14 @@ export default function SearchHeader() {
     // Clear any previous error
     setErrorMessage('');
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('/api/projects/create', {
-        method: 'POST',
+        body: JSON.stringify({companyUrl}),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({companyUrl}),
+        method: 'POST',
       });
 
       const data = await response.json();
@@ -99,24 +101,24 @@ export default function SearchHeader() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className={styles.inputForm}>
+            <form className={styles.inputForm} onSubmit={handleSubmit}>
               <div className={styles.inputWrapper}>
                 <TextInput
+                  hasError={!!errorMessage}
                   id="company-url"
+                  leadingIcon={<Icon icon={Connect} size={IconSize.M} />}
                   name="companyUrl"
+                  onChange={handleUrlChange}
                   placeholder="Company profile URL"
                   value={companyUrl}
-                  onChange={handleUrlChange}
-                  hasError={!!errorMessage}
-                  leadingIcon={<Icon icon={Connect} size={IconSize.M} />}
                 />
               </div>
               <Button
                 color={ButtonColor.PRIMARY}
-                type={ButtonType.SUBMIT}
                 disabled={!companyUrl.trim() || isLoading}
                 isLoading={isLoading}
                 text="Load EVP Project"
+                type={ButtonType.SUBMIT}
               />
             </form>
 
@@ -127,9 +129,9 @@ export default function SearchHeader() {
             )}
 
             <div className={styles.linkWrapper}>
-              <a href="#" className={styles.link}>
+              <button className={styles.link} type="button">
                 Do you already have an EBP or a Claimed profile?
-              </a>
+              </button>
             </div>
           </div>
         </div>
