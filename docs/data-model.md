@@ -14,10 +14,11 @@ Stores company profile data and EVP project information extracted from kununu co
 | `created_at` | TIMESTAMP | DEFAULT NOW() | Timestamp when the project was created |
 | `profile_url` | TEXT | NOT NULL | The kununu company profile URL |
 | `company_name` | TEXT | NOT NULL | Company name extracted from profile (mandatory) |
-| `industry` | TEXT | NULLABLE | Industry classification from "Branchendurchschnitt" |
+| `industry` | NUMBER | NULLABLE | Industry classification extracted from JavaScript dataLayer |
 | `employee_count` | TEXT | NULLABLE | Number or range of employees |
 | `location` | TEXT | NULLABLE | Company location/headquarters |
 | `profile_image_url` | TEXT | NULLABLE | URL to the company's profile image/logo |
+| `profile_uuid` | TEXT | NULLABLE | kununu profile UUID extracted from dataLayer |
 | `status` | TEXT | DEFAULT 'initialized' | Current status of the EVP project |
 
 #### Notes
