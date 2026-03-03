@@ -48,7 +48,7 @@ import HeroSection from './components/HeroSection'
 import CustomButton from './components/shared/CustomButton'  // Shared component
 
 // Styles (from within component folder)
-import styles from './index.scss'  // Same folder as index.tsx
+import styles from './index.module.scss'  // Same folder as index.tsx
 
 // Sub-components (from within parent component)
 // In HeaderSection/index.tsx:
@@ -60,7 +60,7 @@ import Navigation from './Navigation'  // Resolves to HeaderSection/Navigation/i
 - Main components: `'./components/ComponentName'` (from page.tsx)
 - Shared components: `'./components/shared/ComponentName'` (from page.tsx)
 - Sub-components: `'./SubComponentName'` (from parent component)
-- Styles: `'./index.scss'` (from same folder as index.tsx)
+- Styles: `'./index.module.scss'` (from same folder as index.tsx)
 - @kununu/ui: Full path from @kununu/ui
 
 **Example Component Structure:**
@@ -69,7 +69,7 @@ import Navigation from './Navigation'  // Resolves to HeaderSection/Navigation/i
 import Logo from './Logo'              // Sub-component
 import Navigation from './Navigation'  // Sub-component
 import Button from '@kununu/ui/atoms/Button'  // kununu component
-import styles from './index.scss'      // Styles
+import styles from './index.module.scss'      // Styles
 
 export default function HeaderSection() {
   return (
@@ -83,11 +83,14 @@ export default function HeaderSection() {
 ```
 
 ```scss
-// File: components/HeaderSection/index.scss
+// File: components/HeaderSection/index.module.scss
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
 .header {
   display: flex;
-  padding: var(--spacings-space-m, 24px);
-  background: var(--background-white, white);
+  padding: spacings.$kun-spacing-m;
+  background: colors.$kun-color-bg-white;
 }
 ```
 
@@ -103,27 +106,27 @@ export default function HeaderSection() {
 app/
 ├── components/
 │   ├── HeaderSection/
-│   │   ├── index.tsx          # Component code
-│   │   ├── index.scss         # Component styles
-│   │   └── Logo/              # Sub-component (if needed)
+│   │   ├── index.tsx                # Component code
+│   │   ├── index.module.scss        # Component styles
+│   │   └── Logo/                    # Sub-component (if needed)
 │   │       ├── index.tsx
-│   │       └── index.scss
+│   │       └── index.module.scss
 │   ├── HeroSection/
 │   │   ├── index.tsx
-│   │   ├── index.scss
-│   │   ├── Title/             # Sub-component
+│   │   ├── index.module.scss
+│   │   ├── Title/                   # Sub-component
 │   │   │   ├── index.tsx
-│   │   │   └── index.scss
-│   │   └── CallToAction/      # Sub-component
+│   │   │   └── index.module.scss
+│   │   └── CallToAction/            # Sub-component
 │   │       ├── index.tsx
-│   │       └── index.scss
-│   └── shared/                # Shared/reusable components
+│   │       └── index.module.scss
+│   └── shared/                      # Shared/reusable components
 │       ├── CustomButton/
 │       │   ├── index.tsx
-│       │   └── index.scss
+│       │   └── index.module.scss
 │       └── IconWrapper/
 │           ├── index.tsx
-│           └── index.scss
+│           └── index.module.scss
 └── page.tsx
 ```
 
@@ -131,7 +134,7 @@ app/
 1. **Each component gets its own folder** named with PascalCase (e.g., `HeaderSection/`)
 2. **Inside each folder:**
    - `index.tsx` - Component code
-   - `index.scss` - Component styles
+   - `index.module.scss` - Component styles
 3. **Sub-components** (used only within parent component) go in subfolders:
    - Example: `HeaderSection/Logo/index.tsx`
 4. **Shared components** (used across multiple components) go in `components/shared/`:
@@ -139,15 +142,16 @@ app/
 5. **Import pattern:** `import HeaderSection from './components/HeaderSection'` (automatically resolves to index.tsx)
 
 **Style Files (DO NOT MODIFY):**
-- `apps/web/app/fonts.css` - Font declarations (already configured)
-- `apps/web/app/globals.css` - Global styles (already configured)
+- `apps/web/app/fonts.scss` - Font declarations (already configured)
+- `apps/web/app/globals.scss` - Global styles (already configured)
+- `apps/web/app/kununu-styles.scss` - Imported @kununu/ui styles (already configured)
 - `apps/web/public/fonts/` - Local font files (already present)
 
 **Component Creation Rules:**
 1. Extract distinct UI sections into separate component folders
 2. Store main components in `app/components/`
 3. Store shared/reusable components in `app/components/shared/`
-4. Each component folder must have both `index.tsx` and `index.scss`
+4. Each component folder must have both `index.tsx` and `index.module.scss`
 5. Use subfolders for components only used within the parent
 6. Compose all components in `page.tsx`
 7. Use @kununu/ui components within your custom components
@@ -156,11 +160,11 @@ app/
 
 ## Styling Requirements
 
-### MANDATORY: SCSS Files Only
+### MANDATORY: SCSS Module Files Only
 
 ```tsx
 // Required import (from same folder as component)
-import styles from './index.scss'
+import styles from './index.module.scss'
 
 // Usage
 <div className={styles.container}>
@@ -170,37 +174,59 @@ import styles from './index.scss'
 
 **File Structure:**
 - Component: `components/HeaderSection/index.tsx`
-- Styles: `components/HeaderSection/index.scss`
-- Import: `import styles from './index.scss'` (relative to index.tsx)
+- Styles: `components/HeaderSection/index.module.scss`
+- Import: `import styles from './index.module.scss'` (relative to index.tsx)
 
 **FORBIDDEN:**
 - ❌ Inline styles
 - ❌ CSS-in-JS
-- ❌ .module.scss files (use index.scss instead)
+- ❌ Regular .scss files without .module (must use index.module.scss)
 - ❌ Global styles for components
 
 ### MANDATORY: Design Tokens Only
 
 **FORBIDDEN:** Magic numbers, hardcoded colors, arbitrary values
-**REQUIRED:** Use CSS variables from kununu design system
+**REQUIRED:** Use SCSS variables from @kununu/ui design tokens
+
+**Import Tokens First:**
+```scss
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+```
 
 **Spacing Variables (REQUIRED):**
 ```scss
-var(--spacings-space-xs, 8px)   // Use for tight spacing
-var(--spacings-space-s, 16px)   // Use for small spacing
-var(--spacings-space-m, 24px)   // Use for medium spacing
-var(--spacings-space-l, 32px)   // Use for large spacing
-var(--spacings-space-xl, 48px)  // Use for extra large spacing
+spacings.$kun-spacing-4xs   // 2px
+spacings.$kun-spacing-3xs   // 4px
+spacings.$kun-spacing-2xs   // 8px
+spacings.$kun-spacing-xs    // 12px
+spacings.$kun-spacing-s     // 16px
+spacings.$kun-spacing-m     // 24px
+spacings.$kun-spacing-l     // 32px
+spacings.$kun-spacing-xl    // 40px
+spacings.$kun-spacing-2xl   // 48px
+spacings.$kun-spacing-3xl   // 64px
+spacings.$kun-spacing-4xl   // 96px
 ```
 
 **Color Variables (REQUIRED):**
 ```scss
-var(--text-ondark, white)          // Text on dark backgrounds
-var(--text-onlight, #333)          // Text on light backgrounds
-var(--base-coral-90, #ff734d)      // Primary brand color (light)
-var(--base-coral-100, #ff5a32)     // Primary brand color (standard)
-var(--background-white, white)     // White background
-var(--background-grey-10, #f7f7f7) // Light grey background
+// Text colors
+colors.$kun-color-text-title        // #1b1c20 - Titles
+colors.$kun-color-text-primary      // #333538 - Primary text
+colors.$kun-color-text-secondary    // #4a4c4f - Secondary text
+colors.$kun-color-text-ondark       // #ffffff - Text on dark backgrounds
+
+// Background colors
+colors.$kun-color-bg-white          // #ffffff - White background
+colors.$kun-color-bg-soft           // #f7f7f8 - Light grey background
+colors.$kun-color-bg-medium         // #e9edef - Medium grey background
+
+// Brand colors
+colors.$kun-color-base-coral-90     // #ff734d - Coral light
+colors.$kun-color-base-coral-100    // #ff603b - Coral standard
+colors.$kun-color-base-yellow-80    // #feca14 - Yellow (kununu yellow)
+colors.$kun-color-base-darkblue-100 // #102b69 - Dark blue
 ```
 
 **Font Size (REQUIRED):**
@@ -270,6 +296,33 @@ var(--background-grey-10, #f7f7f7) // Light grey background
 <h1 className={styles.customHeading}>Heading</h1> // where customHeading uses font-family
 ```
 
+**Example Component with Tokens:**
+```tsx
+// File: components/MyComponent/index.tsx
+import styles from './index.module.scss';
+
+export default function MyComponent() {
+  return (
+    <div className={styles.container}>
+      <h1 className="h1">Welcome</h1>
+      <p className="p-base-regular">This is body text</p>
+    </div>
+  );
+}
+```
+
+```scss
+// File: components/MyComponent/index.module.scss
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
+.container {
+  padding: spacings.$kun-spacing-l;
+  background: colors.$kun-color-bg-white;
+  color: colors.$kun-color-text-primary;
+}
+```
+
 **What Typography Classes Provide:**
 - font-family (Sharp Grotesk or InterUI)
 - font-size (matching Figma specs)
@@ -322,9 +375,10 @@ import Rocket from '@kununu/ui/Illustration/Illustrations/Spot/Rocket'
    - Use @kununu/ui components as foundation
    - Extract exact text content from Figma
    - Apply typography classes matching Figma styles
-   - Use design tokens for colors and spacing
+   - Import design tokens with @use in SCSS files
+   - Use SCSS token variables for colors and spacing
    - Create custom components only if no @kununu/ui match exists
-   - Create folder structure for each component: `ComponentName/index.tsx` + `ComponentName/index.scss`
+   - Create folder structure for each component: `ComponentName/index.tsx` + `ComponentName/index.module.scss`
    - Place shared components in `components/shared/` folder
    - Place sub-components in parent component subfolders
 5. Update page.tsx to compose all components
@@ -334,8 +388,9 @@ import Rocket from '@kununu/ui/Illustration/Illustrations/Spot/Rocket'
 2. Update existing component:
    - Replace placeholder text with Figma content
    - Apply correct typography classes
-   - Adjust spacing using design tokens
-   - Match colors using design token variables
+   - Import design tokens with @use in SCSS
+   - Adjust spacing using SCSS token variables
+   - Match colors using SCSS token variables
    - Remove unused parts not in Figma design
    - Maintain @kununu/ui component structure
 
@@ -350,8 +405,9 @@ import Rocket from '@kununu/ui/Illustration/Illustrations/Spot/Rocket'
 - [ ] Queried Figma MCP for design content (if recreating from Figma)
 - [ ] Identified which components are shared (go in `shared/` folder)
 - [ ] Identified sub-components (go in parent component subfolders)
-- [ ] Will use SCSS files with index.scss naming (not inline styles or CSS-in-JS)
-- [ ] Will use design tokens only (no hardcoded values)
+- [ ] Will use SCSS module files with index.module.scss naming (not inline styles or CSS-in-JS)
+- [ ] Will import design tokens with @use at top of SCSS files
+- [ ] Will use SCSS design token variables only (no hardcoded values)
 - [ ] Will use typography classes only (no font-family declarations)
 - [ ] Will NOT import fonts from external sources
 - [ ] Will extract exact text content from Figma
@@ -364,18 +420,19 @@ import Rocket from '@kununu/ui/Illustration/Illustrations/Spot/Rocket'
 **ALWAYS:**
 - Query Storybook MCP before creating components
 - Use @kununu/ui components when available
-- Create folder structure: `ComponentName/index.tsx` + `ComponentName/index.scss`
+- Create folder structure: `ComponentName/index.tsx` + `ComponentName/index.module.scss`
 - Place shared components in `components/shared/`
 - Place sub-components in parent component subfolders
 - Use typography classes (h1, p-base-regular, etc.) for all text
-- Use design token CSS variables for colors and spacing
+- Import design tokens with @use at top of SCSS files
+- Use SCSS variables (spacings.$kun-spacing-m, colors.$kun-color-text-title)
 - Extract exact text content from Figma
 - Match Figma hierarchy and layout exactly
 
 **NEVER:**
 - Recreate components that exist in @kununu/ui
 - Use inline styles or CSS-in-JS
-- Use .module.scss naming (use index.scss instead)
+- Use plain .scss files (must use .module.scss)
 - Create flat file structure (use folders for each component)
 - Put shared components in main components/ folder (use shared/ subfolder)
 - Use hardcoded colors or magic numbers

@@ -77,8 +77,13 @@ LLM:
 Use only this structure unless explicitly instructed otherwise:
 
 /app
+  /components           (UI components - see UI_COMPONENT_GUIDELINES.md)
   /evp-architect
   /evp-architect/project/[id]
+  fonts.scss
+  globals.scss
+  kununu-styles.scss
+  page.tsx
 
 /app/api
   /projects
