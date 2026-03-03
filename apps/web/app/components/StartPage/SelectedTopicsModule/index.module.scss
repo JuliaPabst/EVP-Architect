@@ -1,0 +1,219 @@
+/* SelectedTopicsModule styles matching Figma design */
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
+.topicsModule {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: spacings.$kun-spacing-3xl spacings.$kun-spacing-2xl
+    spacings.$kun-spacing-2xl;
+  background-color: colors.$kun-color-bg-white;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-2xl;
+  align-items: center;
+  width: 100%;
+  max-width: 1232px;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: spacings.$kun-spacing-l 0 spacings.$kun-spacing-l
+    spacings.$kun-spacing-s;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  border-radius: spacings.$kun-spacing-2xs;
+  box-shadow:
+    0 spacings.$kun-spacing-4xs spacings.$kun-spacing-2xs rgb(0, 0, 0, 0.04),
+    0 spacings.$kun-spacing-2xs spacings.$kun-spacing-s rgb(0, 0, 0, 0.08),
+    0 spacings.$kun-spacing-s spacings.$kun-spacing-l rgb(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.cardContent {
+  display: flex;
+  gap: spacings.$kun-spacing-2xl;
+  align-items: flex-start;
+  width: 100%;
+  padding: spacings.$kun-spacing-l;
+  background-color: colors.$kun-color-bg-white;
+}
+
+.leftColumn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-s;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.heading {
+  width: 100%;
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 20px;
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  line-height: 28px;
+  letter-spacing: 0.2px;
+}
+
+.description {
+  width: 100%;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  line-height: 22px;
+}
+
+.description p {
+  margin: 0 0 spacings.$kun-spacing-2xs 0;
+}
+
+.stepsHeading {
+  margin-top: spacings.$kun-spacing-2xs !important;
+  margin-bottom: spacings.$kun-spacing-3xs !important;
+}
+
+.stepsList {
+  margin: 0;
+  padding-left: 0;
+  list-style-position: inside;
+  list-style-type: decimal;
+}
+
+.stepsList li {
+  margin-bottom: 0;
+  padding-left: 0;
+  line-height: 22px;
+  text-align: left;
+}
+
+.rightColumn {
+  position: relative;
+  flex-shrink: 0;
+  width: 233px;
+  height: 346px;
+}
+
+.heroImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.badgeContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.badge {
+  position: absolute;
+  opacity: 0;
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* Positioning for each badge to create the attractive layout */
+.badge:nth-child(1) {
+  top: spacings.$kun-spacing-m;
+  left: 26px;
+}
+
+.badge:nth-child(2) {
+  top: 71px;
+  left: 75px;
+}
+
+.badge:nth-child(3) {
+  top: 118px;
+  left: 10px;
+}
+
+.badge:nth-child(4) {
+  top: 212px;
+  left: spacings.$kun-spacing-xs;
+}
+
+.badge:nth-child(5) {
+  top: 165px;
+  left: 59px;
+}
+
+.badge:nth-child(6) {
+  top: 259px;
+  left: 49px;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .topicsModule {
+    padding: spacings.$kun-spacing-l spacings.$kun-spacing-m;
+  }
+
+  .cardContent {
+    flex-direction: column;
+    gap: spacings.$kun-spacing-l;
+  }
+
+  .rightColumn {
+    align-self: center;
+    width: 100%;
+    height: 200px;
+  }
+
+  .badgeContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: spacings.$kun-spacing-xs;
+    justify-content: center;
+  }
+
+  .badge {
+    position: static;
+    animation: fade-in 0.4s ease-out forwards;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

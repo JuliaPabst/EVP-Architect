@@ -1,0 +1,144 @@
+/* SearchHeader styles matching Figma design */
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
+.searchHeaderWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.searchHeader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: spacings.$kun-spacing-3xl spacings.$kun-spacing-m;
+  box-shadow: 0 spacings.$kun-spacing-m spacings.$kun-spacing-l
+    calc(-1 * spacings.$kun-spacing-l) rgb(0, 0, 0, 0.08);
+}
+
+.content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1232px;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mainHeading {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 700;
+  font-size: 36px;
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  line-height: 44px;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.subheadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.subheading {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 500;
+  font-size: 16px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 24px;
+  letter-spacing: 0.3px;
+  text-align: center;
+  opacity: 0.96;
+}
+
+.inputForm {
+  display: flex;
+  gap: spacings.$kun-spacing-2xs;
+  align-items: stretch;
+  width: 100%;
+  max-width: 608px;
+  padding: spacings.$kun-spacing-s;
+  border-radius: spacings.$kun-spacing-2xs;
+  /* stylelint-disable-next-line color-function-alias-notation */
+  background: rgba(colors.$kun-color-bg-white, 0.8);
+  backdrop-filter: blur(20px);
+}
+
+.inputWrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.errorWrapper {
+  width: 100%;
+  max-width: 608px;
+  margin-top: calc(-1 * spacings.$kun-spacing-s);
+}
+
+.linkWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.link {
+  color: colors.$kun-color-text-primary;
+  font-weight: 500;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  text-align: center;
+  text-decoration: underline;
+  cursor: pointer;
+  opacity: 0.96;
+  text-decoration-skip-ink: none;
+}
+
+.link:hover {
+  color: colors.$kun-color-text-title;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .searchHeader {
+    padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-s;
+  }
+
+  .mainHeading {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .inputForm {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .wrapper {
+    max-width: 100%;
+  }
+}
