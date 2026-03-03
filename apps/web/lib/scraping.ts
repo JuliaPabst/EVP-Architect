@@ -1,5 +1,9 @@
 import * as cheerio from 'cheerio';
 
+import {isValidKununuUrl} from './kununuUrlValidation';
+
+export {isValidKununuUrl} from './kununuUrlValidation';
+
 export interface CompanyHardFacts {
   company_name: string;
   employee_count: string | null;
@@ -8,28 +12,6 @@ export interface CompanyHardFacts {
   profile_image_url: string | null;
   profile_url: string;
   profile_uuid: string | null;
-}
-
-/**
- * Validates if the given URL is a valid kununu company profile URL
- * Supports /de/, /at/, /ch/ and other country codes
- */
-export function isValidKununuUrl(url: string): boolean {
-  try {
-    const urlObj = new URL(url);
-
-    if (
-      (urlObj.hostname === 'www.kununu.com' ||
-        urlObj.hostname === 'kununu.com') &&
-      /\/(de|at|ch|us|uk|fr|it|es|pt|nl|pl|br)\//.test(urlObj.pathname)
-    ) {
-      return true;
-    }
-
-    return false;
-  } catch {
-    return false;
-  }
 }
 
 /**

@@ -112,6 +112,47 @@ describe('SearchHeader', () => {
       });
     });
 
+    it('should accept valid kununu URL without www', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        json: async () => ({projectId: 'test-project-no-www'}),
+        ok: true,
+      });
+
+      render(<SearchHeader />);
+
+      const input = screen.getByPlaceholderText('Company profile URL');
+      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+
+      fireEvent.change(input, {
+        target: {value: 'https://kununu.com/de/test-company'},
+      });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith(
+          '/evp-architect/project/test-project-no-www',
+        );
+      });
+    });
+
+    it('should reject URL with unsupported country code', async () => {
+      render(<SearchHeader />);
+
+      const input = screen.getByPlaceholderText('Company profile URL');
+      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+
+      fireEvent.change(input, {
+        target: {value: 'https://www.kununu.com/xx/some-company'},
+      });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Please enter a valid kununu profile URL/i),
+        ).toBeInTheDocument();
+      });
+    });
+
     it('should accept valid kununu URL with de country code', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         json: async () => ({projectId: 'test-project-123'}),
