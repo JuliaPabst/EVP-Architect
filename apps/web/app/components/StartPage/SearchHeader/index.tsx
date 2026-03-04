@@ -63,8 +63,10 @@ export default function SearchHeader() {
         throw new Error(data.error || 'Failed to create project');
       }
 
-      // Redirect to the project page on success
-      router.push(`/evp-architect/project/${data.projectId}`);
+      // Redirect to employer survey step-1 with admin token
+      router.push(
+        `/evp-architect/project/${data.projectId}/employer-survey/step-1?admin=${data.adminToken}`,
+      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to create project:', error);

@@ -1,9 +1,11 @@
 import {NextRequest, NextResponse} from 'next/server';
 
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
+import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import generateSecureToken from '@/lib/tokens';
 
 /**
  * POST /api/projects/create
@@ -22,7 +24,8 @@ import {supabase} from '@/lib/supabase';
  *   201 Created
  *   Body:
  *     {
- *       "projectId": number | string; // ID of the created project
+ *       "projectId": string; // UUID of the created project
+ *       "adminToken": string; // Admin authentication token
  *     }
  *
  * Possible error responses:
@@ -94,10 +97,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate secure tokens
+    const adminToken = generateSecureToken();
+    const surveyToken = generateSecureToken();
+
     // Insert into database
     const {data, error} = await supabase
       .from('evp_projects')
       .insert({
+        admin_token: adminToken,
+        admin_token_created_at: new Date().toISOString(),
         company_name: companyData.company_name,
         employee_count: companyData.employee_count,
         industry: companyData.industry,
@@ -105,7 +114,9 @@ export async function POST(request: NextRequest) {
         profile_image_url: companyData.profile_image_url,
         profile_url: companyData.profile_url,
         profile_uuid: companyData.profile_uuid,
-        status: 'initialized',
+        status: 'employer_survey_in_progress',
+        survey_token: surveyToken,
+        survey_token_created_at: new Date().toISOString(),
       })
       .select('id')
       .single();
@@ -117,7 +128,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({projectId: data.id}, {status: 201});
+    return NextResponse.json({adminToken, projectId: data.id}, {status: 201});
   } catch (error) {
     return NextResponse.json(
       {
