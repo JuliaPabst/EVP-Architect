@@ -24,6 +24,7 @@ const customJestConfig = {
     '!lib/**/*.spec.{js,jsx,ts,tsx}',
     '!**/*.config.{js,ts}',
     '!**/jest.setup.{js,ts}',
+    '!**/testHelpers.ts',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
