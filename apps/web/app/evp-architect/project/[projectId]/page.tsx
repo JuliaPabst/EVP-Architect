@@ -6,8 +6,8 @@ import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
 import styles from './index.module.scss';
 
 interface ProjectPageProps {
-  params: {
-    projectId: string;
+  readonly params: {
+    readonly projectId: string;
   };
 }
 

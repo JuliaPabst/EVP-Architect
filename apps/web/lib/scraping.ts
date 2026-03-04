@@ -58,7 +58,7 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
   const titleDiv = $('.index__title__0q4vx');
 
   if (titleDiv.length) {
-    const text = titleDiv.text().replace(/\s+/g, ' ').trim();
+    const text = titleDiv.text().replaceAll(/\s+/g, ' ').trim();
 
     if (text) return text;
   }
@@ -80,7 +80,7 @@ function extractCompanyName($: cheerio.CheerioAPI): string | null {
     const element = $(selector).first();
 
     if (element.length) {
-      let text = element.text().replace(/\s+/g, ' ').trim();
+      let text = element.text().replaceAll(/\s+/g, ' ').trim();
 
       // Remove "als Arbeitgeber" suffix safely without regex backtracking
       const suffix = ' als Arbeitgeber';
@@ -106,28 +106,28 @@ function extractIndustry($: cheerio.CheerioAPI): number | null {
     const content = $(el).html() || '';
 
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
-      const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
+      const industryMatch = /"industry"\s*:\s*(\d{1,10})/i.exec(content);
 
-      if (industryMatch && industryMatch[1]) {
-        foundIndustry = parseInt(industryMatch[1].trim(), 10);
+      if (industryMatch?.[1]) {
+        foundIndustry = Number.parseInt(industryMatch[1].trim(), 10);
         return false;
       }
     }
 
     if (content.includes('__NEXT_DATA__') || content.includes('window.__')) {
-      const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
+      const industryMatch = /"industry"\s*:\s*(\d{1,10})/i.exec(content);
 
-      if (industryMatch && industryMatch[1]) {
-        foundIndustry = parseInt(industryMatch[1].trim(), 10);
+      if (industryMatch?.[1]) {
+        foundIndustry = Number.parseInt(industryMatch[1].trim(), 10);
         return false;
       }
     }
 
     if (content.includes('window.')) {
-      const industryMatch = content.match(/"industry"\s*:\s*(\d{1,10})/i);
+      const industryMatch = /"industry"\s*:\s*(\d{1,10})/i.exec(content);
 
-      if (industryMatch && industryMatch[1]) {
-        foundIndustry = parseInt(industryMatch[1].trim(), 10);
+      if (industryMatch?.[1]) {
+        foundIndustry = Number.parseInt(industryMatch[1].trim(), 10);
         return false;
       }
     }
@@ -149,11 +149,12 @@ function extractProfileUuid($: cheerio.CheerioAPI): string | null {
     const content = $(el).html() || '';
 
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
-      const uuidMatch = content.match(
-        /"uuid"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/i,
-      );
+      const uuidMatch =
+        /"uuid"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/i.exec(
+          content,
+        );
 
-      if (uuidMatch && uuidMatch[1]) {
+      if (uuidMatch?.[1]) {
         foundUuid = uuidMatch[1].trim();
         return false;
       }
@@ -175,9 +176,9 @@ function extractNumberFromText(text: string): string | null {
 
   // Simple pattern without nested quantifiers
   // Match: digits with optional dots and optional range/plus
-  const match = safeText.match(/\b(\d[\d.]*(?:[-–]\d[\d.]*)?\+?)\b/);
+  const match = /\b(\d[\d.]*(?:[-–]\d[\d.]*)?\+?)\b/.exec(safeText);
 
-  if (match && match[1]) {
+  if (match?.[1]) {
     return match[1];
   }
 
@@ -192,32 +193,31 @@ function extractNumberFromText(text: string): string | null {
 function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
   let employeeCount: string | null = null;
 
-  $('.index__metricsContainer__yi\\+nh, [class*="metricsContainer"]').each(
-    (i, el) => {
-      const labelText = $(el).find('[class*="label"]').text();
+  $(
+    String.raw`.index__metricsContainer__yi\+nh, [class*="metricsContainer"]`,
+  ).each((i, el) => {
+    const labelText = $(el).find('[class*="label"]').text();
 
-      if (labelText.includes('Mitarbeitende')) {
-        const valueText = $(el).find('span').last().text().trim();
-        const extractedNumber = extractNumberFromText(valueText);
+    if (labelText.includes('Mitarbeitende')) {
+      const valueText = $(el).find('span').last().text().trim();
+      const extractedNumber = extractNumberFromText(valueText);
 
-        if (extractedNumber) {
-          employeeCount = extractedNumber;
-          return false;
-        }
+      if (extractedNumber) {
+        employeeCount = extractedNumber;
+        return false;
       }
+    }
 
-      return undefined;
-    },
-  );
+    return undefined;
+  });
 
   if (employeeCount) return employeeCount;
 
   const bodyText = $('body').text().slice(0, 50000); // Limit to prevent ReDoS
-  const mitarbeitendeMatch = bodyText.match(
-    /Mitarbeitende[:\s]+(?:Rund\s+)?(\d[\d.\-–]{0,20})/i,
-  );
+  const mitarbeitendeMatch =
+    /Mitarbeitende[:\s]+(?:Rund\s+)?(\d[\d.\-–]{0,20})/i.exec(bodyText);
 
-  if (mitarbeitendeMatch && mitarbeitendeMatch[1]) {
+  if (mitarbeitendeMatch?.[1]) {
     return mitarbeitendeMatch[1];
   }
 
@@ -242,11 +242,10 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
     }
   }
 
-  const employeeMatch = bodyText.match(
-    /(\d[\d.\-–]{0,20})\s*Mitarbeiter(?!:innen\s+bestätigt)/i,
-  );
+  const employeeMatch =
+    /(\d[\d.\-–]{0,20})\s*Mitarbeiter(?!:innen\s+bestätigt)/i.exec(bodyText);
 
-  if (employeeMatch && employeeMatch[1]) {
+  if (employeeMatch?.[1]) {
     return employeeMatch[1];
   }
 
@@ -270,9 +269,9 @@ function extractLocation($: cheerio.CheerioAPI): string | null {
     const element = $(selector).first();
 
     if (element.length) {
-      let text = element.text().replace(/\s+/g, ' ').trim();
+      let text = element.text().replaceAll(/\s+/g, ' ').trim();
 
-      text = text.replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '').trim();
+      text = text.replaceAll(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '').trim();
       if (text && text.length > 0) return text;
     }
   }
@@ -283,7 +282,7 @@ function extractLocation($: cheerio.CheerioAPI): string | null {
     const content = $(el).html() || '';
 
     if (content.includes('window.dataLayer')) {
-      const cityMatch = content.match(/"city"\s*:\s*"([^"]+)"/);
+      const cityMatch = /"city"\s*:\s*"([^"]+)"/.exec(content);
 
       if (cityMatch) {
         const [, extractedCity] = cityMatch;
@@ -305,6 +304,34 @@ function extractLocation($: cheerio.CheerioAPI): string | null {
  * Extracts the profile image URL from the HTML
  * kununu displays company logos in specific containers
  */
+/**
+ * Normalize a URL to ensure it has a full protocol
+ */
+function normalizeImageUrl(src: string): string {
+  if (src.startsWith('http')) {
+    return src;
+  }
+  if (src.startsWith('//')) {
+    return `https:${src}`;
+  }
+  if (src.startsWith('/')) {
+    return `https://www.kununu.com${src}`;
+  }
+  return src;
+}
+
+/**
+ * Extract image source from element attributes
+ */
+function getImageSrc(element: cheerio.Cheerio<cheerio.AnyNode>): string | null {
+  return (
+    element.attr('src') ||
+    element.attr('data-src') ||
+    element.attr('data-lazy-src') ||
+    null
+  );
+}
+
 function extractProfileImageUrl($: cheerio.CheerioAPI): string | null {
   const selectors = [
     '.index__logo__A3AKN img',
@@ -321,21 +348,10 @@ function extractProfileImageUrl($: cheerio.CheerioAPI): string | null {
     const element = $(selector).first();
 
     if (element.length) {
-      const src =
-        element.attr('src') ||
-        element.attr('data-src') ||
-        element.attr('data-lazy-src');
+      const src = getImageSrc(element);
 
       if (src) {
-        if (src.startsWith('http')) {
-          return src;
-        }
-        if (src.startsWith('//')) {
-          return `https:${src}`;
-        }
-        if (src.startsWith('/')) {
-          return `https://www.kununu.com${src}`;
-        }
+        return normalizeImageUrl(src);
       }
     }
   }

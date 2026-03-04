@@ -66,6 +66,8 @@ export default function SearchHeader() {
       // Redirect to the project page on success
       router.push(`/evp-architect/project/${data.projectId}`);
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to create project:', error);
       setErrorMessage(
         'Sorry, this should not have happened. Please, try again later.',
       );

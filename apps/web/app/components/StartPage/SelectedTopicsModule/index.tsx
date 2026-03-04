@@ -19,19 +19,19 @@ import UnunuBackground, {
 import styles from './index.module.scss';
 
 export interface Topic {
-  color: BadgeColor;
-  icon: IconType;
-  id: string;
-  label: string;
+  readonly color: BadgeColor;
+  readonly icon: IconType;
+  readonly id: string;
+  readonly label: string;
 }
 
 export interface SelectedTopicsModuleProps {
   /** Custom description text */
-  description?: string;
+  readonly description?: string;
   /** Custom heading text */
-  heading?: string;
+  readonly heading?: string;
   /** Array of selected topics to display */
-  topics?: Topic[];
+  readonly topics?: Topic[];
 }
 
 const defaultTopics: Topic[] = [
