@@ -1,44 +1,36 @@
-import {
-  scrapeCompanyProfile,
-  isValidKununuUrl,
-  type CompanyHardFacts,
-} from './scraping';
+import {scrapeCompanyProfile, isValidKununuUrl} from './scraping';
 
 describe('isValidKununuUrl', () => {
   it('should accept valid kununu.com URLs with de', () => {
-    expect(
-      isValidKununuUrl('https://www.kununu.com/de/company-name'),
-    ).toBe(true);
-  });
-
-  it('should accept valid kununu.com URLs with at', () => {
-    expect(
-      isValidKununuUrl('https://www.kununu.com/at/company-name'),
-    ).toBe(true);
-  });
-
-  it('should accept valid kununu.com URLs with ch', () => {
-    expect(
-      isValidKununuUrl('https://www.kununu.com/ch/company-name'),
-    ).toBe(true);
-  });
-
-  it('should accept URLs without www', () => {
-    expect(isValidKununuUrl('https://kununu.com/de/company-name')).toBe(
+    expect(isValidKununuUrl('https://www.kununu.com/de/company-name')).toBe(
       true,
     );
   });
 
+  it('should accept valid kununu.com URLs with at', () => {
+    expect(isValidKununuUrl('https://www.kununu.com/at/company-name')).toBe(
+      true,
+    );
+  });
+
+  it('should accept valid kununu.com URLs with ch', () => {
+    expect(isValidKununuUrl('https://www.kununu.com/ch/company-name')).toBe(
+      true,
+    );
+  });
+
+  it('should accept URLs without www', () => {
+    expect(isValidKununuUrl('https://kununu.com/de/company-name')).toBe(true);
+  });
+
   it('should reject URLs from other domains', () => {
-    expect(
-      isValidKununuUrl('https://www.example.com/de/company-name'),
-    ).toBe(false);
+    expect(isValidKununuUrl('https://www.example.com/de/company-name')).toBe(
+      false,
+    );
   });
 
   it('should reject URLs without country code', () => {
-    expect(isValidKununuUrl('https://www.kununu.com/company-name')).toBe(
-      false,
-    );
+    expect(isValidKununuUrl('https://www.kununu.com/company-name')).toBe(false);
   });
 
   it('should reject invalid URLs', () => {
@@ -60,9 +52,9 @@ describe('scrapeCompanyProfile', () => {
   });
 
   it('should throw error for invalid URL', async () => {
-    await expect(
-      scrapeCompanyProfile('https://example.com'),
-    ).rejects.toThrow('Invalid kununu company profile URL');
+    await expect(scrapeCompanyProfile('https://example.com')).rejects.toThrow(
+      'Invalid kununu company profile URL',
+    );
   });
 
   it('should throw error when fetch fails', async () => {
