@@ -4,9 +4,8 @@ import {useEffect, useState} from 'react';
 
 import {useSearchParams} from 'next/navigation';
 
-import Header from '@kununu/ui/organisms/Header';
-import HeaderLogo from '@kununu/ui/organisms/Header/HeaderLogo';
-
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import KununuHeader from '@/app/components/KununuHeader';
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 
@@ -42,16 +41,7 @@ export default function SurveyStepLayout({
 
   return (
     <div data-testid={`employer-survey-step-${stepNumber}`}>
-      <Header
-        data-testid="header"
-        logo={
-          <HeaderLogo
-            href="https://www.kununu.com/"
-            label="Go to kununu"
-            motto="Let's make work better."
-          />
-        }
-      />
+      <KununuHeader />
       <main style={{padding: '2rem'}}>
         <h1>Employer Survey - Step {stepNumber}</h1>
         <p>Company: {companyName}</p>
