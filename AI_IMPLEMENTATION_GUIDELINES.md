@@ -326,6 +326,140 @@ pnpm run lint:eslint # JavaScript/TypeScript only
 
 ------------------------------------------------------------------
 
+## 7.6 SONARQUBE CODE QUALITY RULES
+
+The project uses SonarQube for static code analysis.
+**Always follow these rules to maintain code quality:**
+
+### Exception Handling
+- **Never catch exceptions without handling them**
+- Always log caught errors using `console.error()` with ESLint disable comment
+- Provide meaningful error messages to users
+
+**Example - Correct:**
+```typescript
+try {
+  await riskyOperation();
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.error('Failed to perform operation:', error);
+  setErrorMessage('User-friendly error message');
+}
+```
+
+### Component Props
+- **Mark all component props as readonly**
+- Use `readonly` modifier on interface properties
+- This prevents accidental mutations
+
+**Example - Correct:**
+```typescript
+interface MyComponentProps {
+  readonly title: string;
+  readonly items?: readonly Item[];
+}
+```
+
+### Optional Chaining
+- **Prefer optional chaining over && checks**
+- More concise and easier to read
+- Especially for array access
+
+**Example - Wrong:**
+```typescript
+if (match && match[1]) {
+  return match[1];
+}
+```
+
+**Example - Correct:**
+```typescript
+if (match?.[1]) {
+  return match[1];
+}
+```
+
+### Regex Operations
+- **Use RegExp.exec() instead of String.match()**
+- Better performance and control
+- More explicit about the operation
+
+**Example - Wrong:**
+```typescript
+const match = text.match(/pattern/);
+```
+
+**Example - Correct:**
+```typescript
+const match = /pattern/.exec(text);
+```
+
+### String Literals with Backslashes
+- **Use String.raw for strings containing backslashes**
+- Avoids need for double-escaping
+- Clearer and less error-prone
+
+**Example - Wrong:**
+```typescript
+$('.class\\+name');
+```
+
+**Example - Correct:**
+```typescript
+$(String.raw`.class\+name`);
+```
+
+### Cognitive Complexity
+- **Keep functions under complexity threshold (15)**
+- Extract helper functions when complexity is high
+- Break down nested conditions into separate functions
+
+**Example - When refactoring high complexity:**
+```typescript
+// Extract validation logic
+function isValidImageUrl(src: string): boolean {
+  return src.startsWith('http') || src.startsWith('//') || src.startsWith('/');
+}
+
+// Extract normalization logic  
+function normalizeUrl(src: string): string {
+  if (src.startsWith('http')) return src;
+  if (src.startsWith('//')) return `https:${src}`;
+  return `https://example.com${src}`;
+}
+
+// Main function becomes simpler
+function processImage(element) {
+  const src = getSrc(element);
+  if (!src || !isValidImageUrl(src)) return null;
+  return normalizeUrl(src);
+}
+```
+
+### Control Flow
+- **Avoid continue statements in loops**
+- Use positive conditions instead
+- Makes code flow more explicit
+
+**Example - Wrong:**
+```typescript
+for (const item of items) {
+  if (!item.valid) continue;
+  processItem(item);
+}
+```
+
+**Example - Correct:**
+```typescript
+for (const item of items) {
+  if (item.valid) {
+    processItem(item);
+  }
+}
+```
+
+------------------------------------------------------------------
+
 ## 8. LLM RULES
 
 All prompts must include:
