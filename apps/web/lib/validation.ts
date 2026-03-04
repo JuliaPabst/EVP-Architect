@@ -17,6 +17,41 @@ interface ValidationResult {
   };
 }
 
+interface DatabaseProjectData {
+  readonly company_name: string;
+  readonly id: string;
+  readonly profile_url: string;
+  readonly status: string;
+  readonly admin_token?: string;
+  readonly employee_count?: string;
+  readonly industry?: number;
+  readonly location?: string;
+  readonly profile_image_url?: string;
+  readonly profile_uuid?: string;
+  readonly survey_token?: string;
+}
+
+/**
+ * Maps raw database data to project format.
+ * Extracted to prevent duplication across validation functions.
+ *
+ * @param data - Raw data from Supabase query
+ * @returns Formatted project object
+ */
+function mapProjectData(data: DatabaseProjectData) {
+  return {
+    company_name: data.company_name,
+    employee_count: data.employee_count,
+    id: data.id,
+    industry: data.industry,
+    location: data.location,
+    profile_image_url: data.profile_image_url,
+    profile_url: data.profile_url,
+    profile_uuid: data.profile_uuid,
+    status: data.status,
+  };
+}
+
 /**
  * Validates that a projectId exists and the provided adminToken matches.
  *
@@ -57,17 +92,7 @@ export async function validateAdminToken(
 
     return {
       isValid: true,
-      project: {
-        company_name: data.company_name,
-        employee_count: data.employee_count,
-        id: data.id,
-        industry: data.industry,
-        location: data.location,
-        profile_image_url: data.profile_image_url,
-        profile_url: data.profile_url,
-        profile_uuid: data.profile_uuid,
-        status: data.status,
-      },
+      project: mapProjectData(data),
     };
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -115,17 +140,7 @@ export async function validateSurveyToken(
 
     return {
       isValid: true,
-      project: {
-        company_name: data.company_name,
-        employee_count: data.employee_count,
-        id: data.id,
-        industry: data.industry,
-        location: data.location,
-        profile_image_url: data.profile_image_url,
-        profile_url: data.profile_url,
-        profile_uuid: data.profile_uuid,
-        status: data.status,
-      },
+      project: mapProjectData(data),
     };
   } catch (error) {
     // eslint-disable-next-line no-console
