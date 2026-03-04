@@ -149,9 +149,10 @@ function extractProfileUuid($: cheerio.CheerioAPI): string | null {
     const content = $(el).html() || '';
 
     if (content.includes('window.dataLayer') || content.includes('dataLayer')) {
-      const uuidMatch = /"uuid"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/i.exec(
-        content,
-      );
+      const uuidMatch =
+        /"uuid"\s*:\s*"([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})"/i.exec(
+          content,
+        );
 
       if (uuidMatch?.[1]) {
         foundUuid = uuidMatch[1].trim();
@@ -192,30 +193,29 @@ function extractNumberFromText(text: string): string | null {
 function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
   let employeeCount: string | null = null;
 
-  $(String.raw`.index__metricsContainer__yi\+nh, [class*="metricsContainer"]`).each(
-    (i, el) => {
-      const labelText = $(el).find('[class*="label"]').text();
+  $(
+    String.raw`.index__metricsContainer__yi\+nh, [class*="metricsContainer"]`,
+  ).each((i, el) => {
+    const labelText = $(el).find('[class*="label"]').text();
 
-      if (labelText.includes('Mitarbeitende')) {
-        const valueText = $(el).find('span').last().text().trim();
-        const extractedNumber = extractNumberFromText(valueText);
+    if (labelText.includes('Mitarbeitende')) {
+      const valueText = $(el).find('span').last().text().trim();
+      const extractedNumber = extractNumberFromText(valueText);
 
-        if (extractedNumber) {
-          employeeCount = extractedNumber;
-          return false;
-        }
+      if (extractedNumber) {
+        employeeCount = extractedNumber;
+        return false;
       }
+    }
 
-      return undefined;
-    },
-  );
+    return undefined;
+  });
 
   if (employeeCount) return employeeCount;
 
   const bodyText = $('body').text().slice(0, 50000); // Limit to prevent ReDoS
-  const mitarbeitendeMatch = /Mitarbeitende[:\s]+(?:Rund\s+)?(\d[\d.\-–]{0,20})/i.exec(
-    bodyText,
-  );
+  const mitarbeitendeMatch =
+    /Mitarbeitende[:\s]+(?:Rund\s+)?(\d[\d.\-–]{0,20})/i.exec(bodyText);
 
   if (mitarbeitendeMatch?.[1]) {
     return mitarbeitendeMatch[1];
@@ -242,9 +242,8 @@ function extractEmployeeCount($: cheerio.CheerioAPI): string | null {
     }
   }
 
-  const employeeMatch = /(\d[\d.\-–]{0,20})\s*Mitarbeiter(?!:innen\s+bestätigt)/i.exec(
-    bodyText,
-  );
+  const employeeMatch =
+    /(\d[\d.\-–]{0,20})\s*Mitarbeiter(?!:innen\s+bestätigt)/i.exec(bodyText);
 
   if (employeeMatch?.[1]) {
     return employeeMatch[1];
@@ -324,7 +323,7 @@ function normalizeImageUrl(src: string): string {
 /**
  * Extract image source from element attributes
  */
-function getImageSrc(element: cheerio.Cheerio<cheerio.Element>): string | null {
+function getImageSrc(element: cheerio.Cheerio<cheerio.AnyNode>): string | null {
   return (
     element.attr('src') ||
     element.attr('data-src') ||
@@ -348,12 +347,12 @@ function extractProfileImageUrl($: cheerio.CheerioAPI): string | null {
   for (const selector of selectors) {
     const element = $(selector).first();
 
-    if (!element.length) continue;
+    if (element.length) {
+      const src = getImageSrc(element);
 
-    const src = getImageSrc(element);
-
-    if (src) {
-      return normalizeImageUrl(src);
+      if (src) {
+        return normalizeImageUrl(src);
+      }
     }
   }
 
