@@ -6,9 +6,11 @@ import {NextRequest} from 'next/server';
 import {POST} from './route';
 
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import {scrapeCompanyProfile, isValidKununuUrl} from '@/lib/scraping';
+import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import generateSecureToken from '@/lib/tokens';
 
 // Mock external dependencies
 jest.mock('@/lib/scraping', () => ({
@@ -22,6 +24,8 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
+jest.mock('@/lib/tokens', () => jest.fn());
+
 describe('POST /api/projects/create', () => {
   const mockIsValidKununuUrl = isValidKununuUrl as jest.MockedFunction<
     typeof isValidKununuUrl
@@ -31,6 +35,9 @@ describe('POST /api/projects/create', () => {
   >;
   const mockSupabaseFrom = supabase.from as jest.MockedFunction<
     typeof supabase.from
+  >;
+  const mockGenerateSecureToken = generateSecureToken as jest.MockedFunction<
+    typeof generateSecureToken
   >;
 
   beforeEach(() => {
@@ -131,7 +138,7 @@ describe('POST /api/projects/create', () => {
     mockScrapeCompanyProfile.mockResolvedValue({
       company_name: 'Test Company',
       employee_count: '100-500',
-      industry: 'Technology',
+      industry: 1,
       location: 'Munich, Germany',
       profile_image_url: 'https://example.com/image.jpg',
       profile_url: 'https://kununu.com/de/company',
@@ -164,17 +171,21 @@ describe('POST /api/projects/create', () => {
     });
   });
 
-  it('should successfully create project and return projectId', async () => {
+  it('should successfully create project and return projectId and adminToken', async () => {
     mockIsValidKununuUrl.mockReturnValue(true);
     mockScrapeCompanyProfile.mockResolvedValue({
       company_name: 'Test Company',
       employee_count: '100-500',
-      industry: 'Technology',
+      industry: 1,
       location: 'Munich, Germany',
       profile_image_url: 'https://example.com/image.jpg',
       profile_url: 'https://kununu.com/de/company',
       profile_uuid: 'test-uuid-123',
     });
+
+    mockGenerateSecureToken
+      .mockReturnValueOnce('mock-admin-token')
+      .mockReturnValueOnce('mock-survey-token');
 
     const mockInsert = jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
@@ -198,17 +209,25 @@ describe('POST /api/projects/create', () => {
     const data = await response.json();
 
     expect(response.status).toBe(201);
-    expect(data).toEqual({projectId: 'project-123'});
-    expect(mockInsert).toHaveBeenCalledWith({
-      company_name: 'Test Company',
-      employee_count: '100-500',
-      industry: 'Technology',
-      location: 'Munich, Germany',
-      profile_image_url: 'https://example.com/image.jpg',
-      profile_url: 'https://kununu.com/de/company',
-      profile_uuid: 'test-uuid-123',
-      status: 'initialized',
+    expect(data).toEqual({
+      adminToken: 'mock-admin-token',
+      projectId: 'project-123',
     });
+    expect(mockGenerateSecureToken).toHaveBeenCalledTimes(2);
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        admin_token: 'mock-admin-token',
+        company_name: 'Test Company',
+        employee_count: '100-500',
+        industry: 1,
+        location: 'Munich, Germany',
+        profile_image_url: 'https://example.com/image.jpg',
+        profile_url: 'https://kununu.com/de/company',
+        profile_uuid: 'test-uuid-123',
+        status: 'employer_survey_in_progress',
+        survey_token: 'mock-survey-token',
+      }),
+    );
   });
 
   it('should handle unexpected errors with generic error response', async () => {
@@ -247,12 +266,16 @@ describe('POST /api/projects/create', () => {
     mockScrapeCompanyProfile.mockResolvedValue({
       company_name: 'Test Company',
       employee_count: '100-500',
-      industry: 'Technology',
+      industry: 1,
       location: 'Munich, Germany',
       profile_image_url: 'https://example.com/image.jpg',
       profile_url: 'https://kununu.com/de/test-company',
       profile_uuid: 'test-uuid-456',
     });
+
+    mockGenerateSecureToken
+      .mockReturnValueOnce('test-admin-token')
+      .mockReturnValueOnce('test-survey-token');
 
     mockSupabaseFrom.mockReturnValue({
       insert: jest.fn().mockReturnValue({

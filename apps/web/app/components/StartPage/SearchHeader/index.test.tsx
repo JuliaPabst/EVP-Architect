@@ -114,7 +114,10 @@ describe('SearchHeader', () => {
 
     it('should accept valid kununu URL with de country code', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({projectId: 'test-project-123'}),
+        json: async () => ({
+          adminToken: 'test-admin-123',
+          projectId: 'test-project-123',
+        }),
         ok: true,
       });
 
@@ -130,14 +133,17 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/test-project-123',
+          '/evp-architect/project/test-project-123/employer-survey/step-1?admin=test-admin-123',
         );
       });
     });
 
     it('should accept valid kununu URL with at country code', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({projectId: 'test-project-456'}),
+        json: async () => ({
+          adminToken: 'test-admin-456',
+          projectId: 'test-project-456',
+        }),
         ok: true,
       });
 
@@ -153,14 +159,17 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/test-project-456',
+          '/evp-architect/project/test-project-456/employer-survey/step-1?admin=test-admin-456',
         );
       });
     });
 
     it('should accept valid kununu URL with ch country code', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({projectId: 'test-project-789'}),
+        json: async () => ({
+          adminToken: 'test-admin-789',
+          projectId: 'test-project-789',
+        }),
         ok: true,
       });
 
@@ -176,7 +185,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/test-project-789',
+          '/evp-architect/project/test-project-789/employer-survey/step-1?admin=test-admin-789',
         );
       });
     });
@@ -267,7 +276,10 @@ describe('SearchHeader', () => {
 
     it('should redirect to project page on successful submission', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({projectId: 'success-project-123'}),
+        json: async () => ({
+          adminToken: 'success-admin-123',
+          projectId: 'success-project-123',
+        }),
         ok: true,
       });
 
@@ -283,7 +295,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/success-project-123',
+          '/evp-architect/project/success-project-123/employer-survey/step-1?admin=success-admin-123',
         );
       });
     });
