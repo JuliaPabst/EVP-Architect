@@ -64,7 +64,7 @@ This ENUM enforces valid lifecycle states at the database level and prevents inv
 | `industry` | INTEGER | NULLABLE, FOREIGN KEY → industry(id) | Industry classification reference to kununu industries table |
 | `employee_count` | TEXT | NULLABLE | Number or range of employees |
 | `location` | TEXT | NULLABLE | Company location/headquarters |
-| `profile_image_url` | TEXT | NULLABLE | URL to the companys profile image/logo |
+| `profile_image_url` | TEXT | NULLABLE | URL to the company's profile image/logo |
 | `profile_uuid` | TEXT | NULLABLE | kununu profile UUID extracted from dataLayer |
 | `admin_token` | TEXT | NOT NULL, UNIQUE | Cryptographically secure token for employer access |
 | `survey_token` | TEXT | NOT NULL, UNIQUE | Cryptographically secure token for employee survey access |

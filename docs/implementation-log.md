@@ -432,13 +432,15 @@ Previously redirected to generic project page.
 
 ### Assumptions Made
 
-1. **Token length:** 32 bytes provides sufficient entropy (2^256 possibilities)4. **Industry normalization:** Foreign key constraint ensures data integrity and consistency
-5. **Industry values:** Industry IDs must exist in `industries` table before assignment
-6. **Scraping compatibility:** Scraping logic may need update to map industry names to IDs2. **Token transmission:** URL query parameters acceptable for prototype (not production-grade)
-3. **Survey content:** Placeholder text sufficient; actual survey form implementation is a separate story
-4. **Status transitions:** Status field prepared for future state management
-5. **Employee survey:** Token architecture supports future implementation
-6. **Migration strategy:** Two-phase approach allows safe deployment on existing database
+1. **Token length:** 32 bytes provides sufficient entropy (2^256 possibilities)
+2. **Industry normalization:** Foreign key constraint ensures data integrity and consistency
+3. **Industry values:** Industry IDs must exist in `industries` table before assignment
+4. **Scraping compatibility:** Scraping logic may need update to map industry names to IDs
+5. **Token transmission:** URL query parameters acceptable for prototype (not production-grade)
+6. **Survey content:** Placeholder text sufficient; actual survey form implementation is a separate story
+7. **Status transitions:** Status field prepared for future state management
+8. **Employee survey:** Token architecture supports future implementation
+9. **Migration strategy:** Two-phase approach allows safe deployment on existing database
 
 ### Future Enhancements
 
