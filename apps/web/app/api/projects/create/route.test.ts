@@ -138,7 +138,7 @@ describe('POST /api/projects/create', () => {
     mockScrapeCompanyProfile.mockResolvedValue({
       company_name: 'Test Company',
       employee_count: '100-500',
-      industry: 'Technology',
+      industry: 1,
       location: 'Munich, Germany',
       profile_image_url: 'https://example.com/image.jpg',
       profile_url: 'https://kununu.com/de/company',
@@ -176,7 +176,7 @@ describe('POST /api/projects/create', () => {
     mockScrapeCompanyProfile.mockResolvedValue({
       company_name: 'Test Company',
       employee_count: '100-500',
-      industry: 'Technology',
+      industry: 1,
       location: 'Munich, Germany',
       profile_image_url: 'https://example.com/image.jpg',
       profile_url: 'https://kununu.com/de/company',
@@ -219,7 +219,7 @@ describe('POST /api/projects/create', () => {
         admin_token: 'mock-admin-token',
         company_name: 'Test Company',
         employee_count: '100-500',
-        industry: 'Technology',
+        industry: 1,
         location: 'Munich, Germany',
         profile_image_url: 'https://example.com/image.jpg',
         profile_url: 'https://kununu.com/de/company',
@@ -266,7 +266,7 @@ describe('POST /api/projects/create', () => {
     mockScrapeCompanyProfile.mockResolvedValue({
       company_name: 'Test Company',
       employee_count: '100-500',
-      industry: 'Technology',
+      industry: 1,
       location: 'Munich, Germany',
       profile_image_url: 'https://example.com/image.jpg',
       profile_url: 'https://kununu.com/de/test-company',

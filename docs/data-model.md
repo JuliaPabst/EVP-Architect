@@ -46,7 +46,7 @@ CREATE TYPE evp_project_status AS ENUM (
   'employee_survey_active',
   'evp_generation_available',
   'evp_generated'
-);
+);``
 
 This ENUM enforces valid lifecycle states at the database level and prevents invalid or inconsistent status values.
 
@@ -61,7 +61,7 @@ This ENUM enforces valid lifecycle states at the database level and prevents inv
 | `updated_at` | TIMESTAMP | DEFAULT NOW() | Timestamp of last project update |
 | `profile_url` | TEXT | NOT NULL | The kununu company profile URL |
 | `company_name` | TEXT | NOT NULL | Company name extracted from profile (mandatory) |
-| `industry` | INTEGER | NULLABLE, FOREIGN KEY → industry(id) | Industry classification reference to kununu industry table |
+| `industry` | INTEGER | NULLABLE, FOREIGN KEY → industry(id) | Industry classification reference to kununu industries table |
 | `employee_count` | TEXT | NULLABLE | Number or range of employees |
 | `location` | TEXT | NULLABLE | Company location/headquarters |
 | `profile_image_url` | TEXT | NULLABLE | URL to the companys profile image/logo |

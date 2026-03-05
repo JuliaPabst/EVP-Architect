@@ -418,12 +418,6 @@ Previously redirected to generic project page.
 - `/app/evp-architect/project/[projectId]/employer-survey/step-4/page.tsx`
 - `/app/evp-architect/project/[projectId]/employer-survey/step-5/page.tsx`
 
-**Database Migrations:**
-- `/docs/migrations/001_add_token_authentication.sql`
-- `/docs/migrations/002_add_token_constraints.sql`
-- `/docs/migrations/003_create_industries_table.sql`
-- `/docs/migrations/README.md`
-
 **Tests:**
 - `/lib/tokens.test.ts`
 - `/lib/validation.test.ts`
