@@ -1,0 +1,75 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+@use '@kununu/ui/theme/scss/mixins/typography';
+
+.focusSelection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-l;
+  margin-bottom: spacings.$kun-spacing-l;
+}
+
+.title {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 21px;
+  letter-spacing: 0.2px;
+}
+
+.instructionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.instructionText {
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  line-height: 16px;
+}
+
+.factorsSelected {
+  display: flex;
+  gap: spacings.$kun-spacing-2xs;
+  align-items: center;
+}
+
+.iconWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15.85px;
+  height: 15.85px;
+}
+
+.stepCircle {
+  width: 15.85px;
+  height: 15.85px;
+  border: 2px solid colors.$kun-color-text-secondary;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.successIcon {
+  display: flex;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: spacings.$kun-spacing-xs spacings.$kun-spacing-2xs;
+  width: 100%;
+}

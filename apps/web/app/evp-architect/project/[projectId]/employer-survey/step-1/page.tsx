@@ -1,4 +1,10 @@
-import SurveyStepLayout from '../SurveyStepLayout';
+'use client';
+
+import {Suspense} from 'react';
+
+import KununuHeader from '@/app/components/KununuHeader';
+
+import Step1Content from './components/Step1Content';
 
 interface StepPageProps {
   readonly params: {
@@ -7,5 +13,12 @@ interface StepPageProps {
 }
 
 export default function EmployerSurveyStep1({params}: StepPageProps) {
-  return <SurveyStepLayout projectId={params.projectId} stepNumber={1} />;
+  return (
+    <>
+      <KununuHeader />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Step1Content companyName="Expedia Group" projectId={params.projectId} />
+      </Suspense>
+    </>
+  );
 }
