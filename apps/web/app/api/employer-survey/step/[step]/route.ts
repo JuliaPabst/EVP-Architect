@@ -9,7 +9,7 @@ import {saveStepAnswersSchema} from '@/lib/validation/employerSurveySchemas';
  *
  * Purpose:
  *   Retrieve employer survey questions for a specific step
- *   along with any existing answers.
+ *   along with any existing answers and selectable options.
  *
  * Input:
  *   - Path parameter: step (1-5)
@@ -26,9 +26,16 @@ import {saveStepAnswersSchema} from '@/lib/validation/employerSurveySchemas';
  *         prompt: string,
  *         question_type: string,
  *         selection_limit: number | null,
+ *         options?: [{ value_key: string, label: string }],
  *         answer: { text?: string, values?: string[] } | null
  *       }]
  *     }
+ *
+ *   Notes:
+ *     - options field only present for single_select and multi_select questions
+ *     - single_select options loaded from evp_question_options (filtered by question_key)
+ *     - multi_select options loaded from evp_value_options (all value chips)
+ *     - Options ordered deterministically (by position for single_select, by key for multi_select)
  *
  *   Errors:
  *     400: Invalid step

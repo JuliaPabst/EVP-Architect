@@ -1,6 +1,8 @@
+import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
+import {ValueOptionRepository} from '@/lib/repositories/valueOptionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 import {QuestionWithAnswer, StepResponse} from '@/lib/types/survey';
 import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
@@ -11,13 +13,17 @@ import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
 export class EmployerSurveyService {
   private readonly answerRepository: SurveyAnswerRepository;
   private readonly questionRepository: SurveyQuestionRepository;
+  private readonly questionOptionRepository: QuestionOptionRepository;
   private readonly submissionRepository: SurveySubmissionRepository;
+  private readonly valueOptionRepository: ValueOptionRepository;
   private readonly valueSelectionRepository: ValueSelectionRepository;
 
   constructor() {
     this.questionRepository = new SurveyQuestionRepository();
+    this.questionOptionRepository = new QuestionOptionRepository();
     this.submissionRepository = new SurveySubmissionRepository();
     this.answerRepository = new SurveyAnswerRepository();
+    this.valueOptionRepository = new ValueOptionRepository();
     this.valueSelectionRepository = new ValueSelectionRepository();
   }
 
@@ -51,18 +57,50 @@ export class EmployerSurveyService {
     const selectionsMap =
       await this.valueSelectionRepository.getSelectionsByAnswers(answerIds);
 
-    // Merge questions with answers
+    // Load options for single_select questions
+    const singleSelectKeys = questions
+      .filter((q) => q.question_type === 'single_select')
+      .map((q) => q.key);
+    const questionOptionsMap =
+      await this.questionOptionRepository.getOptionsByQuestionKeys(
+        singleSelectKeys,
+      );
+
+    // Load options for multi_select questions (all value options)
+    const hasMultiSelect = questions.some(
+      (q) => q.question_type === 'multi_select',
+    );
+    const multiSelectOptions = hasMultiSelect
+      ? await this.valueOptionRepository.getAllValueOptions()
+      : [];
+
+    // Merge questions with answers and options
     const questionsWithAnswers: QuestionWithAnswer[] = questions.map((q) => {
       const answer = answersMap.get(q.id);
 
+      // Base question fields
+      const baseQuestion = {
+        id: q.id,
+        key: q.key,
+        prompt: q.prompt,
+        question_type: q.question_type,
+        selection_limit: q.selection_limit,
+      };
+
+      // Add options for select-type questions
+      let options: Array<{value_key: string; label: string}> | undefined;
+
+      if (q.question_type === 'single_select') {
+        options = questionOptionsMap.get(q.key) || [];
+      } else if (q.question_type === 'multi_select') {
+        options = multiSelectOptions;
+      }
+
       if (!answer) {
         return {
+          ...baseQuestion,
           answer: null,
-          id: q.id,
-          key: q.key,
-          prompt: q.prompt,
-          question_type: q.question_type,
-          selection_limit: q.selection_limit,
+          ...(options && {options}),
         };
       }
 
@@ -74,23 +112,16 @@ export class EmployerSurveyService {
         const values = selectionsMap.get(answer.id) || [];
 
         return {
+          ...baseQuestion,
           answer: {values},
-          id: q.id,
-          key: q.key,
-          prompt: q.prompt,
-          question_type: q.question_type,
-          selection_limit: q.selection_limit,
+          ...(options && {options}),
         };
       }
 
       // text or long_text
       return {
+        ...baseQuestion,
         answer: answer.answer_text ? {text: answer.answer_text} : null,
-        id: q.id,
-        key: q.key,
-        prompt: q.prompt,
-        question_type: q.question_type,
-        selection_limit: q.selection_limit,
       };
     });
 

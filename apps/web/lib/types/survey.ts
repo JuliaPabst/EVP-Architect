@@ -48,6 +48,10 @@ export interface QuestionWithAnswer {
   } | null;
   readonly id: string;
   readonly key: string;
+  readonly options?: readonly {
+    readonly value_key: string;
+    readonly label: string;
+  }[];
   readonly prompt: string;
   readonly question_type: string;
   readonly selection_limit: number | null;

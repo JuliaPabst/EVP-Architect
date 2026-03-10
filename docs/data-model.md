@@ -285,6 +285,50 @@ Canonical list of selectable value chips.
 
 ------------------------------------------------------------------------
 
+# evp_question_options
+
+Stores selectable options for single_select questions.
+
+Provides question-specific option lists, separate from the global value chips in evp_value_options.
+
+## Purpose
+
+- Defines dropdown/radio options for individual single_select questions
+- Enables different questions to have different option sets
+- Maintains deterministic ordering via position field
+
+## Fields
+
+  Field          Type          Constraints   Description
+  -------------- ------------- ------------- --------------------------------
+  question_key   TEXT          NOT NULL      References evp_survey_questions.key
+  value_key      TEXT          NOT NULL      Stable option identifier
+  label_de       TEXT          NOT NULL      German display label
+  position       INT           NOT NULL      Deterministic ordering
+  created_at     TIMESTAMPTZ   DEFAULT now() Timestamp
+
+## Constraints
+
+  Constraint                            Purpose
+  ------------------------------------- ------------------------------------
+  PRIMARY KEY(question_key, value_key)  Prevent duplicate options per question
+  INDEX on question_key                 Efficient lookup by question
+
+## Usage
+
+- **single_select questions**: Options loaded from evp_question_options WHERE question_key = question.key
+- **multi_select questions**: Options loaded from evp_value_options (all value chips)
+- **text/long_text questions**: No options loaded
+
+## Notes
+
+- Raw survey answers remain in evp_survey_answers (immutable)
+- Selected values stored in evp_answer_value_selections
+- Question definitions stored in evp_survey_questions
+- Separation ensures clean data model: question definitions vs. selectable options vs. actual answers
+
+------------------------------------------------------------------------
+
 # evp_answer_value_selections
 
 Join table for multi-select value answers.
