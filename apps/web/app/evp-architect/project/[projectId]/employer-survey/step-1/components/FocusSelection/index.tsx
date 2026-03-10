@@ -45,6 +45,7 @@ export default function FocusSelection({
 
   const selectedCount = selectedFactors.length;
   const meetsMinimum = selectedCount >= minSelections;
+  const maxReached = selectedCount >= maxSelections;
 
   return (
     <div className={styles.focusSelection}>
@@ -68,19 +69,25 @@ export default function FocusSelection({
         </div>
       </div>
       <div className={styles.tags}>
-        {options.map((option) => (
-          <ChoiceChip
-            checked={selectedFactors.includes(option.id)}
-            fitContent
-            id={option.id}
-            key={option.id}
-            name="focus-factors"
-            onChange={(e) => handleChipChange(option.id, e.target.checked)}
-            size={ChoiceChipSize.L}
-            text={option.label}
-            value={option.id}
-          />
-        ))}
+        {options.map((option) => {
+          const isSelected = selectedFactors.includes(option.id);
+          const isDisabled = maxReached && !isSelected;
+
+          return (
+            <ChoiceChip
+              checked={isSelected}
+              disabled={isDisabled}
+              fitContent
+              id={option.id}
+              key={option.id}
+              name="focus-factors"
+              onChange={(e) => handleChipChange(option.id, e.target.checked)}
+              size={ChoiceChipSize.L}
+              text={option.label}
+              value={option.id}
+            />
+          );
+        })}
       </div>
     </div>
   );
