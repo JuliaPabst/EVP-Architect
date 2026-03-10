@@ -1,7 +1,25 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+
 .pageWrapper {
   position: relative;
   width: 100%;
   min-height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    colors.$kun-color-base-yellow-100 0%,
+    colors.$kun-color-base-yellow-100 40%,
+    colors.$kun-color-bg-soft 40%,
+    colors.$kun-color-bg-soft 100%
+  );
+  overflow: hidden;
+}
+
+.backgroundWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
   overflow: hidden;
 }
 

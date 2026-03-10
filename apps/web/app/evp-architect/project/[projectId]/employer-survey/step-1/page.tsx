@@ -20,7 +20,9 @@ interface StepPageProps {
 export default function EmployerSurveyStep1({params}: StepPageProps) {
   return (
     <div className={styles.pageWrapper}>
-      <UnunuBackground color={UnunuBackgroundColors.YELLOW} />
+      <div className={styles.backgroundWrapper}>
+        <UnunuBackground color={UnunuBackgroundColors.YELLOW} />
+      </div>
       <div className={styles.header}>
         <KununuHeader />
       </div>
