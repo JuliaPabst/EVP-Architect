@@ -3,6 +3,7 @@ import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionReposit
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 import {QuestionWithAnswer, StepResponse} from '@/lib/types/survey';
+import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
 
 /**
  * Service for employer survey operations
@@ -97,5 +98,131 @@ export class EmployerSurveyService {
       questions: questionsWithAnswers,
       step,
     };
+  }
+
+  /**
+   * Save answers for a specific step
+   *
+   * @param projectId - Project UUID
+   * @param step - Step number (1-5)
+   * @param answers - Array of answer inputs
+   * @throws Error if validation fails or questions don't belong to step
+   */
+  async saveStepAnswers(
+    projectId: string,
+    step: number,
+    answers: readonly AnswerInput[],
+  ): Promise<void> {
+    // Get or create employer submission
+    const submission =
+      await this.submissionRepository.getOrCreateEmployerSubmission(projectId);
+
+    // Fetch all questions by IDs
+    const questionIds = answers.map((a) => a.question_id);
+    const questionsMap =
+      await this.questionRepository.getQuestionsByIds(questionIds);
+
+    // Validate all questions exist and belong to this step
+    for (const answer of answers) {
+      const question = questionsMap.get(answer.question_id);
+
+      if (!question) {
+        throw new Error(`Question not found: ${answer.question_id}`);
+      }
+
+      if (question.survey_type !== 'employer') {
+        throw new Error(`Question is not an employer question`);
+      }
+
+      if (question.step !== step) {
+        throw new Error(`Question does not belong to step ${step}`);
+      }
+
+      // Validate answer based on question type
+      if (
+        question.question_type === 'text' ||
+        question.question_type === 'long_text'
+      ) {
+        if (!answer.answer_text) {
+          throw new Error(
+            `answer_text required for question ${answer.question_id}`,
+          );
+        }
+
+        if (answer.selected_values && answer.selected_values.length > 0) {
+          throw new Error(
+            `selected_values must be empty for text question ${answer.question_id}`,
+          );
+        }
+      }
+
+      if (question.question_type === 'single_select') {
+        if (!answer.selected_values || answer.selected_values.length !== 1) {
+          throw new Error(
+            `Exactly 1 value required for single_select question ${answer.question_id}`,
+          );
+        }
+
+        if (answer.answer_text) {
+          throw new Error(
+            `answer_text must be empty for single_select question ${answer.question_id}`,
+          );
+        }
+      }
+
+      if (question.question_type === 'multi_select') {
+        if (!answer.selected_values || answer.selected_values.length === 0) {
+          throw new Error(
+            `At least 1 value required for multi_select question ${answer.question_id}`,
+          );
+        }
+
+        if (
+          question.selection_limit &&
+          answer.selected_values.length > question.selection_limit
+        ) {
+          throw new Error(
+            `Too many values for multi_select question ${answer.question_id} (limit: ${question.selection_limit})`,
+          );
+        }
+
+        if (answer.answer_text) {
+          throw new Error(
+            `answer_text must be empty for multi_select question ${answer.question_id}`,
+          );
+        }
+      }
+    }
+
+    // Process all answers (transaction-like behavior through sequential operations)
+    for (const answer of answers) {
+      const question = questionsMap.get(answer.question_id)!;
+
+      // Upsert answer
+      const savedAnswer = await this.answerRepository.upsertAnswer(
+        submission.id,
+        answer.question_id,
+        answer.answer_text || null,
+      );
+
+      // Handle value selections
+      if (
+        question.question_type === 'single_select' ||
+        question.question_type === 'multi_select'
+      ) {
+        // Delete existing selections
+        await this.valueSelectionRepository.deleteSelectionsByAnswer(
+          savedAnswer.id,
+        );
+
+        // Insert new selections
+        if (answer.selected_values && answer.selected_values.length > 0) {
+          await this.valueSelectionRepository.insertSelections(
+            savedAnswer.id,
+            answer.selected_values,
+          );
+        }
+      }
+    }
   }
 }

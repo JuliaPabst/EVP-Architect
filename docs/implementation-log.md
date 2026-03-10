@@ -704,3 +704,90 @@ None
 - Add answer validation schemas with Zod
 - Implement transaction handling for multi-table writes
 
+------------------------------------------------------------
+
+## Employer Survey Step POST Endpoint – March 10, 2026
+
+### What was implemented
+
+Backend logic for saving employer survey answers for a specific step (1-5).
+
+- POST endpoint: `/api/employer-survey/step/[step]`
+- Zod validation for request body
+- Question validation (must belong to step and be employer questions)
+- Answer type validation based on question type
+- Transactional-like saves with upsert and delete/insert operations
+- Does NOT modify submission.status (supports Save + Continue)
+
+### Files created
+
+- `/lib/validation/employerSurveySchemas.ts` - Zod schemas for answer validation
+
+### Files modified
+
+- `/lib/repositories/surveyQuestionRepository.ts` - Added `getQuestionsByIds()` method
+- `/lib/repositories/surveyAnswerRepository.ts` - Added `upsertAnswer()` method
+- `/lib/repositories/valueSelectionRepository.ts` - Added `deleteSelectionsByAnswer()` and `insertSelections()` methods
+- `/lib/services/employerSurveyService.ts` - Added `saveStepAnswers()` method with validation logic
+- `/app/api/employer-survey/step/[step]/route.ts` - Added POST handler
+
+### Database changes
+
+None (uses existing schema from data-model.md)
+
+### Assumptions made
+
+- Upsert uses Supabase's `onConflict` option with composite unique constraint `(submission_id, question_id)`
+- Transaction behavior achieved through sequential operations (Supabase doesn't expose native transactions in client)
+- All validation errors from service layer result in 400 responses
+- Empty `selected_values` arrays are treated as invalid for select questions
+- Text answer max length: 10,000 characters
+
+### Technical details
+
+**Request validation:**
+- Zod schema validates structure and basic types
+- Service layer validates business rules
+
+**Question validation:**
+- All question IDs must exist in database
+- All questions must have `survey_type = 'employer'`
+- All questions must belong to the specified step
+- Returns `invalid_question_for_step` error if step mismatch
+
+**Answer type validation:**
+- `text`/`long_text`: Requires `answer_text`, max 10,000 chars, no `selected_values`
+- `single_select`: Requires exactly 1 value in `selected_values`, no `answer_text`
+- `multi_select`: Requires at least 1 value in `selected_values`, respects `selection_limit`, no `answer_text`
+- Returns `validation_failed` error if type validation fails
+
+**Database operations:**
+1. Get or create employer submission (if first access to project)
+2. For each answer:
+   - Upsert into `evp_survey_answers` (replaces if exists)
+   - For select questions: Delete all existing `evp_answer_value_selections`
+   - For select questions: Insert new selections with position index
+
+**Response format:**
+```json
+{
+  "success": true
+}
+```
+
+**Error responses:**
+- `invalid_step` (400): Step not 1-5
+- `validation_failed` (400): Zod validation or answer type validation failed
+- `invalid_question_for_step` (400): Question doesn't belong to specified step
+- `internal_error` (500): Database or unexpected errors
+
+### Open questions
+
+None
+
+### Next steps
+
+- Implement POST `/api/employer-survey/complete` endpoint
+- Add proper transaction support if Supabase makes it available
+- Consider optimizing to batch insert selections
+

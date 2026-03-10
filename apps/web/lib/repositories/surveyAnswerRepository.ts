@@ -38,4 +38,39 @@ export class SurveyAnswerRepository {
 
     return answerMap;
   }
+
+  /**
+   * Upsert an answer (insert or update based on unique constraint)
+   *
+   * @param submissionId - Submission UUID
+   * @param questionId - Question UUID
+   * @param answerText - Text answer (for text/long_text questions)
+   * @returns Created or updated answer
+   */
+  async upsertAnswer(
+    submissionId: string,
+    questionId: string,
+    answerText: string | null,
+  ): Promise<SurveyAnswer> {
+    const {data, error} = await supabase
+      .from('evp_survey_answers')
+      .upsert(
+        {
+          answer_text: answerText,
+          question_id: questionId,
+          submission_id: submissionId,
+        },
+        {
+          onConflict: 'submission_id,question_id',
+        },
+      )
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to upsert answer: ${error.message}`);
+    }
+
+    return data;
+  }
 }

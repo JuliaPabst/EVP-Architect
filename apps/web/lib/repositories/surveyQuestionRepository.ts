@@ -29,4 +29,35 @@ export class SurveyQuestionRepository {
 
     return data || [];
   }
+
+  /**
+   * Fetch questions by IDs
+   *
+   * @param questionIds - Array of question UUIDs
+   * @returns Map of question_id -> question
+   */
+  async getQuestionsByIds(
+    questionIds: readonly string[],
+  ): Promise<Map<string, SurveyQuestion>> {
+    if (questionIds.length === 0) {
+      return new Map();
+    }
+
+    const {data, error} = await supabase
+      .from('evp_survey_questions')
+      .select('*')
+      .in('id', questionIds as string[]);
+
+    if (error) {
+      throw new Error(`Failed to fetch questions by IDs: ${error.message}`);
+    }
+
+    const questionMap = new Map<string, SurveyQuestion>();
+
+    for (const question of data || []) {
+      questionMap.set(question.id, question);
+    }
+
+    return questionMap;
+  }
 }
