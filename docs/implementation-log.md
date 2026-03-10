@@ -610,3 +610,97 @@ Following the data model specification:
 ✅ Schema matches `/docs/data-model.md` specification exactly  
 ✅ Implementation logged in `/docs/implementation-log.md`
 
+------------------------------------------------------------
+
+## Employer Survey Step GET Endpoint – March 10, 2026
+
+### What was implemented
+
+Backend logic for retrieving employer survey questions and answers for a specific step (1-5).
+
+- GET endpoint: `/api/employer-survey/step/[step]`
+- Repository-service architecture
+- Automatic employer submission creation on first access
+- Question-answer merging with value selections
+- Step validation (1-5 only)
+- Project access validation via middleware
+
+### Files created
+
+- `/lib/types/survey.ts` - TypeScript types for survey entities
+- `/lib/repositories/surveyQuestionRepository.ts` - Question fetching logic
+- `/lib/repositories/surveySubmissionRepository.ts` - Submission management
+- `/lib/repositories/surveyAnswerRepository.ts` - Answer retrieval
+- `/lib/repositories/valueSelectionRepository.ts` - Multi-select value fetching
+- `/lib/services/employerSurveyService.ts` - Business logic orchestration
+- `/app/api/employer-survey/step/[step]/route.ts` - GET route handler
+
+### Files modified
+
+None (all new files)
+
+### Database changes
+
+None (uses existing schema from data-model.md)
+
+### Assumptions made
+
+- Middleware `validateProjectAccess` already exists and works correctly
+- Database schema matches data-model.md exactly
+- PGRST116 error code indicates "no rows found" for Supabase queries
+- One employer submission per project (enforced by database constraint)
+- Submission auto-creation is atomic via repository method
+- Empty answer means answer object is null, not empty strings/arrays
+
+### Open questions
+
+None
+
+### Technical details
+
+**Architecture:**
+- Routes call services
+- Services orchestrate business logic
+- Repositories handle database operations
+- Clean separation of concerns
+
+**Step validation:**
+- Step must be integer between 1-5
+- Invalid step returns 400 with `{"error": "invalid_step"}`
+
+**Submission handling:**
+- Gets existing employer submission or creates new one
+- New submissions have status `in_progress` and empty `respondent_meta`
+- Creation is atomic via single database operation
+
+**Response format:**
+```json
+{
+  "step": 1,
+  "questions": [
+    {
+      "id": "uuid",
+      "key": "company_mission",
+      "prompt": "Question text",
+      "question_type": "text",
+      "selection_limit": null,
+      "answer": {
+        "text": "Answer text"
+      }
+    }
+  ]
+}
+```
+
+**Answer mapping:**
+- text/long_text questions → `answer.text`
+- single_select/multi_select questions → `answer.values[]`
+- No answer → `answer: null`
+
+### Next steps
+
+- Implement POST endpoint for saving answers
+- Implement submission completion endpoint
+- Add answer validation schemas with Zod
+- Implement transaction handling for multi-table writes
+
