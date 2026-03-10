@@ -7,23 +7,15 @@ import styles from './index.module.scss';
 
 interface NavigationButtonsProps {
   readonly canContinue?: boolean;
-  readonly onSave?: () => void;
   readonly onContinue?: () => void;
 }
 
 export default function NavigationButtons({
   canContinue = false,
-  onSave,
   onContinue,
 }: NavigationButtonsProps) {
   return (
     <div className={styles.navigationButtons}>
-      <Button
-        color={ButtonColor.SECONDARY}
-        onClick={onSave}
-        size={ButtonSize.M}
-        text="Save"
-      />
       <Button
         color={ButtonColor.PRIMARY}
         disabled={!canContinue}

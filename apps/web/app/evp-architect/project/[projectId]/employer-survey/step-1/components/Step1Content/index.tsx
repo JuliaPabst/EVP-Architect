@@ -55,11 +55,6 @@ export default function Step1Content({
     router.push(`/evp-architect/project/${projectId}`);
   };
 
-  const handleSave = () => {
-    // TODO: Save data without navigation
-    console.log('Saving data...', {selectedFactors, additionalContext});
-  };
-
   const handleContinue = () => {
     // TODO: Save data and navigate to step 2
     router.push(
@@ -101,7 +96,6 @@ export default function Step1Content({
         <NavigationButtons
           canContinue={canContinue}
           onContinue={handleContinue}
-          onSave={handleSave}
         />
       </div>
     </div>
