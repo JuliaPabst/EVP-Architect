@@ -11,6 +11,7 @@ interface ValidationResult {
     readonly status: string;
     readonly employee_count?: string;
     readonly industry?: number;
+    readonly industry_name?: string;
     readonly location?: string;
     readonly profile_image_url?: string;
     readonly profile_uuid?: string;
@@ -24,7 +25,7 @@ interface DatabaseProjectData {
   readonly status: string;
   readonly admin_token?: string;
   readonly employee_count?: string;
-  readonly industry?: number;
+  readonly industry?: number | {name: string} | null;
   readonly location?: string;
   readonly profile_image_url?: string;
   readonly profile_uuid?: string;
@@ -43,7 +44,8 @@ function mapProjectData(data: DatabaseProjectData) {
     company_name: data.company_name,
     employee_count: data.employee_count,
     id: data.id,
-    industry: data.industry,
+    industry: typeof data.industry === 'number' ? data.industry : undefined,
+    industry_name: typeof data.industry === 'object' && data.industry?.name ? data.industry.name : undefined,
     location: data.location,
     profile_image_url: data.profile_image_url,
     profile_url: data.profile_url,
@@ -78,7 +80,7 @@ export async function validateAdminToken(
   try {
     const {data, error} = await supabase
       .from('evp_projects')
-      .select('*')
+      .select('*, industry(name)')
       .eq('id', projectId)
       .eq('admin_token', adminToken)
       .single();
@@ -127,7 +129,7 @@ export async function validateSurveyToken(
   try {
     const {data, error} = await supabase
       .from('evp_projects')
-      .select('*')
+      .select('*, industry(name)')
       .eq('survey_token', surveyToken)
       .single();
 

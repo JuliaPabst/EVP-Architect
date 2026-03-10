@@ -68,6 +68,8 @@ describe('validateAdminToken', () => {
 
     const result = await validateAdminToken(mockProjectId, mockAdminToken);
 
+    expect(supabase.from).toHaveBeenCalledWith('evp_projects');
+    expect(mockSelect).toHaveBeenCalledWith('*, industry(name)');
     expect(result.isValid).toBe(true);
     expect(result.project).toBeDefined();
     expect(result.project?.company_name).toBe('Test Company');
@@ -133,6 +135,41 @@ describe('validateAdminToken', () => {
     expect(result.isValid).toBe(false);
     expect(result.error).toBe('Invalid project or admin token');
   });
+
+  it('should extract industry_name when industry is joined as object', async () => {
+    const mockDataWithIndustryJoin = {
+      ...mockProjectData,
+      industry: {name: 'Technology'},
+    };
+
+    const mockSelect = jest.fn().mockReturnThis();
+    const mockEq = jest.fn().mockReturnThis();
+    const mockSingle = jest.fn().mockResolvedValue({
+      data: mockDataWithIndustryJoin,
+      error: null,
+    });
+
+    (supabase.from as jest.Mock).mockReturnValue({
+      eq: mockEq,
+      select: mockSelect,
+      single: mockSingle,
+    });
+
+    mockSelect.mockReturnValue({
+      eq: mockEq,
+    });
+    mockEq.mockReturnValueOnce({
+      eq: mockEq,
+    });
+    mockEq.mockReturnValueOnce({
+      single: mockSingle,
+    });
+
+    const result = await validateAdminToken(mockProjectId, mockAdminToken);
+
+    expect(result.isValid).toBe(true);
+    expect(result.project?.industry_name).toBe('Technology');
+  });
 });
 
 describe('validateSurveyToken', () => {
@@ -185,6 +222,8 @@ describe('validateSurveyToken', () => {
 
     const result = await validateSurveyToken(mockSurveyToken);
 
+    expect(supabase.from).toHaveBeenCalledWith('evp_projects');
+    expect(mockSelect).toHaveBeenCalledWith('*, industry(name)');
     expect(result.isValid).toBe(true);
     expect(result.project).toBeDefined();
     expect(result.project?.company_name).toBe('Test Company');

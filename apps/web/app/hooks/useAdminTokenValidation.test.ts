@@ -54,6 +54,10 @@ describe('useAdminTokenValidation', () => {
         isValid: true,
         project: {
           company_name: 'Test Company',
+          employee_count: '100-500',
+          industry_name: 'Technology',
+          location: 'Berlin, Germany',
+          profile_image_url: 'https://example.com/logo.png',
         },
       }),
       ok: true,
@@ -66,6 +70,7 @@ describe('useAdminTokenValidation', () => {
     // Initially validating
     expect(result.current.isValidating).toBe(true);
     expect(result.current.companyName).toBe('');
+    expect(result.current.project).toBeUndefined();
 
     // After validation
     await waitFor(() => {
@@ -73,6 +78,13 @@ describe('useAdminTokenValidation', () => {
     });
 
     expect(result.current.companyName).toBe('Test Company');
+    expect(result.current.project).toEqual({
+      company_name: 'Test Company',
+      employee_count: '100-500',
+      industry_name: 'Technology',
+      location: 'Berlin, Germany',
+      profile_image_url: 'https://example.com/logo.png',
+    });
     expect(mockPush).not.toHaveBeenCalled();
   });
 

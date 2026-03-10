@@ -14,6 +14,9 @@ import styles from './index.module.scss';
 interface Step1ContentProps {
   readonly companyName: string;
   readonly projectId: string;
+  readonly industry?: string;
+  readonly location?: string;
+  readonly logoUrl?: string;
 }
 
 // Values from Figma design - Culture & Values
@@ -44,6 +47,9 @@ const focusOptions = [
 export default function Step1Content({
   companyName,
   projectId,
+  industry,
+  location,
+  logoUrl,
 }: Step1ContentProps) {
   const router = useRouter();
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
@@ -74,8 +80,9 @@ export default function Step1Content({
 
         <SelectedCompany
           companyName={companyName}
-          industry="Travel"
-          location="Berlin, Deutschland"
+          industry={industry}
+          location={location}
+          logoUrl={logoUrl}
         />
 
         <FocusSelection
