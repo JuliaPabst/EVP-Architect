@@ -26,24 +26,24 @@ async function validateStepRequest(
   request: NextRequest,
   stepParam: string,
 ): Promise<
-  | {success: true; projectId: string; step: number}
-  | {success: false; error: NextResponse}
+  | {projectId: string; step: number; success: true}
+  | {error: NextResponse; success: false}
 > {
   // Validate project access
   const validation = await validateProjectAccess(request);
 
   if (!validation.success) {
-    return {success: false, error: validation.error!};
+    return {error: validation.error!, success: false};
   }
 
   // Parse and validate step
   const step = validateStep(stepParam);
 
   if (step === null) {
-    return {success: false, error: BadRequestError.invalidStep()};
+    return {error: BadRequestError.invalidStep(), success: false};
   }
 
-  return {success: true, projectId: validation.project!.id, step};
+  return {projectId: validation.project!.id, step, success: true};
 }
 
 /**

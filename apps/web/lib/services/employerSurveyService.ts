@@ -5,7 +5,11 @@ import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionReposit
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
 import {ValueOptionRepository} from '@/lib/repositories/valueOptionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
-import {QuestionWithAnswer, StepResponse} from '@/lib/types/survey';
+import {
+  QuestionWithAnswer,
+  StepResponse,
+  SurveyQuestion,
+} from '@/lib/types/survey';
 import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
 
 // Export as default to satisfy linting rules
@@ -145,9 +149,9 @@ class EmployerSurveyService {
   /**
    * Validate question exists and belongs to the step
    */
-  private validateQuestionExists(
+  private static validateQuestionExists(
     answer: AnswerInput,
-    questionsMap: Map<string, any>,
+    questionsMap: Map<string, SurveyQuestion>,
     step: number,
   ): void {
     const question = questionsMap.get(answer.question_id);
@@ -168,7 +172,7 @@ class EmployerSurveyService {
   /**
    * Validate text or long_text answer
    */
-  private validateTextAnswer(answer: AnswerInput): void {
+  private static validateTextAnswer(answer: AnswerInput): void {
     if (!answer.answer_text) {
       throw new Error(
         `answer_text required for question ${answer.question_id}`,
@@ -185,7 +189,7 @@ class EmployerSurveyService {
   /**
    * Validate single_select answer
    */
-  private validateSingleSelectAnswer(answer: AnswerInput): void {
+  private static validateSingleSelectAnswer(answer: AnswerInput): void {
     if (answer.selected_values?.length !== 1) {
       throw new Error(
         `Exactly 1 value required for single_select question ${answer.question_id}`,
@@ -202,7 +206,7 @@ class EmployerSurveyService {
   /**
    * Validate multi_select answer
    */
-  private validateMultiSelectAnswer(
+  private static validateMultiSelectAnswer(
     answer: AnswerInput,
     selectionLimit: number | null,
   ): void {
@@ -228,26 +232,29 @@ class EmployerSurveyService {
   /**
    * Validate answer based on question type
    */
-  private validateAnswerForQuestionType(
+  private static validateAnswerForQuestionType(
     answer: AnswerInput,
-    question: any,
+    question: SurveyQuestion,
   ): void {
     const isTextType =
       question.question_type === 'text' ||
       question.question_type === 'long_text';
 
     if (isTextType) {
-      this.validateTextAnswer(answer);
+      EmployerSurveyService.validateTextAnswer(answer);
       return;
     }
 
     if (question.question_type === 'single_select') {
-      this.validateSingleSelectAnswer(answer);
+      EmployerSurveyService.validateSingleSelectAnswer(answer);
       return;
     }
 
     if (question.question_type === 'multi_select') {
-      this.validateMultiSelectAnswer(answer, question.selection_limit);
+      EmployerSurveyService.validateMultiSelectAnswer(
+        answer,
+        question.selection_limit,
+      );
     }
   }
 
@@ -257,7 +264,7 @@ class EmployerSurveyService {
   private async processAnswer(
     submissionId: string,
     answer: AnswerInput,
-    question: any,
+    question: SurveyQuestion,
   ): Promise<void> {
     // Upsert answer
     const savedAnswer = await this.answerRepository.upsertAnswer(
@@ -309,15 +316,17 @@ class EmployerSurveyService {
 
     // Validate all questions and answers
     for (const answer of answers) {
-      this.validateQuestionExists(answer, questionsMap, step);
+      EmployerSurveyService.validateQuestionExists(answer, questionsMap, step);
       const question = questionsMap.get(answer.question_id)!;
-      this.validateAnswerForQuestionType(answer, question);
+
+      EmployerSurveyService.validateAnswerForQuestionType(answer, question);
     }
 
     // Process all answers (transaction-like behavior through sequential operations)
     await answers.reduce(async (previousPromise, answer) => {
       await previousPromise;
       const question = questionsMap.get(answer.question_id)!;
+
       await this.processAnswer(submission.id, answer, question);
     }, Promise.resolve());
   }
