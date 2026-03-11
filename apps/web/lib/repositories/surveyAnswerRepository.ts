@@ -4,6 +4,7 @@ import {SurveyAnswer} from '@/lib/types/survey';
 /**
  * Repository for survey answers table operations
  */
+// eslint-disable-next-line import/prefer-default-export
 export class SurveyAnswerRepository {
   /**
    * Fetch answers for specific questions in a submission
@@ -12,6 +13,7 @@ export class SurveyAnswerRepository {
    * @param questionIds - Array of question UUIDs
    * @returns Map of question_id -> answer
    */
+  // eslint-disable-next-line class-methods-use-this
   async getAnswersByQuestions(
     submissionId: string,
     questionIds: readonly string[],
@@ -47,6 +49,7 @@ export class SurveyAnswerRepository {
    * @param answerText - Text answer (for text/long_text questions)
    * @returns Created or updated answer
    */
+  // eslint-disable-next-line class-methods-use-this
   async upsertAnswer(
     submissionId: string,
     questionId: string,
@@ -80,6 +83,7 @@ export class SurveyAnswerRepository {
    * @param submissionId - Submission UUID
    * @returns Array of question IDs that have answers
    */
+  // eslint-disable-next-line class-methods-use-this
   async getAnsweredQuestionIds(submissionId: string): Promise<string[]> {
     const {data, error} = await supabase
       .from('evp_survey_answers')

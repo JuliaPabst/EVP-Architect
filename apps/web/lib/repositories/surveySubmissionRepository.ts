@@ -4,6 +4,7 @@ import {SurveySubmission, SurveyType} from '@/lib/types/survey';
 /**
  * Repository for survey submissions table operations
  */
+// eslint-disable-next-line import/prefer-default-export
 export class SurveySubmissionRepository {
   /**
    * Find an existing submission for a project and survey type
@@ -12,6 +13,7 @@ export class SurveySubmissionRepository {
    * @param surveyType - 'employer' or 'employee'
    * @returns Submission if found, null otherwise
    */
+  // eslint-disable-next-line class-methods-use-this
   async findSubmission(
     projectId: string,
     surveyType: SurveyType,
@@ -42,6 +44,7 @@ export class SurveySubmissionRepository {
    * @param surveyType - 'employer' or 'employee'
    * @returns Created submission
    */
+  // eslint-disable-next-line class-methods-use-this
   async createSubmission(
     projectId: string,
     surveyType: SurveyType,
@@ -89,6 +92,7 @@ export class SurveySubmissionRepository {
    * @param submissionId - Submission UUID
    * @throws Error if update fails
    */
+  // eslint-disable-next-line class-methods-use-this
   async markAsSubmitted(submissionId: string): Promise<void> {
     const {error} = await supabase
       .from('evp_survey_submissions')

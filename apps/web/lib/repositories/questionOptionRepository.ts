@@ -17,6 +17,7 @@ export class QuestionOptionRepository {
    * @param questionKeys - Array of question keys
    * @returns Map of question_key -> array of options ordered by position
    */
+  // eslint-disable-next-line class-methods-use-this
   async getOptionsByQuestionKeys(
     questionKeys: readonly string[],
   ): Promise<Map<string, {label: string; value_key: string}[]>> {

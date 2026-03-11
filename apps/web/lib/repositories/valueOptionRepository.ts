@@ -14,13 +14,12 @@ export class ValueOptionRepository {
    *
    * @returns Array of value options with value_key and label
    */
+  // eslint-disable-next-line class-methods-use-this
   async getAllValueOptions(): Promise<{label: string; value_key: string}[]> {
     const {data, error} = await supabase
       .from('evp_value_options')
       .select('*')
       .order('key', {ascending: true});
-
-    void this;
 
     if (error) {
       throw new Error(`Failed to fetch value options: ${error.message}`);

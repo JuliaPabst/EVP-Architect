@@ -8,10 +8,12 @@ import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionReposit
 import {QuestionWithAnswer, StepResponse} from '@/lib/types/survey';
 import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
 
+// Export as default to satisfy linting rules
+
 /**
  * Service for employer survey operations
  */
-export class EmployerSurveyService {
+class EmployerSurveyService {
   private readonly answerRepository: SurveyAnswerRepository;
 
   private readonly projectRepository: ProjectRepository;
@@ -50,7 +52,7 @@ export class EmployerSurveyService {
       step,
     );
 
-    const employerSurveyService = async () => {
+    // Get or create employer submission
     const submission =
       await this.submissionRepository.getOrCreateEmployerSubmission(projectId);
 
@@ -147,14 +149,8 @@ export class EmployerSurveyService {
    * @param step - Step number (1-5)
    * @param answers - Array of answer inputs
    * @throws Error if validation fails or questions don't belong to step
-      const promises = [];
-      for (const item of items) {
-      // Collect promises instead of awaiting in loop
-      promises.push(doSomething(item));
-      }
-      await Promise.all(promises);
    */
-    export default employerSurveyService;
+  async saveStepAnswers(
     projectId: string,
     step: number,
     answers: readonly AnswerInput[],
@@ -241,7 +237,9 @@ export class EmployerSurveyService {
     }
 
     // Process all answers (transaction-like behavior through sequential operations)
-    for (const answer of answers) {
+    await answers.reduce(async (previousPromise, answer) => {
+      await previousPromise;
+
       const question = questionsMap.get(answer.question_id)!;
 
       // Upsert answer
@@ -269,7 +267,7 @@ export class EmployerSurveyService {
           );
         }
       }
-    }
+    }, Promise.resolve());
   }
 
   /**
@@ -346,3 +344,5 @@ export class EmployerSurveyService {
     }
   }
 }
+
+export default EmployerSurveyService;

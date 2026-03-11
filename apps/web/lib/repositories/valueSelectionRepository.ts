@@ -1,9 +1,9 @@
 import {supabase} from '@/lib/supabase';
-import {ValueSelection} from '@/lib/types/survey';
 
 /**
  * Repository for value selections join table operations
  */
+// eslint-disable-next-line import/prefer-default-export
 export class ValueSelectionRepository {
   /**
    * Fetch selected values for multiple answers
@@ -11,6 +11,7 @@ export class ValueSelectionRepository {
    * @param answerIds - Array of answer UUIDs
    * @returns Map of answer_id -> array of value keys
    */
+  // eslint-disable-next-line class-methods-use-this
   async getSelectionsByAnswers(
     answerIds: readonly string[],
   ): Promise<Map<string, string[]>> {
@@ -45,6 +46,7 @@ export class ValueSelectionRepository {
    *
    * @param answerId - Answer UUID
    */
+  // eslint-disable-next-line class-methods-use-this
   async deleteSelectionsByAnswer(answerId: string): Promise<void> {
     const {error} = await supabase
       .from('evp_answer_value_selections')
@@ -62,6 +64,7 @@ export class ValueSelectionRepository {
    * @param answerId - Answer UUID
    * @param valueKeys - Array of value keys to insert
    */
+  // eslint-disable-next-line class-methods-use-this
   async insertSelections(
     answerId: string,
     valueKeys: readonly string[],

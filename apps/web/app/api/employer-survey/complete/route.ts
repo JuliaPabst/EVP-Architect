@@ -2,7 +2,7 @@ import {NextRequest, NextResponse} from 'next/server';
 
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
-import {EmployerSurveyService} from '@/lib/services/employerSurveyService';
+import EmployerSurveyService from '@/lib/services/employerSurveyService';
 
 /**
  * POST /api/employer-survey/complete
@@ -27,6 +27,7 @@ import {EmployerSurveyService} from '@/lib/services/employerSurveyService';
  *     401: Authentication failed
  *     500: Internal error
  */
+// eslint-disable-next-line import/prefer-default-export
 export async function POST(request: NextRequest): Promise<NextResponse> {
   return handleApiError(async () => {
     // Validate project access

@@ -15,36 +15,36 @@ export interface ApiErrorResponse {
 export const HttpStatus = {
   BAD_REQUEST: 400,
   INTERNAL_SERVER_ERROR: 500,
-  UNPROCESSABLE_ENTITY: 422,
   UNAUTHORIZED: 401,
+  UNPROCESSABLE_ENTITY: 422,
 } as const;
 
 /**
  * Standard error codes used across the API
  */
 export const ErrorCode = {
-  // Authentication errors (401)
-  INVALID_CREDENTIALS: 'invalid_credentials',
-  MISSING_ADMIN_TOKEN: 'missing_admin_token',
-  MISSING_PROJECT_ID: 'missing_project_id',
-  VALIDATION_FAILED: 'validation_failed',
-
   // Bad request errors (400)
   ALREADY_COMPLETED: 'already_completed',
-  INVALID_PROJECT_STATE: 'invalid_project_state',
-  INVALID_QUESTION_FOR_STEP: 'invalid_question_for_step',
-  INVALID_STEP: 'invalid_step',
-  MISSING_COMPANY_URL: 'missing_company_url',
-  MISSING_REQUIRED_QUESTIONS: 'missing_required_questions',
-  NO_SUBMISSION_FOUND: 'no_submission_found',
-
-  // Unprocessable entity errors (422)
-  INVALID_COMPANY_URL: 'invalid_company_url',
-  SCRAPING_FAILED: 'scraping_failed',
-
   // Internal errors (500)
   DATABASE_ERROR: 'database_error',
   INTERNAL_ERROR: 'internal_error',
+  // Unprocessable entity errors (422)
+  INVALID_COMPANY_URL: 'invalid_company_url',
+  // Authentication errors (401)
+  INVALID_CREDENTIALS: 'invalid_credentials',
+  // Bad request errors (400)
+  INVALID_PROJECT_STATE: 'invalid_project_state',
+  INVALID_QUESTION_FOR_STEP: 'invalid_question_for_step',
+  INVALID_STEP: 'invalid_step',
+  MISSING_ADMIN_TOKEN: 'missing_admin_token',
+  MISSING_COMPANY_URL: 'missing_company_url',
+  MISSING_PROJECT_ID: 'missing_project_id',
+  MISSING_REQUIRED_QUESTIONS: 'missing_required_questions',
+  NO_SUBMISSION_FOUND: 'no_submission_found',
+  // Unprocessable entity errors (422)
+  SCRAPING_FAILED: 'scraping_failed',
+  // Authentication errors (401)
+  VALIDATION_FAILED: 'validation_failed',
 } as const;
 
 /**

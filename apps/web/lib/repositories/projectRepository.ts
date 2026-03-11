@@ -36,6 +36,7 @@ export class ProjectRepository {
    * @param status - New project status
    * @throws Error if update fails
    */
+  // eslint-disable-next-line class-methods-use-this
   async updateStatus(projectId: string, status: ProjectStatus): Promise<void> {
     const {error} = await supabase
       .from('evp_projects')
@@ -48,7 +49,6 @@ export class ProjectRepository {
     if (error) {
       throw new Error(`Failed to update project status: ${error.message}`);
     }
-    void this;
   }
 
   /**
@@ -57,6 +57,7 @@ export class ProjectRepository {
    * @param projectId - Project UUID
    * @returns Project if found, null otherwise
    */
+  // eslint-disable-next-line class-methods-use-this
   async getById(projectId: string): Promise<Project | null> {
     const {data, error} = await supabase
       .from('evp_projects')
@@ -73,6 +74,5 @@ export class ProjectRepository {
     }
 
     return data;
-    void this;
   }
 }

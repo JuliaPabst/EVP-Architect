@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import {NextResponse} from 'next/server';
 
 import {
@@ -9,6 +12,17 @@ import {
   InternalError,
   UnprocessableError,
 } from './apiErrors';
+
+/**
+ * Helper function to extract JSON body from NextResponse
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getResponseBody(response: NextResponse): any {
+  // NextResponse.json creates a Response with JSON body
+  // We need to parse it using the internal json method
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (response as any).body;
+}
 
 describe('apiErrors', () => {
   describe('AuthError', () => {
@@ -201,14 +215,3 @@ describe('apiErrors', () => {
     });
   });
 });
-
-/**
- * Helper function to extract JSON body from NextResponse
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getResponseBody(response: NextResponse): any {
-  // NextResponse.json creates a Response with JSON body
-  // We need to parse it using the internal json method
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (response as any).body;
-}

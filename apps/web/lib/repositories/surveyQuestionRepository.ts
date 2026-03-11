@@ -4,6 +4,7 @@ import {SurveyQuestion, SurveyType} from '@/lib/types/survey';
 /**
  * Repository for survey questions table operations
  */
+// eslint-disable-next-line import/prefer-default-export
 export class SurveyQuestionRepository {
   /**
    * Fetch questions for a specific survey type and step
@@ -12,6 +13,7 @@ export class SurveyQuestionRepository {
    * @param step - Step number (1-5)
    * @returns Array of questions ordered by position
    */
+  // eslint-disable-next-line class-methods-use-this
   async getQuestionsByStep(
     surveyType: SurveyType,
     step: number,
@@ -36,6 +38,7 @@ export class SurveyQuestionRepository {
    * @param questionIds - Array of question UUIDs
    * @returns Map of question_id -> question
    */
+  // eslint-disable-next-line class-methods-use-this
   async getQuestionsByIds(
     questionIds: readonly string[],
   ): Promise<Map<string, SurveyQuestion>> {
@@ -67,6 +70,7 @@ export class SurveyQuestionRepository {
    * @param surveyType - 'employer' or 'employee'
    * @returns Array of question IDs
    */
+  // eslint-disable-next-line class-methods-use-this
   async getAllQuestionIds(surveyType: SurveyType): Promise<string[]> {
     const {data, error} = await supabase
       .from('evp_survey_questions')
