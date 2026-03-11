@@ -4,9 +4,7 @@ import {useEffect, useState} from 'react';
 
 import {useSearchParams} from 'next/navigation';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import KununuHeader from '@/app/components/KununuHeader';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 
 interface SurveyStepLayoutProps {

@@ -6,11 +6,8 @@ import {
   InternalError,
   UnprocessableError,
 } from '@/lib/errors';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import generateSecureToken from '@/lib/tokens';
 
 /**

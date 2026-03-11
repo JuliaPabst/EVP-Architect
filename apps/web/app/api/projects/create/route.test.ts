@@ -5,11 +5,8 @@ import {NextRequest} from 'next/server';
 
 import {POST} from './route';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import generateSecureToken from '@/lib/tokens';
 
 // Mock external dependencies

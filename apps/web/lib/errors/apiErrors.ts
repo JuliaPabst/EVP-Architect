@@ -241,7 +241,6 @@ export async function handleApiError(
   try {
     return await handler();
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error(`[${context}] Error:`, error);
 
     return InternalError.generic();

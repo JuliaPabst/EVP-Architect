@@ -5,7 +5,6 @@ import {NextRequest} from 'next/server';
 
 import {validateProjectAccess} from './validateProjectAccess';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
 
 jest.mock('@/lib/supabase', () => ({

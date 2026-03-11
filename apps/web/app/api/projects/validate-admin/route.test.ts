@@ -7,7 +7,6 @@ import {NextRequest} from 'next/server';
 
 import {GET} from './route';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
 
 jest.mock('@/lib/supabase', () => ({

@@ -15,7 +15,6 @@ import UnunuBackground, {
 
 import styles from './index.module.scss';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {isValidKununuUrl} from '@/lib/scraping';
 
 export default function SearchHeader() {

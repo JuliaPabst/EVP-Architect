@@ -1,8 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {AuthError} from '@/lib/errors';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
 
 /**
@@ -136,7 +134,6 @@ export async function validateProjectAccess(
       success: true,
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Project access validation error:', error);
 
     return {

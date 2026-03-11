@@ -220,9 +220,9 @@ const profile_image_url = extractUrl($);    // ✗ snake_case
 ```
 
 ### Console Statements
-- Avoid `console.log()`, `console.error()` in production code paths
-- Use proper logging for server-side errors
-- Keep console statements only for development debugging
+- **Backend (`app/api/**`, `lib/**`)**: `console.error()` is allowed for error logging
+- **Frontend**: Avoid `console.log()`, `console.error()` in production code paths
+- Keep console statements only for development debugging or error tracking
 
 ### Early Returns
 - Prefer early returns over nested conditionals
@@ -333,7 +333,7 @@ The project uses SonarQube for static code analysis.
 
 ### Exception Handling
 - **Never catch exceptions without handling them**
-- Always log caught errors using `console.error()` with ESLint disable comment
+- Always log caught errors using `console.error()`
 - Provide meaningful error messages to users
 
 **Example - Correct:**
@@ -341,7 +341,6 @@ The project uses SonarQube for static code analysis.
 try {
   await riskyOperation();
 } catch (error) {
-  // eslint-disable-next-line no-console
   console.error('Failed to perform operation:', error);
   setErrorMessage('User-friendly error message');
 }

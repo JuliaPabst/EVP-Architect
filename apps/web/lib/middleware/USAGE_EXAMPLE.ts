@@ -9,7 +9,6 @@
 
 import {NextRequest, NextResponse} from 'next/server';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {validateProjectAccess} from './validateProjectAccess';
 
 /**

@@ -5,9 +5,17 @@
   },
   "rules": {
     "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "import/extensions": "off",
+    "import/no-unresolved": "off"
   },
   "overrides": [
+    {
+      "files": ["app/api/**/*", "lib/**/*"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
     {
       "files": ["*.test.ts", "*.test.tsx", "*.spec.ts", "*.spec.tsx"],
       "rules": {
