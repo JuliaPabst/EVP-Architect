@@ -60,4 +60,25 @@ export class SurveyQuestionRepository {
 
     return questionMap;
   }
+
+  /**
+   * Get all question IDs for a specific survey type
+   *
+   * @param surveyType - 'employer' or 'employee'
+   * @returns Array of question IDs
+   */
+  async getAllQuestionIds(surveyType: SurveyType): Promise<string[]> {
+    const {data, error} = await supabase
+      .from('evp_survey_questions')
+      .select('id')
+      .eq('survey_type', surveyType);
+
+    if (error) {
+      throw new Error(
+        `Failed to fetch question IDs for ${surveyType}: ${error.message}`,
+      );
+    }
+
+    return (data || []).map((row) => row.id);
+  }
 }

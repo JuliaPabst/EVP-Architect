@@ -73,4 +73,25 @@ export class SurveyAnswerRepository {
 
     return data;
   }
+
+  /**
+   * Get all answered question IDs for a submission
+   *
+   * @param submissionId - Submission UUID
+   * @returns Array of question IDs that have answers
+   */
+  async getAnsweredQuestionIds(submissionId: string): Promise<string[]> {
+    const {data, error} = await supabase
+      .from('evp_survey_answers')
+      .select('question_id')
+      .eq('submission_id', submissionId);
+
+    if (error) {
+      throw new Error(
+        `Failed to fetch answered question IDs: ${error.message}`,
+      );
+    }
+
+    return (data || []).map((row) => row.question_id);
+  }
 }

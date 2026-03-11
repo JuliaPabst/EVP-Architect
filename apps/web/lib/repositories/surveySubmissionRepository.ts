@@ -82,4 +82,24 @@ export class SurveySubmissionRepository {
 
     return this.createSubmission(projectId, 'employer');
   }
+
+  /**
+   * Update submission status to submitted
+   *
+   * @param submissionId - Submission UUID
+   * @throws Error if update fails
+   */
+  async markAsSubmitted(submissionId: string): Promise<void> {
+    const {error} = await supabase
+      .from('evp_survey_submissions')
+      .update({
+        status: 'submitted',
+        submitted_at: new Date().toISOString(),
+      })
+      .eq('id', submissionId);
+
+    if (error) {
+      throw new Error(`Failed to mark submission as submitted: ${error.message}`);
+    }
+  }
 }

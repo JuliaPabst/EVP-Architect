@@ -1,3 +1,4 @@
+import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
@@ -12,6 +13,7 @@ import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
  */
 export class EmployerSurveyService {
   private readonly answerRepository: SurveyAnswerRepository;
+  private readonly projectRepository: ProjectRepository;
   private readonly questionRepository: SurveyQuestionRepository;
   private readonly questionOptionRepository: QuestionOptionRepository;
   private readonly submissionRepository: SurveySubmissionRepository;
@@ -19,6 +21,7 @@ export class EmployerSurveyService {
   private readonly valueSelectionRepository: ValueSelectionRepository;
 
   constructor() {
+    this.projectRepository = new ProjectRepository();
     this.questionRepository = new SurveyQuestionRepository();
     this.questionOptionRepository = new QuestionOptionRepository();
     this.submissionRepository = new SurveySubmissionRepository();
@@ -254,6 +257,80 @@ export class EmployerSurveyService {
           );
         }
       }
+    }
+  }
+
+  /**
+   * Complete employer survey
+   *
+   * Validates all questions are answered and updates submission + project status
+   *
+   * @param projectId - Project UUID
+   * @param projectStatus - Current project status
+   * @throws Error with specific code for validation failures
+   */
+  async completeEmployerSurvey(
+    projectId: string,
+    projectStatus: string,
+  ): Promise<void> {
+    // Validate project state
+    if (projectStatus !== 'employer_survey_in_progress') {
+      throw new Error('invalid_project_state');
+    }
+
+    // Fetch employer submission
+    const submission = await this.submissionRepository.findSubmission(
+      projectId,
+      'employer',
+    );
+
+    if (!submission) {
+      throw new Error('no_submission_found');
+    }
+
+    // Check if already completed
+    if (submission.status === 'submitted') {
+      throw new Error('already_completed');
+    }
+
+    // Fetch all employer question IDs
+    const allQuestionIds =
+      await this.questionRepository.getAllQuestionIds('employer');
+
+    // Fetch answered question IDs
+    const answeredQuestionIds =
+      await this.answerRepository.getAnsweredQuestionIds(submission.id);
+
+    // Find missing questions
+    const answeredSet = new Set(answeredQuestionIds);
+    const missingQuestionIds = allQuestionIds.filter(
+      (qid) => !answeredSet.has(qid),
+    );
+
+    if (missingQuestionIds.length > 0) {
+      const error = new Error('missing_required_questions') as Error & {
+        missing_question_ids?: string[];
+      };
+
+      error.missing_question_ids = missingQuestionIds;
+
+      throw error;
+    }
+
+    // Atomic updates (note: in production, wrap in PostgreSQL function for true atomicity)
+    try {
+      // Update submission status
+      await this.submissionRepository.markAsSubmitted(submission.id);
+
+      // Update project status
+      await this.projectRepository.updateStatus(
+        projectId,
+        'employer_survey_completed',
+      );
+    } catch (error) {
+      // If either operation fails, throw error
+      // In production, this should be wrapped in a database transaction
+      throw new Error(`Failed to complete survey: ${(error as Error).message}`);
     }
   }
 }
