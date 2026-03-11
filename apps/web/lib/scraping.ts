@@ -260,7 +260,7 @@ function extractLocation($: cheerio.CheerioAPI): string | null {
   const selectors = [
     '[data-testid="/company-info/location-section"]',
     '[data-testid="location"]',
-    '.index__profileLocationContainer__ZDYEL .index__profileLocation__\\+pIer',
+    String.raw`.index__profileLocationContainer__ZDYEL .index__profileLocation__\+pIer`,
     '[itemprop="address"]',
     '[itemprop="addressLocality"]',
   ];

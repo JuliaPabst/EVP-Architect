@@ -39,6 +39,7 @@ Avoid:
 
 ------------------------------------------------------------------
 
+
 ## 2. GLOBAL PRINCIPLES
 
 - Only implement what is explicitly written in the user story.
@@ -47,6 +48,7 @@ Avoid:
 - Prefer explicit code over clever patterns.
 - Do not introduce new libraries unless absolutely necessary.
 - If introducing a new dependency, explain why in the implementation log.
+- Do not use emojis anywhere in the repository (including documentation, code, UI, and commit messages).
 
 ------------------------------------------------------------------
 
@@ -156,7 +158,16 @@ The project uses `@kununu/eslint-config` with strict rules.
 ### Object & Interface Key Ordering
 - **Always sort object keys alphabetically** (case-insensitive)
 - **Always sort interface/type keys alphabetically** (required fields first)
-- Applies to: function params, return objects, test mocks, config objects
+- Enforced by the `sort-keys` ESLint rule
+- Applies to: **ALL object literals** including:
+  - Function parameters
+  - Return objects
+  - Test mocks and fixtures
+  - Configuration objects
+  - API responses
+  - Database records
+
+**Important:** This rule catches even minor ordering issues. Keys like `admin_token` must come before `profile_url`, `created_at` before `status`, etc.
 
 **Example - Wrong:**
 ```typescript
@@ -165,6 +176,14 @@ const data = {
   company_name: name,
   industry: industry,
   employee_count: count,
+};
+
+// Test mock - wrong order
+const mockProject = {
+  id: 'project1',
+  company_name: 'Test',
+  profile_url: 'https://example.com',
+  admin_token: 'token123',  // ✗ Should be before profile_url
 };
 ```
 
@@ -175,6 +194,14 @@ const data = {
   employee_count: count,
   industry: industry,
   profile_url: url,
+};
+
+// Test mock
+const mockProject = {
+  admin_token: 'token123',
+  company_name: 'Test',
+  id: 'project1',
+  profile_url: 'https://example.com',
 };
 ```
 
@@ -220,9 +247,9 @@ const profile_image_url = extractUrl($);    // ✗ snake_case
 ```
 
 ### Console Statements
-- Avoid `console.log()`, `console.error()` in production code paths
-- Use proper logging for server-side errors
-- Keep console statements only for development debugging
+- **Backend (`app/api/**`, `lib/**`)**: `console.error()` is allowed for error logging
+- **Frontend**: Avoid `console.log()`, `console.error()` in production code paths
+- Keep console statements only for development debugging or error tracking
 
 ### Early Returns
 - Prefer early returns over nested conditionals
@@ -333,7 +360,7 @@ The project uses SonarQube for static code analysis.
 
 ### Exception Handling
 - **Never catch exceptions without handling them**
-- Always log caught errors using `console.error()` with ESLint disable comment
+- Always log caught errors using `console.error()`
 - Provide meaningful error messages to users
 
 **Example - Correct:**
@@ -341,7 +368,6 @@ The project uses SonarQube for static code analysis.
 try {
   await riskyOperation();
 } catch (error) {
-  // eslint-disable-next-line no-console
   console.error('Failed to perform operation:', error);
   setErrorMessage('User-friendly error message');
 }

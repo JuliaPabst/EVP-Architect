@@ -34,17 +34,13 @@ export default function useAdminTokenValidation(
       }
 
       try {
-        const response = await fetch('/api/projects/validate-admin', {
-          body: JSON.stringify({adminToken, projectId}),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        });
+        const response = await fetch(
+          `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
+        );
 
         const data = await response.json();
 
-        if (!response.ok || !data.isValid) {
+        if (!response.ok || !data.valid) {
           router.push('/evp-architect');
           return;
         }

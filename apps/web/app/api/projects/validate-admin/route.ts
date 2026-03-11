@@ -1,26 +1,25 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
-import {validateAdminToken} from '@/lib/validation';
+import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 
 /**
- * POST /api/projects/validate-admin
+ * GET /api/projects/validate-admin
  *
  * Purpose:
  *   Validates admin token for a project to secure employer-facing routes.
  *
  * Input:
- *   JSON body:
- *     {
- *       "projectId": string; // UUID of the project
- *       "adminToken": string; // Admin authentication token
- *     }
+ *   Query parameters:
+ *     - projectId: UUID of the project
+ *     - admin_token: Admin authentication token (or via headers)
+ *
+ *   Alternative: Authorization header (Bearer token) or x-admin-token header
  *
  * Successful response:
  *   200 OK
  *   Body:
  *     {
- *       "isValid": true;
+ *       "valid": true;
  *       "project": {
  *         "id": string;
  *         "company_name": string;
@@ -30,50 +29,25 @@ import {validateAdminToken} from '@/lib/validation';
  *     }
  *
  * Possible error responses:
- *   400 Bad Request
- *     - Missing "projectId" or "adminToken" in request body.
- *
  *   401 Unauthorized
- *     - Invalid project or admin token does not match.
- *
- *   500 Internal Server Error
- *     - Unexpected error during validation.
+ *     - Missing projectId or admin_token
+ *     - Invalid project or admin token does not match
  */
 // eslint-disable-next-line import/prefer-default-export
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const {adminToken, projectId} = body;
+export async function GET(request: NextRequest) {
+  // Validate project access using middleware
+  const validation = await validateProjectAccess(request);
 
-    if (!projectId || !adminToken) {
-      return NextResponse.json(
-        {error: 'Missing projectId or adminToken'},
-        {status: 400},
-      );
-    }
-
-    const result = await validateAdminToken(projectId, adminToken);
-
-    if (!result.isValid) {
-      return NextResponse.json(
-        {error: result.error || 'Invalid credentials', isValid: false},
-        {status: 401},
-      );
-    }
-
-    return NextResponse.json(
-      {isValid: true, project: result.project},
-      {status: 200},
-    );
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Validation endpoint error:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to validate credentials',
-        isValid: false,
-      },
-      {status: 500},
-    );
+  if (!validation.success) {
+    return validation.error;
   }
+
+  // Return success with project data
+  return NextResponse.json(
+    {
+      project: validation.project,
+      valid: true,
+    },
+    {status: 200},
+  );
 }

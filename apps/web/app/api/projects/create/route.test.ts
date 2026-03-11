@@ -5,11 +5,8 @@ import {NextRequest} from 'next/server';
 
 import {POST} from './route';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import generateSecureToken from '@/lib/tokens';
 
 // Mock external dependencies
@@ -54,10 +51,13 @@ describe('POST /api/projects/create', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data).toEqual({error: 'Company URL is required'});
+    expect(data).toEqual({
+      error: 'missing_company_url',
+      message: 'Company URL is required',
+    });
   });
 
-  it('should return 400 when companyUrl is invalid', async () => {
+  it('should return 422 when companyUrl is invalid', async () => {
     mockIsValidKununuUrl.mockReturnValue(false);
 
     const request = new NextRequest('http://localhost/api/projects/create', {
@@ -68,8 +68,11 @@ describe('POST /api/projects/create', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data).toEqual({error: 'Invalid kununu company profile URL'});
+    expect(response.status).toBe(422);
+    expect(data).toEqual({
+      error: 'invalid_company_url',
+      message: 'Invalid kununu company profile URL',
+    });
     expect(mockIsValidKununuUrl).toHaveBeenCalledWith(
       'https://invalid-url.com',
     );
@@ -91,11 +94,12 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(422);
     expect(data).toEqual({
-      error: 'Could not extract required company information from profile',
+      error: 'scraping_failed',
+      message: 'Could not extract required company information from profile',
     });
   });
 
-  it('should return 500 when scraping fails with other error', async () => {
+  it('should return 422 when scraping fails with other error', async () => {
     mockIsValidKununuUrl.mockReturnValue(true);
     mockScrapeCompanyProfile.mockRejectedValue(new Error('Network error'));
 
@@ -107,14 +111,15 @@ describe('POST /api/projects/create', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(422);
     expect(data).toEqual({
-      details: 'Network error',
-      error: 'Failed to extract company information',
+      details: {details: 'Network error'},
+      error: 'scraping_failed',
+      message: 'Could not extract required company information from profile',
     });
   });
 
-  it('should return 500 when scraping fails with non-Error object', async () => {
+  it('should return 422 when scraping fails with non-Error object', async () => {
     mockIsValidKununuUrl.mockReturnValue(true);
     mockScrapeCompanyProfile.mockRejectedValue('string error');
 
@@ -126,10 +131,11 @@ describe('POST /api/projects/create', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(422);
     expect(data).toEqual({
-      details: 'Unknown error',
-      error: 'Failed to extract company information',
+      details: {details: 'Unknown error'},
+      error: 'scraping_failed',
+      message: 'Could not extract required company information from profile',
     });
   });
 
@@ -166,8 +172,9 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(500);
     expect(data).toEqual({
-      details: 'Database constraint violation',
-      error: 'Failed to create project in database',
+      details: {operation: 'create project'},
+      error: 'database_error',
+      message: 'Database operation failed',
     });
   });
 
@@ -242,8 +249,8 @@ describe('POST /api/projects/create', () => {
     const data = await response.json();
 
     expect(response.status).toBe(500);
-    expect(data).toHaveProperty('error', 'Failed to create project');
-    expect(data).toHaveProperty('details');
+    expect(data).toHaveProperty('error', 'internal_error');
+    expect(data).toHaveProperty('message', 'An unexpected error occurred');
   });
 
   it('should handle non-Error exceptions in main try-catch', async () => {
@@ -256,8 +263,8 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(500);
     expect(data).toEqual({
-      details: 'Unknown error',
-      error: 'Failed to create project',
+      error: 'internal_error',
+      message: 'An unexpected error occurred',
     });
   });
 
