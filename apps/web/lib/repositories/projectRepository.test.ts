@@ -141,7 +141,7 @@ describe('ProjectRepository', () => {
     });
   });
 
-  describe('getById', () => {
+  describe('findById', () => {
     const mockProject: Project = {
       admin_token: 'admin123',
       admin_token_created_at: '2024-01-01',
@@ -166,7 +166,7 @@ describe('ProjectRepository', () => {
       mockSelect.mockReturnValue({eq: mockEq});
       mockFrom.mockReturnValue({select: mockSelect});
 
-      const result = await repository.getById('project1');
+      const result = await repository.findById('project1');
 
       expect(mockFrom).toHaveBeenCalledWith('evp_projects');
       expect(mockSelect).toHaveBeenCalledWith('*');
@@ -183,7 +183,7 @@ describe('ProjectRepository', () => {
       mockSelect.mockReturnValue({eq: mockEq});
       mockFrom.mockReturnValue({select: mockSelect});
 
-      const result = await repository.getById('nonexistent');
+      const result = await repository.findById('nonexistent');
 
       expect(result).toBeNull();
     });
@@ -196,7 +196,7 @@ describe('ProjectRepository', () => {
       mockSelect.mockReturnValue({eq: mockEq});
       mockFrom.mockReturnValue({select: mockSelect});
 
-      await expect(repository.getById('project1')).rejects.toThrow(
+      await expect(repository.findById('project1')).rejects.toThrow(
         'Failed to fetch project: Database error',
       );
     });
@@ -216,7 +216,7 @@ describe('ProjectRepository', () => {
       mockSelect.mockReturnValue({eq: mockEq});
       mockFrom.mockReturnValue({select: mockSelect});
 
-      const result = await repository.getById('project1');
+      const result = await repository.findById('project1');
 
       expect(result).toEqual(fullProject);
       expect(result?.profile_uuid).toBe('uuid123');
@@ -226,27 +226,23 @@ describe('ProjectRepository', () => {
       expect(result?.location).toBe('Munich');
     });
 
-    it('should fetch project with different statuses', async () => {
-      const statuses: ProjectStatus[] = [
-        'employer_survey_in_progress',
-        'employer_survey_completed',
-        'employee_survey_active',
-        'evp_generation_available',
-        'evp_generated',
-      ];
+    it.each<ProjectStatus>([
+      'employer_survey_in_progress',
+      'employer_survey_completed',
+      'employee_survey_active',
+      'evp_generation_available',
+      'evp_generated',
+    ])('should fetch project with status: %s', async status => {
+      const projectWithStatus = {...mockProject, status};
 
-      for (const status of statuses) {
-        const projectWithStatus = {...mockProject, status};
+      mockSingle.mockResolvedValue({data: projectWithStatus, error: null});
+      mockEq.mockReturnValue({single: mockSingle});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
 
-        mockSingle.mockResolvedValue({data: projectWithStatus, error: null});
-        mockEq.mockReturnValue({single: mockSingle});
-        mockSelect.mockReturnValue({eq: mockEq});
-        mockFrom.mockReturnValue({select: mockSelect});
+      const result = await repository.findById('project1');
 
-        const result = await repository.getById('project1');
-
-        expect(result?.status).toBe(status);
-      }
+      expect(result?.status).toBe(status);
     });
   });
 });

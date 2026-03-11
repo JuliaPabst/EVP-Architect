@@ -52,13 +52,13 @@ export class ProjectRepository {
   }
 
   /**
-   * Get project by ID
+   * Find project by ID
    *
    * @param projectId - Project UUID
    * @returns Project if found, null otherwise
    */
   // eslint-disable-next-line class-methods-use-this
-  async getById(projectId: string): Promise<Project | null> {
+  async findById(projectId: string): Promise<Project | null> {
     const {data, error} = await supabase
       .from('evp_projects')
       .select('*')
