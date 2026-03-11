@@ -158,7 +158,16 @@ The project uses `@kununu/eslint-config` with strict rules.
 ### Object & Interface Key Ordering
 - **Always sort object keys alphabetically** (case-insensitive)
 - **Always sort interface/type keys alphabetically** (required fields first)
-- Applies to: function params, return objects, test mocks, config objects
+- Enforced by the `sort-keys` ESLint rule
+- Applies to: **ALL object literals** including:
+  - Function parameters
+  - Return objects
+  - Test mocks and fixtures
+  - Configuration objects
+  - API responses
+  - Database records
+
+**Important:** This rule catches even minor ordering issues. Keys like `admin_token` must come before `profile_url`, `created_at` before `status`, etc.
 
 **Example - Wrong:**
 ```typescript
@@ -167,6 +176,14 @@ const data = {
   company_name: name,
   industry: industry,
   employee_count: count,
+};
+
+// Test mock - wrong order
+const mockProject = {
+  id: 'project1',
+  company_name: 'Test',
+  profile_url: 'https://example.com',
+  admin_token: 'token123',  // ✗ Should be before profile_url
 };
 ```
 
@@ -177,6 +194,14 @@ const data = {
   employee_count: count,
   industry: industry,
   profile_url: url,
+};
+
+// Test mock
+const mockProject = {
+  admin_token: 'token123',
+  company_name: 'Test',
+  id: 'project1',
+  profile_url: 'https://example.com',
 };
 ```
 
