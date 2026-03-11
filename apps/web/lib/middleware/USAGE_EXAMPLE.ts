@@ -27,13 +27,14 @@ export async function exampleGETRoute(request: NextRequest) {
     return validation.error;
   }
 
-  // Step 2: Access the validated project  const {project} = validation;
+  // Step 2: Access the validated project
+  const {project} = validation;
 
   // Step 3: Continue with business logic
   return NextResponse.json({
     message: 'Success',
-    projectId: project.id,
-    status: project.status,
+    projectId: project!.id,
+    status: project!.status,
   });
 }
 
@@ -71,7 +72,7 @@ export async function examplePOSTRoute(request: NextRequest) {
 
   return NextResponse.json({
     message: 'Survey step saved',
-    projectId: project.id,
+    projectId: project!.id,
     ...body,
   });
 }
