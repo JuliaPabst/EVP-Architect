@@ -6,6 +6,47 @@ import EmployerSurveyService from '@/lib/services/employerSurveyService';
 import {saveStepAnswersSchema} from '@/lib/validation/employerSurveySchemas';
 
 /**
+ * Validate step parameter and return parsed number
+ */
+function validateStep(stepParam: string): number | null {
+  const step = Number.parseInt(stepParam, 10);
+
+  if (Number.isNaN(step) || step < 1 || step > 5) {
+    return null;
+  }
+
+  return step;
+}
+
+/**
+ * Validate project access and step parameter
+ * Returns validated project and step, or error response
+ */
+async function validateStepRequest(
+  request: NextRequest,
+  stepParam: string,
+): Promise<
+  | {success: true; projectId: string; step: number}
+  | {success: false; error: NextResponse}
+> {
+  // Validate project access
+  const validation = await validateProjectAccess(request);
+
+  if (!validation.success) {
+    return {success: false, error: validation.error!};
+  }
+
+  // Parse and validate step
+  const step = validateStep(stepParam);
+
+  if (step === null) {
+    return {success: false, error: BadRequestError.invalidStep()};
+  }
+
+  return {success: true, projectId: validation.project!.id, step};
+}
+
+/**
  * GET /api/employer-survey/step/[step]
  *
  * Purpose:
@@ -48,28 +89,43 @@ export async function GET(
   {params}: {readonly params: {readonly step: string}},
 ): Promise<NextResponse> {
   return handleApiError(async () => {
-    // Validate project access
-    const validation = await validateProjectAccess(request);
+    // Validate project access and step
+    const validation = await validateStepRequest(request, params.step);
 
     if (!validation.success) {
-      return validation.error!;
+      return validation.error;
     }
 
-    const project = validation.project!;
-
-    // Parse and validate step
-    const step = Number.parseInt(params.step, 10);
-
-    if (Number.isNaN(step) || step < 1 || step > 5) {
-      return BadRequestError.invalidStep();
-    }
+    const {projectId, step} = validation;
 
     // Fetch step data
     const service = new EmployerSurveyService();
-    const stepData = await service.getStepData(project.id, step);
+    const stepData = await service.getStepData(projectId, step);
 
     return NextResponse.json(stepData);
   }, 'GET /api/employer-survey/step/[step]');
+}
+
+/**
+ * Handle service errors and convert to appropriate HTTP responses
+ */
+function handleServiceError(error: unknown): NextResponse | null {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+  if (errorMessage.includes('does not belong to step')) {
+    return BadRequestError.invalidQuestionForStep();
+  }
+
+  if (
+    errorMessage.includes('required') ||
+    errorMessage.includes('must be empty') ||
+    errorMessage.includes('Too many values')
+  ) {
+    return BadRequestError.validationFailed();
+  }
+
+  // Return null to indicate the error should be re-thrown
+  return null;
 }
 
 /**
@@ -105,21 +161,14 @@ export async function POST(
   {params}: {readonly params: {readonly step: string}},
 ): Promise<NextResponse> {
   return handleApiError(async () => {
-    // Validate project access
-    const validation = await validateProjectAccess(request);
+    // Validate project access and step
+    const validation = await validateStepRequest(request, params.step);
 
     if (!validation.success) {
-      return validation.error!;
+      return validation.error;
     }
 
-    const project = validation.project!;
-
-    // Parse and validate step
-    const step = Number.parseInt(params.step, 10);
-
-    if (Number.isNaN(step) || step < 1 || step > 5) {
-      return BadRequestError.invalidStep();
-    }
+    const {projectId, step} = validation;
 
     // Parse and validate request body
     const body = await request.json();
@@ -135,21 +184,12 @@ export async function POST(
     const service = new EmployerSurveyService();
 
     try {
-      await service.saveStepAnswers(project.id, step, answers);
+      await service.saveStepAnswers(projectId, step, answers);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+      const errorResponse = handleServiceError(error);
 
-      if (errorMessage.includes('does not belong to step')) {
-        return BadRequestError.invalidQuestionForStep();
-      }
-
-      if (
-        errorMessage.includes('required') ||
-        errorMessage.includes('must be empty') ||
-        errorMessage.includes('Too many values')
-      ) {
-        return BadRequestError.validationFailed();
+      if (errorResponse) {
+        return errorResponse;
       }
 
       throw error;
