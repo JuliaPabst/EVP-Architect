@@ -143,6 +143,149 @@ class EmployerSurveyService {
   }
 
   /**
+   * Validate question exists and belongs to the step
+   */
+  private validateQuestionExists(
+    answer: AnswerInput,
+    questionsMap: Map<string, any>,
+    step: number,
+  ): void {
+    const question = questionsMap.get(answer.question_id);
+
+    if (!question) {
+      throw new Error(`Question not found: ${answer.question_id}`);
+    }
+
+    if (question.survey_type !== 'employer') {
+      throw new Error(`Question is not an employer question`);
+    }
+
+    if (question.step !== step) {
+      throw new Error(`Question does not belong to step ${step}`);
+    }
+  }
+
+  /**
+   * Validate text or long_text answer
+   */
+  private validateTextAnswer(answer: AnswerInput): void {
+    if (!answer.answer_text) {
+      throw new Error(
+        `answer_text required for question ${answer.question_id}`,
+      );
+    }
+
+    if (answer.selected_values && answer.selected_values.length > 0) {
+      throw new Error(
+        `selected_values must be empty for text question ${answer.question_id}`,
+      );
+    }
+  }
+
+  /**
+   * Validate single_select answer
+   */
+  private validateSingleSelectAnswer(answer: AnswerInput): void {
+    if (!answer.selected_values || answer.selected_values.length !== 1) {
+      throw new Error(
+        `Exactly 1 value required for single_select question ${answer.question_id}`,
+      );
+    }
+
+    if (answer.answer_text) {
+      throw new Error(
+        `answer_text must be empty for single_select question ${answer.question_id}`,
+      );
+    }
+  }
+
+  /**
+   * Validate multi_select answer
+   */
+  private validateMultiSelectAnswer(
+    answer: AnswerInput,
+    selectionLimit: number | null,
+  ): void {
+    if (!answer.selected_values || answer.selected_values.length === 0) {
+      throw new Error(
+        `At least 1 value required for multi_select question ${answer.question_id}`,
+      );
+    }
+
+    if (selectionLimit && answer.selected_values.length > selectionLimit) {
+      throw new Error(
+        `Too many values for multi_select question ${answer.question_id} (limit: ${selectionLimit})`,
+      );
+    }
+
+    if (answer.answer_text) {
+      throw new Error(
+        `answer_text must be empty for multi_select question ${answer.question_id}`,
+      );
+    }
+  }
+
+  /**
+   * Validate answer based on question type
+   */
+  private validateAnswerForQuestionType(
+    answer: AnswerInput,
+    question: any,
+  ): void {
+    const isTextType =
+      question.question_type === 'text' ||
+      question.question_type === 'long_text';
+
+    if (isTextType) {
+      this.validateTextAnswer(answer);
+      return;
+    }
+
+    if (question.question_type === 'single_select') {
+      this.validateSingleSelectAnswer(answer);
+      return;
+    }
+
+    if (question.question_type === 'multi_select') {
+      this.validateMultiSelectAnswer(answer, question.selection_limit);
+    }
+  }
+
+  /**
+   * Process a single answer (upsert and handle selections)
+   */
+  private async processAnswer(
+    submissionId: string,
+    answer: AnswerInput,
+    question: any,
+  ): Promise<void> {
+    // Upsert answer
+    const savedAnswer = await this.answerRepository.upsertAnswer(
+      submissionId,
+      answer.question_id,
+      answer.answer_text || null,
+    );
+
+    // Handle value selections for select-type questions
+    const isSelectType =
+      question.question_type === 'single_select' ||
+      question.question_type === 'multi_select';
+
+    if (isSelectType) {
+      await this.valueSelectionRepository.deleteSelectionsByAnswer(
+        savedAnswer.id,
+      );
+
+      if (answer.selected_values && answer.selected_values.length > 0) {
+        await this.valueSelectionRepository.insertSelections(
+          savedAnswer.id,
+          answer.selected_values,
+        );
+      }
+    }
+  }
+
+  /**
    * Save answers for a specific step
    *
    * @param projectId - Project UUID
@@ -164,109 +307,18 @@ class EmployerSurveyService {
     const questionsMap =
       await this.questionRepository.getQuestionsByIds(questionIds);
 
-    // Validate all questions exist and belong to this step
+    // Validate all questions and answers
     for (const answer of answers) {
-      const question = questionsMap.get(answer.question_id);
-
-      if (!question) {
-        throw new Error(`Question not found: ${answer.question_id}`);
-      }
-
-      if (question.survey_type !== 'employer') {
-        throw new Error(`Question is not an employer question`);
-      }
-
-      if (question.step !== step) {
-        throw new Error(`Question does not belong to step ${step}`);
-      }
-
-      // Validate answer based on question type
-      if (
-        question.question_type === 'text' ||
-        question.question_type === 'long_text'
-      ) {
-        if (!answer.answer_text) {
-          throw new Error(
-            `answer_text required for question ${answer.question_id}`,
-          );
-        }
-
-        if (answer.selected_values && answer.selected_values.length > 0) {
-          throw new Error(
-            `selected_values must be empty for text question ${answer.question_id}`,
-          );
-        }
-      }
-
-      if (question.question_type === 'single_select') {
-        if (!answer.selected_values || answer.selected_values.length !== 1) {
-          throw new Error(
-            `Exactly 1 value required for single_select question ${answer.question_id}`,
-          );
-        }
-
-        if (answer.answer_text) {
-          throw new Error(
-            `answer_text must be empty for single_select question ${answer.question_id}`,
-          );
-        }
-      }
-
-      if (question.question_type === 'multi_select') {
-        if (!answer.selected_values || answer.selected_values.length === 0) {
-          throw new Error(
-            `At least 1 value required for multi_select question ${answer.question_id}`,
-          );
-        }
-
-        if (
-          question.selection_limit &&
-          answer.selected_values.length > question.selection_limit
-        ) {
-          throw new Error(
-            `Too many values for multi_select question ${answer.question_id} (limit: ${question.selection_limit})`,
-          );
-        }
-
-        if (answer.answer_text) {
-          throw new Error(
-            `answer_text must be empty for multi_select question ${answer.question_id}`,
-          );
-        }
-      }
+      this.validateQuestionExists(answer, questionsMap, step);
+      const question = questionsMap.get(answer.question_id)!;
+      this.validateAnswerForQuestionType(answer, question);
     }
 
     // Process all answers (transaction-like behavior through sequential operations)
     await answers.reduce(async (previousPromise, answer) => {
       await previousPromise;
-
       const question = questionsMap.get(answer.question_id)!;
-
-      // Upsert answer
-      const savedAnswer = await this.answerRepository.upsertAnswer(
-        submission.id,
-        answer.question_id,
-        answer.answer_text || null,
-      );
-
-      // Handle value selections
-      if (
-        question.question_type === 'single_select' ||
-        question.question_type === 'multi_select'
-      ) {
-        // Delete existing selections
-        await this.valueSelectionRepository.deleteSelectionsByAnswer(
-          savedAnswer.id,
-        );
-
-        // Insert new selections
-        if (answer.selected_values && answer.selected_values.length > 0) {
-          await this.valueSelectionRepository.insertSelections(
-            savedAnswer.id,
-            answer.selected_values,
-          );
-        }
-      }
+      await this.processAnswer(submission.id, answer, question);
     }, Promise.resolve());
   }
 
