@@ -13,11 +13,17 @@ import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
  */
 export class EmployerSurveyService {
   private readonly answerRepository: SurveyAnswerRepository;
+
   private readonly projectRepository: ProjectRepository;
+
   private readonly questionRepository: SurveyQuestionRepository;
+
   private readonly questionOptionRepository: QuestionOptionRepository;
+
   private readonly submissionRepository: SurveySubmissionRepository;
+
   private readonly valueOptionRepository: ValueOptionRepository;
+
   private readonly valueSelectionRepository: ValueSelectionRepository;
 
   constructor() {
@@ -44,26 +50,26 @@ export class EmployerSurveyService {
       step,
     );
 
-    // Get or create employer submission
+    const employerSurveyService = async () => {
     const submission =
       await this.submissionRepository.getOrCreateEmployerSubmission(projectId);
 
     // Fetch existing answers for these questions
-    const questionIds = questions.map((q) => q.id);
+    const questionIds = questions.map(q => q.id);
     const answersMap = await this.answerRepository.getAnswersByQuestions(
       submission.id,
       questionIds,
     );
 
     // Get answer IDs that have selections
-    const answerIds = Array.from(answersMap.values()).map((a) => a.id);
+    const answerIds = Array.from(answersMap.values()).map(a => a.id);
     const selectionsMap =
       await this.valueSelectionRepository.getSelectionsByAnswers(answerIds);
 
     // Load options for single_select questions
     const singleSelectKeys = questions
-      .filter((q) => q.question_type === 'single_select')
-      .map((q) => q.key);
+      .filter(q => q.question_type === 'single_select')
+      .map(q => q.key);
     const questionOptionsMap =
       await this.questionOptionRepository.getOptionsByQuestionKeys(
         singleSelectKeys,
@@ -71,14 +77,14 @@ export class EmployerSurveyService {
 
     // Load options for multi_select questions (all value options)
     const hasMultiSelect = questions.some(
-      (q) => q.question_type === 'multi_select',
+      q => q.question_type === 'multi_select',
     );
     const multiSelectOptions = hasMultiSelect
       ? await this.valueOptionRepository.getAllValueOptions()
       : [];
 
     // Merge questions with answers and options
-    const questionsWithAnswers: QuestionWithAnswer[] = questions.map((q) => {
+    const questionsWithAnswers: QuestionWithAnswer[] = questions.map(q => {
       const answer = answersMap.get(q.id);
 
       // Base question fields
@@ -91,7 +97,7 @@ export class EmployerSurveyService {
       };
 
       // Add options for select-type questions
-      let options: Array<{value_key: string; label: string}> | undefined;
+      let options: {label: string; value_key: string}[] | undefined;
 
       if (q.question_type === 'single_select') {
         options = questionOptionsMap.get(q.key) || [];
@@ -141,8 +147,14 @@ export class EmployerSurveyService {
    * @param step - Step number (1-5)
    * @param answers - Array of answer inputs
    * @throws Error if validation fails or questions don't belong to step
+      const promises = [];
+      for (const item of items) {
+      // Collect promises instead of awaiting in loop
+      promises.push(doSomething(item));
+      }
+      await Promise.all(promises);
    */
-  async saveStepAnswers(
+    export default employerSurveyService;
     projectId: string,
     step: number,
     answers: readonly AnswerInput[],
@@ -152,7 +164,7 @@ export class EmployerSurveyService {
       await this.submissionRepository.getOrCreateEmployerSubmission(projectId);
 
     // Fetch all questions by IDs
-    const questionIds = answers.map((a) => a.question_id);
+    const questionIds = answers.map(a => a.question_id);
     const questionsMap =
       await this.questionRepository.getQuestionsByIds(questionIds);
 
@@ -304,7 +316,7 @@ export class EmployerSurveyService {
     // Find missing questions
     const answeredSet = new Set(answeredQuestionIds);
     const missingQuestionIds = allQuestionIds.filter(
-      (qid) => !answeredSet.has(qid),
+      qid => !answeredSet.has(qid),
     );
 
     if (missingQuestionIds.length > 0) {

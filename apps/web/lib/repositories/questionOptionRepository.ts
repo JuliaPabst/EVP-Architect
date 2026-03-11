@@ -1,10 +1,10 @@
 import {supabase} from '@/lib/supabase';
 
 export interface QuestionOption {
-  readonly question_key: string;
-  readonly value_key: string;
   readonly label_de: string;
   readonly position: number;
+  readonly question_key: string;
+  readonly value_key: string;
 }
 
 /**
@@ -19,7 +19,7 @@ export class QuestionOptionRepository {
    */
   async getOptionsByQuestionKeys(
     questionKeys: readonly string[],
-  ): Promise<Map<string, Array<{value_key: string; label: string}>>> {
+  ): Promise<Map<string, {label: string; value_key: string}[]>> {
     if (questionKeys.length === 0) {
       return new Map();
     }
@@ -34,10 +34,7 @@ export class QuestionOptionRepository {
       throw new Error(`Failed to fetch question options: ${error.message}`);
     }
 
-    const optionsMap = new Map<
-      string,
-      Array<{value_key: string; label: string}>
-    >();
+    const optionsMap = new Map<string, {label: string; value_key: string}[]>();
 
     for (const option of data || []) {
       const existing = optionsMap.get(option.question_key) || [];

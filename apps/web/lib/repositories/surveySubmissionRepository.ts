@@ -99,7 +99,9 @@ export class SurveySubmissionRepository {
       .eq('id', submissionId);
 
     if (error) {
-      throw new Error(`Failed to mark submission as submitted: ${error.message}`);
+      throw new Error(
+        `Failed to mark submission as submitted: ${error.message}`,
+      );
     }
   }
 }

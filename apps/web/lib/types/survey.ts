@@ -1,5 +1,9 @@
 export type SurveyType = 'employer' | 'employee';
-export type QuestionType = 'text' | 'long_text' | 'single_select' | 'multi_select';
+export type QuestionType =
+  | 'text'
+  | 'long_text'
+  | 'single_select'
+  | 'multi_select';
 export type SubmissionStatus = 'in_progress' | 'submitted';
 
 export interface SurveyQuestion {
@@ -48,13 +52,13 @@ export interface QuestionWithAnswer {
   } | null;
   readonly id: string;
   readonly key: string;
-  readonly options?: readonly {
-    readonly value_key: string;
-    readonly label: string;
-  }[];
   readonly prompt: string;
   readonly question_type: string;
   readonly selection_limit: number | null;
+  readonly options?: readonly {
+    readonly label: string;
+    readonly value_key: string;
+  }[];
 }
 
 export interface StepResponse {

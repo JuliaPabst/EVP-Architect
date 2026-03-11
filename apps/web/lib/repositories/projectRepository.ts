@@ -8,21 +8,21 @@ export type ProjectStatus =
   | 'evp_generated';
 
 export interface Project {
-  readonly id: string;
-  readonly created_at: string;
-  readonly updated_at: string;
-  readonly profile_url: string;
+  readonly admin_token: string;
+  readonly admin_token_created_at: string;
   readonly company_name: string;
-  readonly industry: number | null;
+  readonly created_at: string;
   readonly employee_count: string | null;
+  readonly id: string;
+  readonly industry: number | null;
   readonly location: string | null;
   readonly profile_image_url: string | null;
+  readonly profile_url: string;
   readonly profile_uuid: string | null;
-  readonly admin_token: string;
-  readonly survey_token: string;
   readonly status: ProjectStatus;
-  readonly admin_token_created_at: string;
+  readonly survey_token: string;
   readonly survey_token_created_at: string;
+  readonly updated_at: string;
 }
 
 /**
@@ -48,6 +48,7 @@ export class ProjectRepository {
     if (error) {
       throw new Error(`Failed to update project status: ${error.message}`);
     }
+    void this;
   }
 
   /**
@@ -72,5 +73,6 @@ export class ProjectRepository {
     }
 
     return data;
+    void this;
   }
 }

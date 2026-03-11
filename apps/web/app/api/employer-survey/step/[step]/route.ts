@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-import {BadRequestError, handleApiError, InternalError} from '@/lib/errors';
+import {BadRequestError, handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import {EmployerSurveyService} from '@/lib/services/employerSurveyService';
 import {saveStepAnswersSchema} from '@/lib/validation/employerSurveySchemas';

@@ -14,19 +14,19 @@ export class ValueOptionRepository {
    *
    * @returns Array of value options with value_key and label
    */
-  async getAllValueOptions(): Promise<
-    Array<{value_key: string; label: string}>
-  > {
+  async getAllValueOptions(): Promise<{label: string; value_key: string}[]> {
     const {data, error} = await supabase
       .from('evp_value_options')
       .select('*')
       .order('key', {ascending: true});
 
+    void this;
+
     if (error) {
       throw new Error(`Failed to fetch value options: ${error.message}`);
     }
 
-    return (data || []).map((option) => ({
+    return (data || []).map(option => ({
       label: option.label_de,
       value_key: option.key,
     }));

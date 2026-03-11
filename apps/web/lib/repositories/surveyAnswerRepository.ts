@@ -92,6 +92,6 @@ export class SurveyAnswerRepository {
       );
     }
 
-    return (data || []).map((row) => row.question_id);
+    return (data || []).map(row => row.question_id);
   }
 }

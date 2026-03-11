@@ -79,6 +79,6 @@ export class SurveyQuestionRepository {
       );
     }
 
-    return (data || []).map((row) => row.id);
+    return (data || []).map(row => row.id);
   }
 }

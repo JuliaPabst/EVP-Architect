@@ -78,9 +78,9 @@ const ErrorMessages: Record<string, string> = {
  */
 interface ErrorConfig {
   readonly code: string;
+  readonly status: number;
   readonly details?: Record<string, unknown>;
   readonly message?: string;
-  readonly status: number;
 }
 
 /**

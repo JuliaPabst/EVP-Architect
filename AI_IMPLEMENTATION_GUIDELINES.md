@@ -39,6 +39,7 @@ Avoid:
 
 ------------------------------------------------------------------
 
+
 ## 2. GLOBAL PRINCIPLES
 
 - Only implement what is explicitly written in the user story.
@@ -47,6 +48,7 @@ Avoid:
 - Prefer explicit code over clever patterns.
 - Do not introduce new libraries unless absolutely necessary.
 - If introducing a new dependency, explain why in the implementation log.
+- Do not use emojis anywhere in the repository (including documentation, code, UI, and commit messages).
 
 ------------------------------------------------------------------
 
