@@ -33,21 +33,109 @@ export function isValidKununuUrl(url: string): boolean {
 }
 
 /**
- * Fetches HTML content from a given URL
+ * Helper function to add delay between retries
  */
-async function fetchHtml(url: string): Promise<string> {
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    },
+async function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
+}
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch URL: ${response.statusText}`);
+/**
+ * Fetches HTML content from a given URL with retry logic
+ * Falls back to simple fetch if advanced fetching is not available
+ */
+async function fetchHtml(
+  url: string,
+  retries = 3,
+  retryDelay = 1000,
+): Promise<string> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      // Add progressive delay between retries (not on first attempt)
+      if (attempt > 1) {
+        await delay(retryDelay * attempt);
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'DNT': '1',
+          'Referer': 'https://www.kununu.com/',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'same-origin',
+          'Sec-Fetch-User': '?1',
+          'Sec-Ch-Ua':
+            '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+          'Sec-Ch-Ua-Mobile': '?0',
+          'Sec-Ch-Ua-Platform': '"macOS"',
+          'Upgrade-Insecure-Requests': '1',
+          'Cache-Control': 'max-age=0',
+        },
+        // Add cache and redirect handling
+        cache: 'no-cache',
+        redirect: 'follow',
+        // Add signal for timeout
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+
+      if (!response.ok) {
+        const errorMsg = `Failed to fetch URL: ${response.status} ${response.statusText}. The website may be blocking automated requests. Consider using a headless browser or proxy service.`;
+
+        lastError = new Error(errorMsg);
+
+        // Don't retry on 4xx errors except 429 (rate limit)
+        if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+          throw lastError;
+        }
+
+        // Continue to retry on 5xx and 429 errors
+        continue;
+      }
+
+      return response.text();
+    } catch (error) {
+      lastError =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error during fetch');
+
+      // Don't retry on timeout or abort errors if it's the last attempt
+      if (
+        error instanceof Error &&
+        (error.name === 'TimeoutError' || error.name === 'AbortError')
+      ) {
+        lastError = new Error(
+          'Request timeout: kununu.com took too long to respond. Please try again later.',
+        );
+      }
+
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        lastError = new Error(
+          'Network error: Unable to reach kununu.com. Check your internet connection or firewall settings.',
+        );
+        // Don't retry network errors
+        throw lastError;
+      }
+
+      // If it's the last attempt, throw the error
+      if (attempt === retries) {
+        throw lastError;
+      }
+    }
   }
 
-  return response.text();
+  // This should never be reached, but TypeScript requires it
+  throw lastError || new Error('Failed to fetch URL after retries');
 }
 
 /**

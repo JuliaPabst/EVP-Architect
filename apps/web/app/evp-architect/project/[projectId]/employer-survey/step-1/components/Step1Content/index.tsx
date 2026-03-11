@@ -1,9 +1,18 @@
 'use client';
 
-import {useState} from 'react';
-
 import {useRouter} from 'next/navigation';
 
+import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
+
+import useSurveyStepState from '../../../hooks/useSurveyStepState';
+import {
+  buildAnswersPayload,
+  buildProjectUrl,
+  buildStepUrl,
+  findQuestionByType,
+  findTextQuestion,
+  transformOptionsForSelection,
+} from '../../../utils/surveyStepUtils';
 import FocusSelection from '../FocusSelection';
 import NavigationButtons from '../NavigationButtons';
 import ProgressHeader from '../ProgressHeader';
@@ -12,6 +21,7 @@ import TextSection from '../TextSection';
 import styles from './index.module.scss';
 
 interface Step1ContentProps {
+  readonly adminToken: string | null;
   readonly companyName: string;
   readonly projectId: string;
   readonly industry?: string;
@@ -19,32 +29,8 @@ interface Step1ContentProps {
   readonly logoUrl?: string;
 }
 
-// Values from Figma design - Culture & Values
-const focusOptions = [
-  {id: 'customer-centricity', label: 'Customer Centricity'},
-  {id: 'efficiency', label: 'Efficiency'},
-  {id: 'social-responsibility', label: 'Social Responsibility'},
-  {id: 'trust', label: 'Trust'},
-  {id: 'respect', label: 'Respect'},
-  {id: 'teamwork', label: 'Teamwork'},
-  {id: 'openness', label: 'Openness'},
-  {id: 'flexibility', label: 'Flexibility'},
-  {id: 'agility', label: 'Agility'},
-  {id: 'integrity', label: 'Integrity'},
-  {id: 'sustainability', label: 'Sustainability'},
-  {id: 'perfection', label: 'Perfection'},
-  {id: 'ethics', label: 'Ethics'},
-  {id: 'creativity', label: 'Creativity'},
-  {id: 'motivation', label: 'Motivation'},
-  {id: 'willingness-to-learn', label: 'Willingness to Learn'},
-  {id: 'communication', label: 'Communication'},
-  {id: 'reliability', label: 'Reliability'},
-  {id: 'equality', label: 'Equality'},
-  {id: 'goal-orientation', label: 'Goal Orientation'},
-  {id: 'transparency', label: 'Transparency'},
-];
-
 export default function Step1Content({
+  adminToken,
   companyName,
   projectId,
   industry,
@@ -52,21 +38,81 @@ export default function Step1Content({
   logoUrl,
 }: Step1ContentProps) {
   const router = useRouter();
-  const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
-  const [additionalContext, setAdditionalContext] = useState('');
+  const {error, isLoading, isSaving, saveAnswers, stepData} = useEmployerSurveyStep(
+    projectId,
+    1,
+    adminToken,
+  );
+  const {additionalContext, selectedFactors, setAdditionalContext, setSelectedFactors} =
+    useSurveyStepState(stepData);
 
-  const canContinue = selectedFactors.length >= 1 && selectedFactors.length <= 5;
+  // Find the relevant questions from fetched data
+  const multiSelectQuestion = findQuestionByType(stepData?.questions, 'multi_select');
+  const textQuestion = findTextQuestion(stepData?.questions);
+
+  // Transform options for FocusSelection component
+  const focusOptions = transformOptionsForSelection(multiSelectQuestion?.options);
+
+  const maxSelections = multiSelectQuestion?.selection_limit || 5;
+  const canContinue = selectedFactors.length >= 1 && selectedFactors.length <= maxSelections;
 
   const handleBack = () => {
-    router.push(`/evp-architect/project/${projectId}`);
+    router.push(buildProjectUrl(projectId));
   };
 
-  const handleContinue = () => {
-    // TODO: Save data and navigate to step 2
-    router.push(
-      `/evp-architect/project/${projectId}/employer-survey/step-2`,
-    );
+  const handleContinue = async () => {
+    if (!adminToken || !stepData) {
+      return;
+    }
+
+    try {
+      const answers = buildAnswersPayload({
+        multiSelectQuestion,
+        selectedValues: selectedFactors,
+        textQuestion,
+        textValue: additionalContext,
+      });
+
+      await saveAnswers(answers);
+
+      router.push(buildStepUrl(projectId, 2, adminToken));
+    } catch (error_) {
+      // Error is already set by the hook
+    }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={styles.step1Content}>
+        <div className={styles.container}>
+          <div className={styles.loadingMessage}>Loading survey questions...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={styles.step1Content}>
+        <div className={styles.container}>
+          <div className={styles.errorMessage}>Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if no data loaded
+  if (!stepData || !multiSelectQuestion) {
+    return (
+      <div className={styles.step1Content}>
+        <div className={styles.container}>
+          <div className={styles.errorMessage}>Failed to load survey questions</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.step1Content}>
@@ -86,22 +132,27 @@ export default function Step1Content({
         />
 
         <FocusSelection
-          maxSelections={5}
+          initialValue={selectedFactors}
+          maxSelections={maxSelections}
           minSelections={1}
           onChange={setSelectedFactors}
           options={focusOptions}
-          title="Which of these values most strongly shape everyday behavior and decisions in your company?"
+          title={multiSelectQuestion.prompt}
         />
 
-        <TextSection
-          onChange={setAdditionalContext}
-          placeholder=""
-          title="What do employees consistently value most about working here?"
-          value={additionalContext}
-        />
+        {textQuestion && (
+          <TextSection
+            onChange={setAdditionalContext}
+            placeholder=""
+            title={textQuestion.prompt}
+            value={additionalContext}
+          />
+        )}
+
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
         <NavigationButtons
-          canContinue={canContinue}
+          canContinue={canContinue && !isSaving}
           onContinue={handleContinue}
         />
       </div>

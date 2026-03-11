@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import ChoiceChip from '@kununu/ui/atoms/ChoiceChip';
 import {ChoiceChipSize} from '@kununu/ui/atoms/ChoiceChip/typings';
@@ -15,6 +15,7 @@ interface FocusOption {
 }
 
 interface FocusSelectionProps {
+  readonly initialValue?: readonly string[];
   readonly maxSelections?: number;
   readonly minSelections?: number;
   readonly onChange?: (selected: string[]) => void;
@@ -23,13 +24,21 @@ interface FocusSelectionProps {
 }
 
 export default function FocusSelection({
+  initialValue = [],
   maxSelections = 20,
   minSelections = 5,
   onChange,
   options,
   title,
 }: FocusSelectionProps) {
-  const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
+  const [selectedFactors, setSelectedFactors] = useState<string[]>([...initialValue]);
+
+  // Update internal state when initialValue changes
+  useEffect(() => {
+    if (initialValue.length > 0) {
+      setSelectedFactors([...initialValue]);
+    }
+  }, [initialValue]);
 
   const handleChipChange = (value: string, checked: boolean) => {
     const newSelected = checked

@@ -38,6 +38,7 @@ export const ErrorCode = {
   INVALID_STEP: 'invalid_step',
   MISSING_ADMIN_TOKEN: 'missing_admin_token',
   MISSING_COMPANY_URL: 'missing_company_url',
+  MISSING_FIELD: 'missing_field',
   MISSING_PROJECT_ID: 'missing_project_id',
   MISSING_REQUIRED_QUESTIONS: 'missing_required_questions',
   NO_SUBMISSION_FOUND: 'no_submission_found',
@@ -64,6 +65,7 @@ const ErrorMessages: Record<string, string> = {
   [ErrorCode.MISSING_ADMIN_TOKEN]:
     'admin_token is required (query param or header)',
   [ErrorCode.MISSING_COMPANY_URL]: 'Company URL is required',
+  [ErrorCode.MISSING_FIELD]: 'Required field is missing',
   [ErrorCode.MISSING_PROJECT_ID]: 'projectId query parameter is required',
   [ErrorCode.MISSING_REQUIRED_QUESTIONS]:
     'Required questions have not been answered',
@@ -162,6 +164,13 @@ export const BadRequestError = {
   missingCompanyUrl: (): NextResponse =>
     createErrorResponse({
       code: ErrorCode.MISSING_COMPANY_URL,
+      status: HttpStatus.BAD_REQUEST,
+    }),
+
+  missingField: (fieldName: string): NextResponse =>
+    createErrorResponse({
+      code: ErrorCode.MISSING_FIELD,
+      message: `Required field is missing: ${fieldName}`,
       status: HttpStatus.BAD_REQUEST,
     }),
 

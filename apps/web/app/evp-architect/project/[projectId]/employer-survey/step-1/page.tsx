@@ -40,6 +40,7 @@ export default function EmployerSurveyStep1({params}: StepPageProps) {
         ) : (
           <Suspense fallback={<div>Loading...</div>}>
             <Step1Content 
+              adminToken={adminToken}
               companyName={project?.company_name || ''} 
               projectId={params.projectId}
               industry={project?.industry_name}
