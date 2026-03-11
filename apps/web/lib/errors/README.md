@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     const data = await fetchData();
     
     if (!data) {
-      return BadRequestError.notFound();
+      return BadRequestError.validationFailed('Requested resource not found');
     }
     
     return NextResponse.json(data);
