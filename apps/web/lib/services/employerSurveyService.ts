@@ -175,7 +175,7 @@ class EmployerSurveyService {
       );
     }
 
-    if (answer.selected_values && answer.selected_values.length > 0) {
+    if ((answer.selected_values?.length ?? 0) > 0) {
       throw new Error(
         `selected_values must be empty for text question ${answer.question_id}`,
       );
@@ -186,7 +186,7 @@ class EmployerSurveyService {
    * Validate single_select answer
    */
   private validateSingleSelectAnswer(answer: AnswerInput): void {
-    if (!answer.selected_values || answer.selected_values.length !== 1) {
+    if (answer.selected_values?.length !== 1) {
       throw new Error(
         `Exactly 1 value required for single_select question ${answer.question_id}`,
       );
@@ -206,7 +206,7 @@ class EmployerSurveyService {
     answer: AnswerInput,
     selectionLimit: number | null,
   ): void {
-    if (!answer.selected_values || answer.selected_values.length === 0) {
+    if (!answer.selected_values?.length) {
       throw new Error(
         `At least 1 value required for multi_select question ${answer.question_id}`,
       );
@@ -276,10 +276,10 @@ class EmployerSurveyService {
         savedAnswer.id,
       );
 
-      if (answer.selected_values && answer.selected_values.length > 0) {
+      if ((answer.selected_values?.length ?? 0) > 0) {
         await this.valueSelectionRepository.insertSelections(
           savedAnswer.id,
-          answer.selected_values,
+          answer.selected_values!,
         );
       }
     }
