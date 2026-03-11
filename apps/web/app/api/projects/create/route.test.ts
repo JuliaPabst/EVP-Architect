@@ -53,7 +53,7 @@ describe('POST /api/projects/create', () => {
     expect(response.status).toBe(400);
     expect(data).toEqual({
       error: 'missing_company_url',
-      message: 'Company URL is required'
+      message: 'Company URL is required',
     });
   });
 
@@ -71,7 +71,7 @@ describe('POST /api/projects/create', () => {
     expect(response.status).toBe(422);
     expect(data).toEqual({
       error: 'invalid_company_url',
-      message: 'Invalid kununu company profile URL'
+      message: 'Invalid kununu company profile URL',
     });
     expect(mockIsValidKununuUrl).toHaveBeenCalledWith(
       'https://invalid-url.com',
@@ -113,9 +113,9 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(422);
     expect(data).toEqual({
+      details: {details: 'Network error'},
       error: 'scraping_failed',
       message: 'Could not extract required company information from profile',
-      details: { details: 'Network error' },
     });
   });
 
@@ -133,9 +133,9 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(422);
     expect(data).toEqual({
+      details: {details: 'Unknown error'},
       error: 'scraping_failed',
       message: 'Could not extract required company information from profile',
-      details: { details: 'Unknown error' },
     });
   });
 
@@ -172,9 +172,9 @@ describe('POST /api/projects/create', () => {
 
     expect(response.status).toBe(500);
     expect(data).toEqual({
+      details: {operation: 'create project'},
       error: 'database_error',
       message: 'Database operation failed',
-      details: { operation: 'create project' },
     });
   });
 
