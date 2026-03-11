@@ -37,7 +37,7 @@ describe('useAdminTokenValidation', () => {
 
   it('should redirect when validation fails', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
-      json: async () => ({isValid: false}),
+      json: async () => ({valid: false}),
       ok: false,
     });
 
@@ -51,7 +51,6 @@ describe('useAdminTokenValidation', () => {
   it('should return companyName when validation succeeds', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       json: async () => ({
-        isValid: true,
         project: {
           company_name: 'Test Company',
           employee_count: '100-500',
@@ -59,6 +58,7 @@ describe('useAdminTokenValidation', () => {
           location: 'Berlin, Germany',
           profile_image_url: 'https://example.com/logo.png',
         },
+        valid: true,
       }),
       ok: true,
     });
@@ -103,10 +103,10 @@ describe('useAdminTokenValidation', () => {
   it('should call validation API with correct parameters', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       json: async () => ({
-        isValid: true,
         project: {
           company_name: 'Test Company',
         },
+        valid: true,
       }),
       ok: true,
     });
@@ -115,17 +115,7 @@ describe('useAdminTokenValidation', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/projects/validate-admin',
-        {
-          body: JSON.stringify({
-            adminToken: mockAdminToken,
-            projectId: mockProjectId,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        },
+        `/api/projects/validate-admin?projectId=${mockProjectId}&admin_token=${mockAdminToken}`,
       );
     });
   });

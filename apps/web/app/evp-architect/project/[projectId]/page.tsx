@@ -2,7 +2,6 @@
 
 import styles from './index.module.scss';
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
 import KununuHeader from '@/app/components/KununuHeader';
 
 interface ProjectPageProps {

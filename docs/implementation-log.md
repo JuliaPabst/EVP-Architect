@@ -476,3 +476,318 @@ Previously redirected to generic project page.
 ✅ All code follows linting standards  
 ✅ Tests written for token generation and validation
 
+---
+
+## Database Schema Implementation – Survey & Analysis Tables – March 10, 2026
+
+**Date:** March 10, 2026  
+**Status:** ✅ Completed
+
+### Summary
+
+Implemented comprehensive database schema for survey system and AI analysis pipeline according to the data model specification in `/docs/data-model.md`. Created all required ENUM types, tables, constraints, and indexes for employer/employee surveys, question catalog, submissions, answers, and value selections.
+
+### Implementation Details
+
+#### 1. Schema Updates
+
+**Modified Tables:**
+- `evp_projects`: Added `updated_at` column (TIMESTAMP, DEFAULT NOW())
+
+#### 2. ENUM Types Created
+
+Created the following PostgreSQL ENUM types:
+
+1. `evp_survey_type`: `'employer'`, `'employee'`
+2. `evp_question_type`: `'text'`, `'long_text'`, `'single_select'`, `'multi_select'`
+3. `evp_submission_status`: `'in_progress'`, `'submitted'`
+4. `evp_analysis_run_type`: `'embedding'`, `'clustering'`, `'theme_extraction'`
+5. `evp_analysis_run_status`: `'queued'`, `'running'`, `'done'`, `'failed'`
+
+#### 3. Tables Created
+
+**`evp_survey_questions`**
+- Defines question catalog for employer and employee surveys
+- Fields: `id` (UUID), `survey_type`, `step`, `position`, `key`, `question_type`, `prompt`, `help_text`, `selection_limit`, `created_at`
+- Constraints:
+  - `UNIQUE(survey_type, key)` - Stable keys per survey
+  - `UNIQUE(survey_type, step, position)` - Deterministic step ordering
+
+**`evp_survey_submissions`**
+- Represents one respondent session
+- Fields: `id` (UUID), `project_id` (FK to evp_projects), `survey_type`, `status`, `respondent_meta` (JSONB), `started_at`, `submitted_at`
+- Constraints:
+  - Foreign key: `project_id → evp_projects(id) ON DELETE CASCADE`
+  - Unique partial index: One employer submission per project (`WHERE survey_type='employer'`)
+
+**`evp_survey_answers`**
+- Stores raw answers (one row per question)
+- Fields: `id` (UUID), `submission_id` (FK), `question_id` (FK), `answer_text`, `answer_json` (JSONB), `created_at`, `updated_at`
+- Constraints:
+  - `submission_id → evp_survey_submissions(id) ON DELETE CASCADE`
+  - `question_id → evp_survey_questions(id) ON DELETE RESTRICT`
+  - `UNIQUE(submission_id, question_id)` - One answer per question per submission
+
+**`evp_value_options`**
+- Canonical list of selectable value chips
+- Fields: `key` (TEXT PRIMARY KEY), `label_de` (TEXT NOT NULL)
+- Purpose: Provides standardized values for multi-select value questions
+
+**`evp_answer_value_selections`**
+- Join table for multi-select value answers
+- Fields: `answer_id` (FK), `value_key` (FK), `position` (INT)
+- Constraints:
+  - `PRIMARY KEY(answer_id, value_key)` - Prevent duplicate selections
+  - `answer_id → evp_survey_answers(id) ON DELETE CASCADE`
+  - `value_key → evp_value_options(key) ON DELETE RESTRICT`
+
+#### 4. Indexes Created
+
+Performance indexes for common queries:
+- `idx_survey_submissions_project` on `evp_survey_submissions(project_id)`
+- `idx_survey_answers_submission` on `evp_survey_answers(submission_id)`
+- `idx_survey_answers_question` on `evp_survey_answers(question_id)`
+- `idx_answer_value_selections_answer` on `evp_answer_value_selections(answer_id)`
+
+### Database Migration
+
+**Tool:** Supabase MCP (`mcp_supabase_apply_migration`)  
+**Migration Name:** `create_survey_tables`  
+**Status:** Successfully applied
+
+All tables, constraints, and indexes created in a single atomic migration using PostgreSQL DDL.
+
+### Design Principles Applied
+
+Following the data model specification:
+- **Raw survey data is immutable** - Separate tables for raw answers and AI analysis
+- **Snapshot storage** - No complex normalization, storing state at submission time
+- **Security by design** - Foreign key constraints with appropriate CASCADE/RESTRICT
+- **Deterministic structure** - Unique constraints ensure data integrity
+- **Prototype simplicity** - Minimal schema, straightforward relationships
+
+### Files Modified
+
+- None (database-only changes)
+
+### Database Changes
+
+**Tables created:** 5  
+**ENUM types created:** 5  
+**Indexes created:** 5 (including 1 unique partial index)  
+**Columns added:** 1 (`evp_projects.updated_at`)
+
+### Assumptions Made
+
+- All table structures follow exactly the specification in `/docs/data-model.md`
+- No seed data inserted (value options will be added in future implementation)
+- Analysis run tables mentioned in ENUMs but not created (future feature)
+- TIMESTAMPTZ used instead of TIMESTAMP for timezone awareness
+
+### Open Questions
+
+- Should we populate `evp_value_options` immediately with standard values?
+- Do we need analysis run tables (`evp_analysis_runs`, `evp_embeddings`, etc.) now or later?
+- Should token expiration be enforced at database level or application level?
+
+### Next Steps
+
+- Populate `evp_survey_questions` with employer survey questions
+- Populate `evp_value_options` with standard company values
+- Create API endpoints for survey submission
+- Implement survey response persistence logic
+
+### Acceptance Criteria
+
+✅ All tables from data model created in Supabase  
+✅ All ENUM types defined and used correctly  
+✅ Foreign key constraints with proper CASCADE/RESTRICT  
+✅ Unique constraints for data integrity  
+✅ Indexes for query performance  
+✅ `evp_projects.updated_at` field added  
+✅ Partial unique index for one employer submission per project  
+✅ Migration applied successfully via Supabase MCP  
+✅ Schema matches `/docs/data-model.md` specification exactly  
+✅ Implementation logged in `/docs/implementation-log.md`
+
+------------------------------------------------------------
+
+## Employer Survey Step GET Endpoint – March 10, 2026
+
+### What was implemented
+
+Backend logic for retrieving employer survey questions and answers for a specific step (1-5).
+
+- GET endpoint: `/api/employer-survey/step/[step]`
+- Repository-service architecture
+- Automatic employer submission creation on first access
+- Question-answer merging with value selections
+- Step validation (1-5 only)
+- Project access validation via middleware
+
+### Files created
+
+- `/lib/types/survey.ts` - TypeScript types for survey entities
+- `/lib/repositories/surveyQuestionRepository.ts` - Question fetching logic
+- `/lib/repositories/surveySubmissionRepository.ts` - Submission management
+- `/lib/repositories/surveyAnswerRepository.ts` - Answer retrieval
+- `/lib/repositories/valueSelectionRepository.ts` - Multi-select value fetching
+- `/lib/services/employerSurveyService.ts` - Business logic orchestration
+- `/app/api/employer-survey/step/[step]/route.ts` - GET route handler
+
+### Files modified
+
+None (all new files)
+
+### Database changes
+
+None (uses existing schema from data-model.md)
+
+### Assumptions made
+
+- Middleware `validateProjectAccess` already exists and works correctly
+- Database schema matches data-model.md exactly
+- PGRST116 error code indicates "no rows found" for Supabase queries
+- One employer submission per project (enforced by database constraint)
+- Submission auto-creation is atomic via repository method
+- Empty answer means answer object is null, not empty strings/arrays
+
+### Open questions
+
+None
+
+### Technical details
+
+**Architecture:**
+- Routes call services
+- Services orchestrate business logic
+- Repositories handle database operations
+- Clean separation of concerns
+
+**Step validation:**
+- Step must be integer between 1-5
+- Invalid step returns 400 with `{"error": "invalid_step"}`
+
+**Submission handling:**
+- Gets existing employer submission or creates new one
+- New submissions have status `in_progress` and empty `respondent_meta`
+- Creation is atomic via single database operation
+
+**Response format:**
+```json
+{
+  "step": 1,
+  "questions": [
+    {
+      "id": "uuid",
+      "key": "company_mission",
+      "prompt": "Question text",
+      "question_type": "text",
+      "selection_limit": null,
+      "answer": {
+        "text": "Answer text"
+      }
+    }
+  ]
+}
+```
+
+**Answer mapping:**
+- text/long_text questions → `answer.text`
+- single_select/multi_select questions → `answer.values[]`
+- No answer → `answer: null`
+
+### Next steps
+
+- Implement POST endpoint for saving answers
+- Implement submission completion endpoint
+- Add answer validation schemas with Zod
+- Implement transaction handling for multi-table writes
+
+------------------------------------------------------------
+
+## Employer Survey Step POST Endpoint – March 10, 2026
+
+### What was implemented
+
+Backend logic for saving employer survey answers for a specific step (1-5).
+
+- POST endpoint: `/api/employer-survey/step/[step]`
+- Zod validation for request body
+- Question validation (must belong to step and be employer questions)
+- Answer type validation based on question type
+- Transactional-like saves with upsert and delete/insert operations
+- Does NOT modify submission.status (supports Save + Continue)
+
+### Files created
+
+- `/lib/validation/employerSurveySchemas.ts` - Zod schemas for answer validation
+
+### Files modified
+
+- `/lib/repositories/surveyQuestionRepository.ts` - Added `getQuestionsByIds()` method
+- `/lib/repositories/surveyAnswerRepository.ts` - Added `upsertAnswer()` method
+- `/lib/repositories/valueSelectionRepository.ts` - Added `deleteSelectionsByAnswer()` and `insertSelections()` methods
+- `/lib/services/employerSurveyService.ts` - Added `saveStepAnswers()` method with validation logic
+- `/app/api/employer-survey/step/[step]/route.ts` - Added POST handler
+
+### Database changes
+
+None (uses existing schema from data-model.md)
+
+### Assumptions made
+
+- Upsert uses Supabase's `onConflict` option with composite unique constraint `(submission_id, question_id)`
+- Transaction behavior achieved through sequential operations (Supabase doesn't expose native transactions in client)
+- All validation errors from service layer result in 400 responses
+- Empty `selected_values` arrays are treated as invalid for select questions
+- Text answer max length: 10,000 characters
+
+### Technical details
+
+**Request validation:**
+- Zod schema validates structure and basic types
+- Service layer validates business rules
+
+**Question validation:**
+- All question IDs must exist in database
+- All questions must have `survey_type = 'employer'`
+- All questions must belong to the specified step
+- Returns `invalid_question_for_step` error if step mismatch
+
+**Answer type validation:**
+- `text`/`long_text`: Requires `answer_text`, max 10,000 chars, no `selected_values`
+- `single_select`: Requires exactly 1 value in `selected_values`, no `answer_text`
+- `multi_select`: Requires at least 1 value in `selected_values`, respects `selection_limit`, no `answer_text`
+- Returns `validation_failed` error if type validation fails
+
+**Database operations:**
+1. Get or create employer submission (if first access to project)
+2. For each answer:
+   - Upsert into `evp_survey_answers` (replaces if exists)
+   - For select questions: Delete all existing `evp_answer_value_selections`
+   - For select questions: Insert new selections with position index
+
+**Response format:**
+```json
+{
+  "success": true
+}
+```
+
+**Error responses:**
+- `invalid_step` (400): Step not 1-5
+- `validation_failed` (400): Zod validation or answer type validation failed
+- `invalid_question_for_step` (400): Question doesn't belong to specified step
+- `internal_error` (500): Database or unexpected errors
+
+### Open questions
+
+None
+
+### Next steps
+
+- Implement POST `/api/employer-survey/complete` endpoint
+- Add proper transaction support if Supabase makes it available
+- Consider optimizing to batch insert selections
+

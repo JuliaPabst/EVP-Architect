@@ -1,132 +1,356 @@
 # Data Model
 
----
+------------------------------------------------------------------------
 
-## Tables
+# industries
 
----
+Reference table for company industry classifications.\
+Managed by kununu (44 pre-existing industry classifications).
 
-## industries
+## Fields
 
-Reference table for company industry classifications.
+  Field             Type     Constraints   Description
+  ----------------- -------- ------------- --------------------------------------------
+  id                BIGINT   PRIMARY KEY   Unique identifier for the industry
+  name              TEXT     NULLABLE      Industry name (e.g., "Banken", "EDV / IT")
+  permalink         TEXT     NULLABLE      URL-friendly industry identifier
+  xing_id           TEXT     NULLABLE      XING platform industry identifier
+  xing_name         TEXT     NULLABLE      XING platform industry name
+  translation_key   TEXT     NULLABLE      Translation key for localization
 
-This is an existing kununu reference table containing industry data.
+------------------------------------------------------------------------
 
-### Fields
+# evp_projects
 
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| `id` | BIGINT | PRIMARY KEY | Unique identifier for the industry |
-| `name` | TEXT | NULLABLE | Industry name (German, e.g., "Banken", "EDV / IT") |
-| `permalink` | TEXT | NULLABLE | URL-friendly industry identifier |
-| `xing_id` | TEXT | NULLABLE | XING platform industry identifier |
-| `xing_name` | TEXT | NULLABLE | XING platform industry name |
-| `translation_key` | TEXT | NULLABLE | Translation key for localization |
+Stores company profile snapshot data, project metadata, and access
+control tokens.
 
-**Note:** This table is managed by kununu and contains 44 pre-existing industry classifications.
+Core security and lifecycle control entity of the prototype.
 
----
+## evp_project_status (ENUM)
 
-## evp_projects
+  Value
+  -----------------------------
+  employer_survey_in_progress
+  employer_survey_completed
+  employee_survey_active
+  evp_generation_available
+  evp_generated
 
-Stores company profile snapshot data, project metadata, and access control tokens for each EVP Architect project.
+------------------------------------------------------------------------
 
-This table currently serves as the **core security and lifecycle control entity** of the prototype.
+## Fields
 
----
+  -----------------------------------------------------------------------------------------------------
+  Field                     Type                 Constraints                   Description
+  ------------------------- -------------------- ----------------------------- ------------------------
+  id                        UUID                 PRIMARY KEY, DEFAULT          Unique identifier
+                                                 gen_random_uuid()             (projectId)
 
-### evp_project_status (ENUM)
+  created_at                TIMESTAMP            DEFAULT NOW()                 Creation timestamp
 
-Defines the controlled lifecycle states of an EVP project.
+  updated_at                TIMESTAMP            DEFAULT NOW()                 Last update timestamp
 
-```sql
-CREATE TYPE evp_project_status AS ENUM (
-  'employer_survey_in_progress',
-  'employer_survey_completed',
-  'employee_survey_active',
-  'evp_generation_available',
-  'evp_generated'
-);``
+  profile_url               TEXT                 NOT NULL                      kununu company profile
+                                                                               URL
 
-This ENUM enforces valid lifecycle states at the database level and prevents invalid or inconsistent status values.
+  company_name              TEXT                 NOT NULL                      Extracted company name
 
----
+  industry                  INTEGER              FK → industries(id), NULLABLE Industry classification
+                                                                               reference
 
-### Fields
+  employee_count            TEXT                 NULLABLE                      Employee number or range
 
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier for the project (projectId) |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Timestamp when the project was created |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Timestamp of last project update |
-| `profile_url` | TEXT | NOT NULL | The kununu company profile URL |
-| `company_name` | TEXT | NOT NULL | Company name extracted from profile (mandatory) |
-| `industry` | INTEGER | NULLABLE, FOREIGN KEY → industry(id) | Industry classification reference to kununu industries table |
-| `employee_count` | TEXT | NULLABLE | Number or range of employees |
-| `location` | TEXT | NULLABLE | Company location/headquarters |
-| `profile_image_url` | TEXT | NULLABLE | URL to the company's profile image/logo |
-| `profile_uuid` | TEXT | NULLABLE | kununu profile UUID extracted from dataLayer |
-| `admin_token` | TEXT | NOT NULL, UNIQUE | Cryptographically secure token for employer access |
-| `survey_token` | TEXT | NOT NULL, UNIQUE | Cryptographically secure token for employee survey access |
-| `status` | evp_project_status | NOT NULL DEFAULT 'employer_survey_in_progress' | Current lifecycle status of the EVP project |
-| `admin_token_created_at` | TIMESTAMP | DEFAULT NOW() | Timestamp when the admin token was generated |
-| `survey_token_created_at` | TIMESTAMP | DEFAULT NOW() | Timestamp when the survey token was generated |
+  location                  TEXT                 NULLABLE                      Company headquarters
 
----
+  profile_image_url         TEXT                 NULLABLE                      Profile image/logo URL
+
+  profile_uuid              TEXT                 NULLABLE                      kununu profile UUID
+
+  admin_token               TEXT                 NOT NULL, UNIQUE              Employer access token
+
+  survey_token              TEXT                 NOT NULL, UNIQUE              Employee survey token
+
+  status                    evp_project_status   NOT NULL DEFAULT              Lifecycle state
+                                                 employer_survey_in_progress   
+
+  admin_token_created_at    TIMESTAMP            DEFAULT NOW()                 Admin token creation
+                                                                               timestamp
+
+  survey_token_created_at   TIMESTAMP            DEFAULT NOW()                 Survey token creation
+                                                                               timestamp
+  -----------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Security Model
+
+  -----------------------------------------------------------------------
+  Rule                   Description
+  ---------------------- ------------------------------------------------
+  Employer Access        Requires valid projectId + matching admin_token
+
+  Employee Access        Requires valid survey_token
+
+  Token Generation       Cryptographically secure (min 32 random bytes
+                         recommended)
+
+  Validation             Tokens validated server-side on every request
+
+  Auth Model             Token-based, no login system
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Lifecycle Control
+
+  State                         Purpose
+  ----------------------------- --------------------------
+  employer_survey_in_progress   Employer survey editable
+  employer_survey_completed     Employer survey locked
+  employee_survey_active        Employee survey open
+  evp_generation_available      AI generation allowed
+  evp_generated                 EVP draft created
+
+------------------------------------------------------------------------
+
+# Survey + AI Analysis Data Model
+
+Design principle: Raw survey data is immutable.\
+AI-derived data is stored separately and versioned.
+
+------------------------------------------------------------------------
+
+# ENUM Types
+
+## evp_survey_type
+
+  Value
+  ----------
+  employer
+  employee
+
+## evp_question_type
+
+  Value
+  ---------------
+  text
+  long_text
+  single_select
+  multi_select
+
+## evp_submission_status
+
+  Value
+  -------------
+  in_progress
+  submitted
+
+## evp_analysis_run_type
+
+  Value
+  ------------------
+  embedding
+  clustering
+  theme_extraction
+
+## evp_analysis_run_status
+
+  Value
+  ---------
+  queued
+  running
+  done
+  failed
+
+------------------------------------------------------------------------
+
+# evp_survey_questions
+
+Defines the question catalog for employer and employee surveys.
+
+## Fields
+
+  Field             Type                Constraints                     Description
+  ----------------- ------------------- ------------------------------- ---------------------------------
+  id                UUID                PK, DEFAULT gen_random_uuid()   Unique identifier
+  survey_type       evp_survey_type     NOT NULL                        employer or employee
+  step              INT                 NOT NULL                        Step number (1--5)
+  position          INT                 NOT NULL                        Ordering within step
+  key               TEXT                NOT NULL                        Stable identifier
+  question_type     evp_question_type   NOT NULL                        UI + validation type
+  prompt            TEXT                NOT NULL                        Question text
+  help_text         TEXT                NULLABLE                        Helper copy
+  selection_limit   INT                 NULLABLE                        Max selections for multi-select
+  created_at        TIMESTAMPTZ         DEFAULT now()                   Creation timestamp
+
+## Constraints
+
+  Constraint                            Purpose
+  ------------------------------------- -----------------------------
+  UNIQUE(survey_type, key)              Stable keys per survey
+  UNIQUE(survey_type, step, position)   Deterministic step ordering
+
+------------------------------------------------------------------------
+
+# evp_survey_submissions
+
+Represents one respondent session.
+
+## Fields
+
+  -----------------------------------------------------------------------------------------
+  Field             Type                    Constraints            Description
+  ----------------- ----------------------- ---------------------- ------------------------
+  id                UUID                    PK, DEFAULT            Submission ID
+                                            gen_random_uuid()      
+
+  project_id        UUID                    FK → evp_projects(id), Linked project
+                                            ON DELETE CASCADE      
+
+  survey_type       evp_survey_type         NOT NULL               employer or employee
+
+  status            evp_submission_status   NOT NULL DEFAULT       Submission state
+                                            in_progress            
+
+  respondent_meta   JSONB                   NOT NULL DEFAULT '{}'  Non-PII metadata
+
+  started_at        TIMESTAMPTZ             DEFAULT now()          Start timestamp
+
+  submitted_at      TIMESTAMPTZ             NULLABLE               Submission timestamp
+  -----------------------------------------------------------------------------------------
+
+## Recommended Constraint
+
+  -----------------------------------------------------------------------
+  Constraint                         Description
+  ---------------------------------- ------------------------------------
+  UNIQUE(project_id) WHERE           One employer submission per project
+  survey_type='employer'             
+
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# evp_survey_answers
+
+Stores raw answers (one row per question).
+
+## Fields
+
+  ------------------------------------------------------------------------------------
+  Field           Type          Constraints                   Description
+  --------------- ------------- ----------------------------- ------------------------
+  id              UUID          PK, DEFAULT gen_random_uuid() Answer ID
+
+  submission_id   UUID          FK →                          Related submission
+                                evp_survey_submissions(id),   
+                                ON DELETE CASCADE             
+
+  question_id     UUID          FK →                          Related question
+                                evp_survey_questions(id), ON  
+                                DELETE RESTRICT               
+
+  answer_text     TEXT          NULLABLE                      Narrative answer
+
+  answer_json     JSONB         NULLABLE                      Structured payload
+
+  created_at      TIMESTAMPTZ   DEFAULT now()                 Creation timestamp
+
+  updated_at      TIMESTAMPTZ   DEFAULT now()                 Update timestamp
+  ------------------------------------------------------------------------------------
+
+## Constraints
+
+  -----------------------------------------------------------------------
+  Constraint                             Purpose
+  -------------------------------------- --------------------------------
+  UNIQUE(submission_id, question_id)     One answer per question per
+                                         submission
+
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# evp_value_options
+
+Canonical list of selectable value chips.
+
+## Fields
+
+  Field      Type   Constraints   Description
+  ---------- ------ ------------- ------------------
+  key        TEXT   PRIMARY KEY   Stable value key
+  label_de   TEXT   NOT NULL      German label
+
+------------------------------------------------------------------------
+
+# evp_question_options
+
+Stores selectable options for single_select questions.
+
+Provides question-specific option lists, separate from the global value chips in evp_value_options.
+
+## Purpose
+
+- Defines dropdown/radio options for individual single_select questions
+- Enables different questions to have different option sets
+- Maintains deterministic ordering via position field
+
+## Fields
+
+  Field          Type          Constraints   Description
+  -------------- ------------- ------------- --------------------------------
+  question_key   TEXT          NOT NULL      References evp_survey_questions.key
+  value_key      TEXT          NOT NULL      Stable option identifier
+  label_de       TEXT          NOT NULL      German display label
+  position       INT           NOT NULL      Deterministic ordering
+  created_at     TIMESTAMPTZ   DEFAULT now() Timestamp
+
+## Constraints
+
+  Constraint                            Purpose
+  ------------------------------------- ------------------------------------
+  PRIMARY KEY(question_key, value_key)  Prevent duplicate options per question
+  INDEX on question_key                 Efficient lookup by question
+
+## Usage
+
+- **single_select questions**: Options loaded from evp_question_options WHERE question_key = question.key
+- **multi_select questions**: Options loaded from evp_value_options (all value chips)
+- **text/long_text questions**: No options loaded
 
 ## Notes
 
-### Security Model
+- Raw survey answers remain in evp_survey_answers (immutable)
+- Selected values stored in evp_answer_value_selections
+- Question definitions stored in evp_survey_questions
+- Separation ensures clean data model: question definitions vs. selectable options vs. actual answers
 
-- `admin_token` is required for all employer-facing routes:
-/evp-architect/project/[projectId]/...
+------------------------------------------------------------------------
 
-- `survey_token` is required for all employee-facing routes:
+# evp_answer_value_selections
 
-/evp-architect/survey/[surveyToken]
+Join table for multi-select value answers.
 
-- Tokens must be generated using a cryptographically secure random generator.
-- Tokens should be sufficiently long (minimum 32+ random bytes recommended).
-- Tokens function as lightweight authentication (no login system).
+## Fields
 
-### Access Logic
+  ----------------------------------------------------------------------------
+  Field         Type        Constraints               Description
+  ------------- ----------- ------------------------- ------------------------
+  answer_id     UUID        FK →                      Related answer
+                            evp_survey_answers(id),   
+                            ON DELETE CASCADE         
 
-- Employer access requires:
-- valid `projectId`
-- matching `admin_token`
-- Employee access requires:
-- valid `survey_token`
-- Tokens are validated server-side on every request.
+  value_key     TEXT        FK →                      Selected value
+                            evp_value_options(key),   
+                            ON DELETE RESTRICT        
 
-### Lifecycle Control
+  position      INT         NULLABLE                  Optional ranking/order
+  ----------------------------------------------------------------------------
 
-The `status` field governs allowed actions within the prototype.
+## Constraints
 
-Available states:
-
-- `employer_survey_in_progress`
-- `employer_survey_completed`
-- `employee_survey_active`
-- `evp_generation_available`
-- `evp_generated`
-
-The `status` field is used to:
-
-- enable or disable specific routes
-- prevent premature EVP generation
-- control employee survey activation
-
-### Snapshot Principle
-
-- Company profile data is captured once at project creation.
-- No synchronization or updating with kununu after initialization.
-- If `company_name` cannot be extracted, project creation fails with a `422` error.
-
-### Referential Integrity
-
-- The `industry` field references the `industry` table via foreign key.
-- The `industry` table is a pre-existing kununu reference table.
-- If an industry is deleted, the `industry` field is set to NULL (ON DELETE SET NULL).
-- Industry values must exist in the `industry` table before being assigned to a project.
-
----
+  Constraint                          Purpose
+  ----------------------------------- ------------------------------
+  PRIMARY KEY(answer_id, value_key)   Prevent duplicate selections
