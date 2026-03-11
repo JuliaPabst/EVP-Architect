@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from 'next/server';
 
 import {AuthError} from '@/lib/errors';
-import {supabase} from '@/lib/supabase';
+import {ProjectRepository} from '@/lib/repositories/projectRepository';
 
 /**
  * Project context attached to validated requests
@@ -99,16 +99,15 @@ export async function validateProjectAccess(
     };
   }
 
-  // Fetch project and validate token
+  // Fetch project and validate token via repository
   try {
-    const {data, error} = await supabase
-      .from('evp_projects')
-      .select('*')
-      .eq('id', projectId)
-      .eq('admin_token', adminToken)
-      .single();
+    const projectRepository = new ProjectRepository();
+    const project = await projectRepository.findByIdAndAdminToken(
+      projectId,
+      adminToken,
+    );
 
-    if (error || !data) {
+    if (!project) {
       return {
         error: AuthError.invalidCredentials(),
         success: false,
@@ -118,18 +117,18 @@ export async function validateProjectAccess(
     // Return project context
     return {
       project: {
-        admin_token: data.admin_token,
-        company_name: data.company_name,
-        created_at: data.created_at,
-        employee_count: data.employee_count,
-        id: data.id,
-        industry: data.industry,
-        location: data.location,
-        profile_image_url: data.profile_image_url,
-        profile_url: data.profile_url,
-        profile_uuid: data.profile_uuid,
-        status: data.status,
-        updated_at: data.updated_at,
+        admin_token: project.admin_token,
+        company_name: project.company_name,
+        created_at: project.created_at,
+        employee_count: project.employee_count ?? undefined,
+        id: project.id,
+        industry: project.industry ?? undefined,
+        location: project.location ?? undefined,
+        profile_image_url: project.profile_image_url ?? undefined,
+        profile_url: project.profile_url,
+        profile_uuid: project.profile_uuid ?? undefined,
+        status: project.status,
+        updated_at: project.updated_at,
       },
       success: true,
     };

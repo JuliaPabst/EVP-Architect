@@ -7,25 +7,46 @@ import {NextRequest} from 'next/server';
 
 import {GET} from './route';
 
-import {supabase} from '@/lib/supabase';
+import {
+  Project,
+  ProjectRepository,
+  ProjectStatus,
+} from '@/lib/repositories/projectRepository';
 
-jest.mock('@/lib/supabase', () => ({
-  supabase: {
-    from: jest.fn(),
-  },
+jest.mock('@/lib/repositories/projectRepository', () => ({
+  ProjectRepository: jest.fn().mockImplementation(() => ({
+    findByIdAndAdminToken: jest.fn(),
+  })),
 }));
 
 describe('GET /api/projects/validate-admin', () => {
   const mockProjectId = '123e4567-e89b-12d3-a456-426614174000';
   const mockAdminToken = 'test-admin-token';
-  const mockProjectData = {
+  const mockProjectData: Partial<Project> = {
     admin_token: mockAdminToken,
     company_name: 'Test Company',
     created_at: '2026-03-01T00:00:00Z',
     id: mockProjectId,
     profile_url: 'https://kununu.com/test-company',
-    status: 'employer_survey_in_progress',
+    status: 'employer_survey_in_progress' as ProjectStatus,
     updated_at: '2026-03-01T00:00:00Z',
+  };
+
+  // Helper function to mock the repository with a specific return value
+  const mockRepositoryFindByIdAndAdminToken = (
+    returnValue: Partial<Project> | null,
+  ): jest.Mock => {
+    const mockFn = jest.fn().mockResolvedValue(returnValue);
+
+    (
+      ProjectRepository as jest.MockedClass<typeof ProjectRepository>
+    ).mockImplementation(
+      () =>
+        ({
+          findByIdAndAdminToken: mockFn,
+        }) as Partial<ProjectRepository> as ProjectRepository,
+    );
+    return mockFn;
   };
 
   beforeEach(() => {
@@ -61,14 +82,7 @@ describe('GET /api/projects/validate-admin', () => {
       `http://localhost:3000/api/projects/validate-admin?projectId=${mockProjectId}&admin_token=wrong-token`,
     );
 
-    (supabase.from as jest.Mock).mockReturnValue({
-      eq: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: null,
-        error: {message: 'Not found'},
-      }),
-    });
+    mockRepositoryFindByIdAndAdminToken(null);
 
     const response = await GET(request);
     const data = await response.json();
@@ -82,14 +96,7 @@ describe('GET /api/projects/validate-admin', () => {
       `http://localhost:3000/api/projects/validate-admin?projectId=${mockProjectId}&admin_token=${mockAdminToken}`,
     );
 
-    (supabase.from as jest.Mock).mockReturnValue({
-      eq: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: mockProjectData,
-        error: null,
-      }),
-    });
+    mockRepositoryFindByIdAndAdminToken(mockProjectData);
 
     const response = await GET(request);
     const data = await response.json();
@@ -111,14 +118,7 @@ describe('GET /api/projects/validate-admin', () => {
       },
     );
 
-    (supabase.from as jest.Mock).mockReturnValue({
-      eq: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: mockProjectData,
-        error: null,
-      }),
-    });
+    mockRepositoryFindByIdAndAdminToken(mockProjectData);
 
     const response = await GET(request);
     const data = await response.json();
@@ -138,14 +138,7 @@ describe('GET /api/projects/validate-admin', () => {
       },
     );
 
-    (supabase.from as jest.Mock).mockReturnValue({
-      eq: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: mockProjectData,
-        error: null,
-      }),
-    });
+    mockRepositoryFindByIdAndAdminToken(mockProjectData);
 
     const response = await GET(request);
     const data = await response.json();

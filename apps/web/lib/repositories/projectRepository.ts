@@ -75,4 +75,34 @@ export class ProjectRepository {
 
     return data;
   }
+
+  /**
+   * Find project by ID and admin token (for authentication)
+   *
+   * @param projectId - Project UUID
+   * @param adminToken - Admin authentication token
+   * @returns Project if found with matching token, null otherwise
+   */
+  // eslint-disable-next-line class-methods-use-this
+  async findByIdAndAdminToken(
+    projectId: string,
+    adminToken: string,
+  ): Promise<Project | null> {
+    const {data, error} = await supabase
+      .from('evp_projects')
+      .select('*')
+      .eq('id', projectId)
+      .eq('admin_token', adminToken)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+
+      throw new Error(`Failed to validate project access: ${error.message}`);
+    }
+
+    return data;
+  }
 }
