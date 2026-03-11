@@ -1,5 +1,11 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {
+  BadRequestError,
+  handleApiError,
+  InternalError,
+  UnprocessableError,
+} from '@/lib/errors';
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -44,24 +50,18 @@ import generateSecureToken from '@/lib/tokens';
  */
 // eslint-disable-next-line import/prefer-default-export
 export async function POST(request: NextRequest) {
-  try {
+  return handleApiError(async () => {
     const body = await request.json();
     const {companyUrl} = body;
 
     // Validate that companyUrl is provided
     if (!companyUrl) {
-      return NextResponse.json(
-        {error: 'Company URL is required'},
-        {status: 400},
-      );
+      return BadRequestError.missingCompanyUrl();
     }
 
     // Validate URL format
     if (!isValidKununuUrl(companyUrl)) {
-      return NextResponse.json(
-        {error: 'Invalid kununu company profile URL'},
-        {status: 400},
-      );
+      return UnprocessableError.invalidCompanyUrl();
     }
 
     // Scrape company profile
@@ -75,26 +75,16 @@ export async function POST(request: NextRequest) {
         scrapingError instanceof Error &&
         scrapingError.message.includes('Could not extract company name')
       ) {
-        return NextResponse.json(
-          {
-            error:
-              'Could not extract required company information from profile',
-          },
-          {status: 422},
-        );
+        return UnprocessableError.scrapingFailed();
       }
 
       // Other scraping errors
-      return NextResponse.json(
-        {
-          details:
-            scrapingError instanceof Error
-              ? scrapingError.message
-              : 'Unknown error',
-          error: 'Failed to extract company information',
-        },
-        {status: 500},
-      );
+      const errorDetails =
+        scrapingError instanceof Error
+          ? scrapingError.message
+          : 'Unknown error';
+
+      return UnprocessableError.scrapingFailed(errorDetails);
     }
 
     // Generate secure tokens
@@ -122,20 +112,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json(
-        {details: error.message, error: 'Failed to create project in database'},
-        {status: 500},
-      );
+      return InternalError.databaseError('create project');
     }
 
     return NextResponse.json({adminToken, projectId: data.id}, {status: 201});
-  } catch (error) {
-    return NextResponse.json(
-      {
-        details: error instanceof Error ? error.message : 'Unknown error',
-        error: 'Failed to create project',
-      },
-      {status: 500},
-    );
-  }
+  }, 'POST /api/projects/create');
 }

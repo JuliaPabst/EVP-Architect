@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {BadRequestError, handleApiError, InternalError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import {EmployerSurveyService} from '@/lib/services/employerSurveyService';
 import {saveStepAnswersSchema} from '@/lib/validation/employerSurveySchemas';
@@ -46,7 +47,7 @@ export async function GET(
   request: NextRequest,
   {params}: {readonly params: {readonly step: string}},
 ): Promise<NextResponse> {
-  try {
+  return handleApiError(async () => {
     // Validate project access
     const validation = await validateProjectAccess(request);
 
@@ -60,7 +61,7 @@ export async function GET(
     const step = Number.parseInt(params.step, 10);
 
     if (Number.isNaN(step) || step < 1 || step > 5) {
-      return NextResponse.json({error: 'invalid_step'}, {status: 400});
+      return BadRequestError.invalidStep();
     }
 
     // Fetch step data
@@ -68,18 +69,7 @@ export async function GET(
     const stepData = await service.getStepData(project.id, step);
 
     return NextResponse.json(stepData);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to get employer survey step:', error);
-
-    return NextResponse.json(
-      {
-        error: 'internal_error',
-        message: 'Failed to retrieve survey step',
-      },
-      {status: 500},
-    );
-  }
+  }, 'GET /api/employer-survey/step/[step]');
 }
 
 /**
@@ -114,7 +104,7 @@ export async function POST(
   request: NextRequest,
   {params}: {readonly params: {readonly step: string}},
 ): Promise<NextResponse> {
-  try {
+  return handleApiError(async () => {
     // Validate project access
     const validation = await validateProjectAccess(request);
 
@@ -128,7 +118,7 @@ export async function POST(
     const step = Number.parseInt(params.step, 10);
 
     if (Number.isNaN(step) || step < 1 || step > 5) {
-      return NextResponse.json({error: 'invalid_step'}, {status: 400});
+      return BadRequestError.invalidStep();
     }
 
     // Parse and validate request body
@@ -136,7 +126,7 @@ export async function POST(
     const parseResult = saveStepAnswersSchema.safeParse(body);
 
     if (!parseResult.success) {
-      return NextResponse.json({error: 'validation_failed'}, {status: 400});
+      return BadRequestError.validationFailed();
     }
 
     const {answers} = parseResult.data;
@@ -151,10 +141,7 @@ export async function POST(
         error instanceof Error ? error.message : 'Unknown error';
 
       if (errorMessage.includes('does not belong to step')) {
-        return NextResponse.json(
-          {error: 'invalid_question_for_step'},
-          {status: 400},
-        );
+        return BadRequestError.invalidQuestionForStep();
       }
 
       if (
@@ -162,23 +149,12 @@ export async function POST(
         errorMessage.includes('must be empty') ||
         errorMessage.includes('Too many values')
       ) {
-        return NextResponse.json({error: 'validation_failed'}, {status: 400});
+        return BadRequestError.validationFailed();
       }
 
       throw error;
     }
 
     return NextResponse.json({success: true});
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to save employer survey step:', error);
-
-    return NextResponse.json(
-      {
-        error: 'internal_error',
-        message: 'Failed to save survey step',
-      },
-      {status: 500},
-    );
-  }
+  }, 'POST /api/employer-survey/step/[step]');
 }

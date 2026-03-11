@@ -1,6 +1,8 @@
 import {NextRequest, NextResponse} from 'next/server';
 
 // eslint-disable-next-line import/extensions, import/no-unresolved
+import {AuthError} from '@/lib/errors';
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import {supabase} from '@/lib/supabase';
 
 /**
@@ -70,13 +72,7 @@ export async function validateProjectAccess(
 
   if (!projectId) {
     return {
-      error: NextResponse.json(
-        {
-          error: 'missing_project_id',
-          message: 'projectId query parameter is required',
-        },
-        {status: 401},
-      ),
+      error: AuthError.missingProjectId(),
       success: false,
     };
   }
@@ -100,13 +96,7 @@ export async function validateProjectAccess(
 
   if (!adminToken) {
     return {
-      error: NextResponse.json(
-        {
-          error: 'missing_admin_token',
-          message: 'admin_token is required (query param or header)',
-        },
-        {status: 401},
-      ),
+      error: AuthError.missingAdminToken(),
       success: false,
     };
   }
@@ -122,13 +112,7 @@ export async function validateProjectAccess(
 
     if (error || !data) {
       return {
-        error: NextResponse.json(
-          {
-            error: 'invalid_credentials',
-            message: 'Invalid projectId or admin_token',
-          },
-          {status: 401},
-        ),
+        error: AuthError.invalidCredentials(),
         success: false,
       };
     }
@@ -156,13 +140,7 @@ export async function validateProjectAccess(
     console.error('Project access validation error:', error);
 
     return {
-      error: NextResponse.json(
-        {
-          error: 'validation_failed',
-          message: 'Failed to validate project access',
-        },
-        {status: 401},
-      ),
+      error: AuthError.validationFailed('Failed to validate project access'),
       success: false,
     };
   }

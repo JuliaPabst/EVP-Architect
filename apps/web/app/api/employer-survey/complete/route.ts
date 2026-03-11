@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {BadRequestError, handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import {EmployerSurveyService} from '@/lib/services/employerSurveyService';
 
@@ -27,7 +28,7 @@ import {EmployerSurveyService} from '@/lib/services/employerSurveyService';
  *     500: Internal error
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  try {
+  return handleApiError(async () => {
     // Validate project access
     const validation = await validateProjectAccess(request);
 
@@ -48,21 +49,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const errorMessage = (error as Error).message;
 
       if (errorMessage === 'no_submission_found') {
-        return NextResponse.json(
-          {error: 'no_submission_found'},
-          {status: 400},
-        );
+        return BadRequestError.noSubmissionFound();
       }
 
       if (errorMessage === 'already_completed') {
-        return NextResponse.json({error: 'already_completed'}, {status: 400});
+        return BadRequestError.alreadyCompleted();
       }
 
       if (errorMessage === 'invalid_project_state') {
-        return NextResponse.json(
-          {error: 'invalid_project_state'},
-          {status: 400},
-        );
+        return BadRequestError.invalidProjectState();
       }
 
       if (errorMessage === 'missing_required_questions') {
@@ -70,28 +65,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           error as Error & {missing_question_ids?: string[]}
         ).missing_question_ids;
 
-        return NextResponse.json(
-          {
-            error: 'missing_required_questions',
-            missing_question_ids: missingQuestionIds || [],
-          },
-          {status: 400},
-        );
+        return BadRequestError.missingRequiredQuestions(missingQuestionIds);
       }
 
       // Rethrow other errors
       throw error;
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to complete employer survey:', error);
-
-    return NextResponse.json(
-      {
-        error: 'internal_error',
-        message: 'Failed to complete survey',
-      },
-      {status: 500},
-    );
-  }
+  }, 'POST /api/employer-survey/complete');
 }
