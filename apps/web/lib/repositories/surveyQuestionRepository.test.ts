@@ -38,8 +38,11 @@ describe('SurveyQuestionRepository', () => {
     it('should fetch questions for a specific survey type and step', async () => {
       const mockQuestions: SurveyQuestion[] = [
         {
+          created_at: '2024-01-01T00:00:00Z',
+          help_text: null,
           id: 'q1',
           key: 'company_values',
+          position: 1,
           prompt: 'What are your values?',
           question_type: 'long_text',
           selection_limit: null,
@@ -47,8 +50,11 @@ describe('SurveyQuestionRepository', () => {
           survey_type: 'employer',
         },
         {
+          created_at: '2024-01-01T00:00:00Z',
+          help_text: null,
           id: 'q2',
           key: 'industry',
+          position: 2,
           prompt: 'What is your industry?',
           question_type: 'single_select',
           selection_limit: null,
@@ -119,8 +125,11 @@ describe('SurveyQuestionRepository', () => {
     it('should fetch and organize questions by ID', async () => {
       const mockQuestions: SurveyQuestion[] = [
         {
+          created_at: '2024-01-01T00:00:00Z',
+          help_text: null,
           id: 'q1',
           key: 'company_values',
+          position: 1,
           prompt: 'What are your values?',
           question_type: 'long_text',
           selection_limit: null,
@@ -128,8 +137,11 @@ describe('SurveyQuestionRepository', () => {
           survey_type: 'employer',
         },
         {
+          created_at: '2024-01-01T00:00:00Z',
+          help_text: null,
           id: 'q2',
           key: 'industry',
+          position: 2,
           prompt: 'What is your industry?',
           question_type: 'single_select',
           selection_limit: null,

@@ -53,7 +53,7 @@ export interface QuestionWithAnswer {
   readonly id: string;
   readonly key: string;
   readonly prompt: string;
-  readonly question_type: string;
+  readonly question_type: QuestionType;
   readonly selection_limit: number | null;
   readonly options?: readonly {
     readonly label: string;

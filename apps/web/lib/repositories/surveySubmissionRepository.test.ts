@@ -38,14 +38,13 @@ describe('SurveySubmissionRepository', () => {
 
   describe('findSubmission', () => {
     const mockSubmission: SurveySubmission = {
-      created_at: '2024-01-01',
       id: 'submission1',
       project_id: 'project1',
       respondent_meta: {},
+      started_at: '2024-01-01T00:00:00Z',
       status: 'in_progress',
       submitted_at: null,
       survey_type: 'employer',
-      updated_at: '2024-01-01',
     };
 
     it('should find an existing submission', async () => {
@@ -111,14 +110,13 @@ describe('SurveySubmissionRepository', () => {
   describe('createSubmission', () => {
     it('should create a new employer submission', async () => {
       const mockSubmission: SurveySubmission = {
-        created_at: '2024-01-01',
         id: 'new-submission',
         project_id: 'project1',
         respondent_meta: {},
+        started_at: '2024-01-01T00:00:00Z',
         status: 'in_progress',
         submitted_at: null,
         survey_type: 'employer',
-        updated_at: '2024-01-01',
       };
 
       mockSingle.mockResolvedValue({data: mockSubmission, error: null});
@@ -142,14 +140,13 @@ describe('SurveySubmissionRepository', () => {
 
     it('should create a new employee submission', async () => {
       const mockSubmission: SurveySubmission = {
-        created_at: '2024-01-01',
         id: 'new-submission',
         project_id: 'project1',
         respondent_meta: {},
+        started_at: '2024-01-01T00:00:00Z',
         status: 'in_progress',
         submitted_at: null,
         survey_type: 'employee',
-        updated_at: '2024-01-01',
       };
 
       mockSingle.mockResolvedValue({data: mockSubmission, error: null});
@@ -186,14 +183,13 @@ describe('SurveySubmissionRepository', () => {
 
   describe('getOrCreateEmployerSubmission', () => {
     const mockSubmission: SurveySubmission = {
-      created_at: '2024-01-01',
       id: 'submission1',
       project_id: 'project1',
       respondent_meta: {},
+      started_at: '2024-01-01T00:00:00Z',
       status: 'in_progress',
       submitted_at: null,
       survey_type: 'employer',
-      updated_at: '2024-01-01',
     };
 
     it('should return existing employer submission', async () => {

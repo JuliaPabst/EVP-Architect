@@ -117,6 +117,13 @@ function handleServiceError(error: unknown): NextResponse | null {
   }
 
   if (
+    errorMessage.includes('Question not found') ||
+    errorMessage.includes('not an employer question')
+  ) {
+    return BadRequestError.validationFailed();
+  }
+
+  if (
     errorMessage.includes('required') ||
     errorMessage.includes('must be empty') ||
     errorMessage.includes('Too many values')

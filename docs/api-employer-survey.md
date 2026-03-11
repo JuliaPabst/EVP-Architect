@@ -111,14 +111,44 @@ Retrieve employer survey questions for a specific step along with any existing a
 **400 Bad Request**
 ```json
 {
-  "error": "invalid_step"
+  "error": "invalid_step",
+  "message": "Invalid step number"
 }
 ```
 
 **401 Unauthorized**
+
+Possible error codes:
+
+- `missing_project_id`
 ```json
 {
-  "error": "unauthorized"
+  "error": "missing_project_id",
+  "message": "projectId query parameter is required"
+}
+```
+
+- `missing_admin_token`
+```json
+{
+  "error": "missing_admin_token",
+  "message": "admin_token is required (query param or header)"
+}
+```
+
+- `invalid_credentials`
+```json
+{
+  "error": "invalid_credentials",
+  "message": "Invalid projectId or admin_token"
+}
+```
+
+- `validation_failed`
+```json
+{
+  "error": "validation_failed",
+  "message": "Failed to validate project access"
 }
 ```
 
@@ -126,7 +156,7 @@ Retrieve employer survey questions for a specific step along with any existing a
 ```json
 {
   "error": "internal_error",
-  "message": "Failed to retrieve survey step"
+  "message": "An unexpected error occurred"
 }
 ```
 
@@ -185,14 +215,19 @@ Save employer survey answers for a specific step.
 
 **400 Bad Request**
 - `invalid_step`: Step parameter out of range
-- `validation_failed`: Request body validation failed
+- `validation_failed`: Request body validation failed, or question not found, or invalid question type
 - `invalid_question_for_step`: Question does not belong to specified step
 
 **401 Unauthorized**
-- Authentication failed
+
+Possible error codes:
+- `missing_project_id`: projectId query parameter not provided
+- `missing_admin_token`: admin_token not provided (query param or header)
+- `invalid_credentials`: Invalid projectId or admin_token combination
+- `validation_failed`: Failed to validate project access
 
 **500 Internal Server Error**
-- Internal error during save operation
+- `internal_error`: Internal error during save operation
 
 ### Notes
 
