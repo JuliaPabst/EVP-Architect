@@ -11,6 +11,12 @@
   },
   "overrides": [
     {
+      "files": ["lib/repositories/**/*"],
+      "rules": {
+        "class-methods-use-this": "off"
+      }
+    },
+    {
       "files": ["app/api/**/*", "lib/**/*"],
       "rules": {
         "no-console": "off"

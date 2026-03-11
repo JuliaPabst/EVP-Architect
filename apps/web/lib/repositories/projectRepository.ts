@@ -36,7 +36,6 @@ export class ProjectRepository {
    * @param status - New project status
    * @throws Error if update fails
    */
-  // eslint-disable-next-line class-methods-use-this
   async updateStatus(projectId: string, status: ProjectStatus): Promise<void> {
     const {error} = await supabase
       .from('evp_projects')
@@ -57,7 +56,6 @@ export class ProjectRepository {
    * @param projectId - Project UUID
    * @returns Project if found, null otherwise
    */
-  // eslint-disable-next-line class-methods-use-this
   async findById(projectId: string): Promise<Project | null> {
     const {data, error} = await supabase
       .from('evp_projects')
@@ -83,7 +81,6 @@ export class ProjectRepository {
    * @param adminToken - Admin authentication token
    * @returns Project if found with matching token, null otherwise
    */
-  // eslint-disable-next-line class-methods-use-this
   async findByIdAndAdminToken(
     projectId: string,
     adminToken: string,
