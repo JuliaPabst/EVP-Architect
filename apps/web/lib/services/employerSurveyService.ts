@@ -283,10 +283,10 @@ class EmployerSurveyService {
         savedAnswer.id,
       );
 
-      if ((answer.selected_values?.length ?? 0) > 0) {
+      if (answer.selected_values && answer.selected_values.length > 0) {
         await this.valueSelectionRepository.insertSelections(
           savedAnswer.id,
-          answer.selected_values!,
+          answer.selected_values,
         );
       }
     }
