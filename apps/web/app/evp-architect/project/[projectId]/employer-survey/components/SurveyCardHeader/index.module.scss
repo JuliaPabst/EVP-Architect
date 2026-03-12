@@ -46,26 +46,6 @@
   text-align: center;
 }
 
-.backButton {
-  position: absolute;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 32px;
-  min-height: 32px;
-  padding: spacings.$kun-spacing-3xs;
-  color: colors.$kun-color-text-primary;
-  border: none;
-  border-radius: 2px;
-  background: transparent;
-  cursor: pointer;
-
-  &:hover {
-    background: colors.$kun-color-bg-medium;
-  }
-}
-
 .stepCounter {
   position: absolute;
   right: 0;

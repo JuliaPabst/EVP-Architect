@@ -3,6 +3,7 @@ export {
   buildAnswersPayload,
   buildProjectUrl,
   buildStepUrl,
+  buildTextAnswersPayload,
   extractMultiSelectValues,
   extractTextValue,
   findQuestionByType,

@@ -3,6 +3,7 @@
 import {useSearchParams} from 'next/navigation';
 
 import SurveyStepPageWrapper from '../components/SurveyStepPageWrapper';
+import Step3Content from './components/Step3Content';
 
 interface StepPageProps {
   readonly params: {
@@ -16,10 +17,10 @@ export default function EmployerSurveyStep3({params}: StepPageProps) {
 
   return (
     <SurveyStepPageWrapper adminToken={adminToken} projectId={params.projectId}>
-      <div style={{padding: '2rem', textAlign: 'center'}}>
-        <h1>Step 3 - Coming Soon</h1>
-        <p>This step will be implemented in a future story.</p>
-      </div>
+      <Step3Content 
+        adminToken={adminToken}
+        projectId={params.projectId}
+      />
     </SurveyStepPageWrapper>
   );
 }

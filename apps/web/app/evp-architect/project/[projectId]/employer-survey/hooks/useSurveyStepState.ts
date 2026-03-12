@@ -26,6 +26,8 @@ interface UseSurveyStepStateResult {
   readonly selectedFactors: string[];
   readonly setAdditionalContext: (value: string) => void;
   readonly setSelectedFactors: (values: string[]) => void;
+  readonly textAnswers: Record<string, string>;
+  readonly setTextAnswer: (questionId: string, value: string) => void;
 }
 
 /**
@@ -42,10 +44,13 @@ export default function useSurveyStepState(
 ): UseSurveyStepStateResult {
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [additionalContext, setAdditionalContext] = useState('');
+  const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
 
   // Set initial values from existing answers when stepData loads
   useEffect(() => {
     if (!stepData) return;
+
+    const newTextAnswers: Record<string, string> = {};
 
     stepData.questions.forEach((question) => {
       if (question.question_type === 'multi_select' && question.answer?.values) {
@@ -54,15 +59,33 @@ export default function useSurveyStepState(
         (question.question_type === 'text' || question.question_type === 'long_text') &&
         question.answer?.text
       ) {
-        setAdditionalContext(question.answer.text);
+        newTextAnswers[question.id] = question.answer.text;
+        // For backward compatibility, set the first text answer as additionalContext
+        if (!additionalContext) {
+          setAdditionalContext(question.answer.text);
+        }
       }
     });
+
+    if (Object.keys(newTextAnswers).length > 0) {
+      setTextAnswers(newTextAnswers);
+    }
   }, [stepData]);
+
+  const setTextAnswer = (questionId: string, value: string) => {
+    setTextAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+  };
 
   return {
     additionalContext,
     selectedFactors,
     setAdditionalContext,
     setSelectedFactors,
+    setTextAnswer,
+    textAnswers,
   };
 }
+

@@ -1,24 +1,8 @@
 @use '@kununu/ui/theme/scss/variables/colors';
 @use '@kununu/ui/theme/scss/variables/spacings';
-@use '@kununu/ui/theme/scss/variables/shadows';
 
-.step1Content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 0;
-  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-xl;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: spacings.$kun-spacing-l;
-  width: 100%;
-  max-width: 816px;
-  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-4xl;
-  border-radius: spacings.$kun-spacing-2xs;
-  background: colors.$kun-color-base-white-100;
-  box-shadow: shadows.$kun-shadow-medium;
+.errorMessage {
+  padding: spacings.$kun-spacing-m;
+  color: colors.$kun-color-text-error;
+  text-align: center;
 }

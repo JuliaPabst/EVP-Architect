@@ -1,22 +1,19 @@
 'use client';
 
-import {useRouter} from 'next/navigation';
-
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 
 import useSurveyStepState from '../../../hooks/useSurveyStepState';
+import useStepNavigation from '../../../hooks/useStepNavigation';
 import {
   buildAnswersPayload,
-  buildProjectUrl,
-  buildStepUrl,
   findQuestionByType,
   findTextQuestion,
   transformOptionsForSelection,
 } from '../../../utils/surveyStepUtils';
+import StepContentLayout from '../../../components/StepContentLayout';
 import FocusSelection from '../FocusSelection';
 import NavigationButtons from '../NavigationButtons';
-import SurveyCardHeader from '../../../components/SurveyCardHeader';
 import SelectedCompany from '../SelectedCompany';
 import TextSection from '../TextSection';
 import styles from './index.module.scss';
@@ -30,7 +27,6 @@ export default function Step1Content({
   adminToken,
   projectId,
 }: Step1ContentProps) {
-  const router = useRouter();
   const {project} = useAdminTokenValidation(projectId, adminToken);
   const {error, isLoading, isSaving, saveAnswers, stepData} = useEmployerSurveyStep(
     projectId,
@@ -39,6 +35,11 @@ export default function Step1Content({
   );
   const {additionalContext, selectedFactors, setAdditionalContext, setSelectedFactors} =
     useSurveyStepState(stepData);
+  const {navigateToNextStep, navigateToProject} = useStepNavigation(
+    projectId,
+    1,
+    adminToken,
+  );
 
   // Find the relevant questions from fetched data
   const multiSelectQuestion = findQuestionByType(stepData?.questions, 'multi_select');
@@ -49,10 +50,6 @@ export default function Step1Content({
 
   const maxSelections = multiSelectQuestion?.selection_limit || 5;
   const canContinue = selectedFactors.length >= 1 && selectedFactors.length <= maxSelections;
-
-  const handleBack = () => {
-    router.push(buildProjectUrl(projectId));
-  };
 
   const handleContinue = async () => {
     if (!adminToken || !stepData) {
@@ -69,86 +66,71 @@ export default function Step1Content({
 
       await saveAnswers(answers);
 
-      router.push(buildStepUrl(projectId, 2, adminToken));
+      if (!error) {
+        navigateToNextStep();
+      }
     } catch (error_) {
       // Error is already set by the hook
     }
   };
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className={styles.step1Content}>
-        <div className={styles.container}>
-          <div className={styles.loadingMessage}>Loading survey questions...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className={styles.step1Content}>
-        <div className={styles.container}>
-          <div className={styles.errorMessage}>Error: {error}</div>
-        </div>
-      </div>
-    );
-  }
-
   // Show error if no data loaded
-  if (!stepData || !multiSelectQuestion) {
+  if (!isLoading && (!stepData || !multiSelectQuestion)) {
     return (
-      <div className={styles.step1Content}>
-        <div className={styles.container}>
-          <div className={styles.errorMessage}>Failed to load survey questions</div>
-        </div>
-      </div>
+      <StepContentLayout
+        currentStep={1}
+        error="Failed to load survey questions"
+        isLoading={false}
+        stepTitle="Who you are today (Culture & Values)?"
+      >
+        <div />
+      </StepContentLayout>
     );
   }
 
   return (
-    <div className={styles.step1Content}>
-      <div className={styles.container}>
-        <SurveyCardHeader
-          currentStep={1}
-          title="Who you are today (Culture & Values)?"
-          totalSteps={5}
-        />
-
-        <SelectedCompany
-          companyName={project?.company_name || ''}
-          industry={project?.industry_name}
-          location={project?.location}
-          logoUrl={project?.profile_image_url}
-        />
-
-        <FocusSelection
-          initialValue={selectedFactors}
-          maxSelections={maxSelections}
-          minSelections={1}
-          onChange={setSelectedFactors}
-          options={focusOptions}
-          title={multiSelectQuestion.prompt}
-        />
-
-        {textQuestion && (
-          <TextSection
-            onChange={setAdditionalContext}
-            placeholder=""
-            title={textQuestion.prompt}
-            value={additionalContext}
+    <StepContentLayout
+      currentStep={1}
+      error={error}
+      isLoading={isLoading}
+      stepTitle="Who you are today (Culture & Values)?"
+    >
+      {stepData && multiSelectQuestion && (
+        <>
+          <SelectedCompany
+            companyName={project?.company_name || ''}
+            industry={project?.industry_name}
+            location={project?.location}
+            logoUrl={project?.profile_image_url}
           />
-        )}
 
-        {error && <div className={styles.errorMessage}>{error}</div>}
+          <FocusSelection
+            initialValue={selectedFactors}
+            maxSelections={maxSelections}
+            minSelections={1}
+            onChange={setSelectedFactors}
+            options={focusOptions}
+            title={multiSelectQuestion.prompt}
+          />
 
-        <NavigationButtons
-          canContinue={canContinue && !isSaving}
-          onContinue={handleContinue}
-        />
-      </div>
-    </div>
+          {textQuestion && (
+            <TextSection
+              onChange={setAdditionalContext}
+              placeholder=""
+              title={textQuestion.prompt}
+              value={additionalContext}
+            />
+          )}
+
+          {error && <div className={styles.errorMessage}>{error}</div>}
+
+          <NavigationButtons
+            canContinue={canContinue && !isSaving}
+            onContinue={handleContinue}
+            onBack={navigateToProject}
+          />
+        </>
+      )}
+    </StepContentLayout>
   );
 }

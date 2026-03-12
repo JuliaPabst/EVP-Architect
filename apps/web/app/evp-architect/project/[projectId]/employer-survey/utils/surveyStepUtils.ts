@@ -97,6 +97,24 @@ export function buildAnswersPayload(params: {
 }
 
 /**
+ * Build text answers payload for steps with multiple text questions
+ */
+export function buildTextAnswersPayload(
+  questions: readonly Question[],
+  textAnswers: Record<string, string>,
+): Array<{
+  readonly question_id: string;
+  readonly answer_text: string;
+}> {
+  return questions
+    .filter((q) => textAnswers[q.id]?.trim())
+    .map((q) => ({
+      answer_text: textAnswers[q.id],
+      question_id: q.id,
+    }));
+}
+
+/**
  * Build the URL for navigating to the next step with admin token
  */
 export function buildStepUrl(
