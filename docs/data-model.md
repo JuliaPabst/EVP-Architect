@@ -317,7 +317,8 @@ Provides question-specific option lists, separate from the global value chips in
 ## Usage
 
 - **single_select questions**: Options loaded from evp_question_options WHERE question_key = question.key
-- **multi_select questions**: Options loaded from evp_value_options (all value chips)
+- **multi_select questions (value-based)**: Options loaded from evp_value_options (e.g., core_values)
+- **multi_select questions (area-based)**: Options loaded from evp_area_options (e.g., exclude_values)
 - **text/long_text questions**: No options loaded
 
 ## Notes
@@ -326,6 +327,31 @@ Provides question-specific option lists, separate from the global value chips in
 - Selected values stored in evp_answer_value_selections
 - Question definitions stored in evp_survey_questions
 - Separation ensures clean data model: question definitions vs. selectable options vs. actual answers
+
+------------------------------------------------------------------------
+
+# evp_area_options
+
+Canonical list of selectable area/factor chips for multi-select questions about areas (not values).
+
+## Fields
+
+  Field      Type   Constraints   Description
+  ---------- ------ ------------- --------------------------------
+  key        TEXT   PRIMARY KEY   Stable area key (e.g., career_growth, leadership_style)
+  label_de   TEXT   NOT NULL      German display label
+
+## Examples
+
+- career_growth → "Karrierewachstum & Beförderungen"
+- leadership_style → "Führungsstil"
+- compensation → "Vergütung & finanzielle Vorteile"
+
+## Usage
+
+Used for multi-select questions about areas/factors rather than values, such as:
+- Step 4: Areas to avoid overstating strengths
+- Future: Hiring needs, focus areas, etc.
 
 ------------------------------------------------------------------------
 

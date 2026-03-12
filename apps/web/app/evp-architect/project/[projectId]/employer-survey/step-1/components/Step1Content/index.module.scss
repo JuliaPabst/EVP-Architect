@@ -1,8 +1,0 @@
-@use '@kununu/ui/theme/scss/variables/colors';
-@use '@kununu/ui/theme/scss/variables/spacings';
-
-.errorMessage {
-  padding: spacings.$kun-spacing-m;
-  color: colors.$kun-color-text-error;
-  text-align: center;
-}

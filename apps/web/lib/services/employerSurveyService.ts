@@ -1,3 +1,4 @@
+import {AreaOptionRepository} from '@/lib/repositories/areaOptionRepository';
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
@@ -17,8 +18,13 @@ import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
 /**
  * Service for employer survey operations
  */
+// Questions that use area options instead of value options
+const AREA_BASED_QUESTIONS = new Set(['exclude_values']);
+
 class EmployerSurveyService {
   private readonly answerRepository: SurveyAnswerRepository;
+
+  private readonly areaOptionRepository: AreaOptionRepository;
 
   private readonly projectRepository: ProjectRepository;
 
@@ -38,6 +44,7 @@ class EmployerSurveyService {
     this.questionOptionRepository = new QuestionOptionRepository();
     this.submissionRepository = new SurveySubmissionRepository();
     this.answerRepository = new SurveyAnswerRepository();
+    this.areaOptionRepository = new AreaOptionRepository();
     this.valueOptionRepository = new ValueOptionRepository();
     this.valueSelectionRepository = new ValueSelectionRepository();
   }
@@ -72,7 +79,7 @@ class EmployerSurveyService {
     const selectionsMap =
       await this.valueSelectionRepository.getSelectionsByAnswers(answerIds);
 
-    // Load options for single_select questions
+    // Load question-specific options for single_select questions
     const singleSelectKeys = questions
       .filter(q => q.question_type === 'single_select')
       .map(q => q.key);
@@ -81,12 +88,20 @@ class EmployerSurveyService {
         singleSelectKeys,
       );
 
-    // Load options for multi_select questions (all value options)
-    const hasMultiSelect = questions.some(
-      q => q.question_type === 'multi_select',
+    // Load global value options for value-based multi_select questions
+    const hasValueBasedMultiSelect = questions.some(
+      q => q.question_type === 'multi_select' && !AREA_BASED_QUESTIONS.has(q.key),
     );
-    const multiSelectOptions = hasMultiSelect
+    const globalValueOptions = hasValueBasedMultiSelect
       ? await this.valueOptionRepository.getAllValueOptions()
+      : [];
+
+    // Load global area options for area-based multi_select questions
+    const hasAreaBasedMultiSelect = questions.some(
+      q => q.question_type === 'multi_select' && AREA_BASED_QUESTIONS.has(q.key),
+    );
+    const globalAreaOptions = hasAreaBasedMultiSelect
+      ? await this.areaOptionRepository.getAllAreaOptions()
       : [];
 
     // Merge questions with answers and options
@@ -108,7 +123,10 @@ class EmployerSurveyService {
       if (q.question_type === 'single_select') {
         options = questionOptionsMap.get(q.key) || [];
       } else if (q.question_type === 'multi_select') {
-        options = multiSelectOptions;
+        // Use area options for area-based questions, otherwise use value options
+        options = AREA_BASED_QUESTIONS.has(q.key)
+          ? globalAreaOptions
+          : globalValueOptions;
       }
 
       if (!answer) {
