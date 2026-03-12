@@ -86,10 +86,7 @@ export default function MultiSelectWithTextStep({
       });
 
       await saveAnswers(answers);
-
-      if (!error) {
-        navigateToNextStep();
-      }
+      navigateToNextStep();
     } catch (error_) {
       // Error is already set by the hook
     }

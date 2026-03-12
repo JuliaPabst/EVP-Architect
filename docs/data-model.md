@@ -272,16 +272,64 @@ Stores raw answers (one row per question).
 
 ------------------------------------------------------------------------
 
-# evp_value_options
+# evp_selection_options
 
-Canonical list of selectable value chips.
+Unified canonical list of selectable chips for multi-select questions.
+Combines both value chips (e.g., innovation, teamwork) and area chips (e.g., career growth, leadership style).
 
 ## Fields
 
-  Field      Type   Constraints   Description
-  ---------- ------ ------------- ------------------
-  key        TEXT   PRIMARY KEY   Stable value key
-  label_de   TEXT   NOT NULL      German label
+  Field         Type          Constraints                       Description
+  ------------- ------------- --------------------------------- -----------------------------
+  key           TEXT          PRIMARY KEY                       Stable option key
+  label_de      TEXT          NOT NULL                          German display label
+  option_type   TEXT          NOT NULL, CHECK(value or area)    Type discriminator
+  created_at    TIMESTAMPTZ   DEFAULT now()                     Creation timestamp
+
+## Examples
+
+**Values (option_type='value'):**
+- innovation → "Innovation"
+- teamwork → "Teamarbeit"
+- flexibility → "Flexibilität"
+
+**Areas (option_type='area'):**
+- career_growth → "Karrierewachstum & Beförderungen"
+- leadership_style → "Führungsstil"
+- compensation → "Vergütung & finanzielle Vorteile"
+
+## Usage
+
+Used for all multi-select questions across all survey steps.
+The option_type field distinguishes between value-based and area-based questions.
+
+------------------------------------------------------------------------
+
+# evp_answer_selections
+
+Join table for multi-select answers (both value and area selections).
+
+## Fields
+
+  ----------------------------------------------------------------------------
+  Field         Type        Constraints               Description
+  ------------- ----------- ------------------------- ------------------------
+  answer_id     UUID        FK →                      Related answer
+                            evp_survey_answers(id),   
+                            ON DELETE CASCADE         
+
+  option_key    TEXT        FK →                      Selected option
+                            evp_selection_options(key),   
+                            ON DELETE RESTRICT        
+
+  position      INT         NULLABLE                  Optional ranking/order
+  ----------------------------------------------------------------------------
+
+## Constraints
+
+  Constraint                          Purpose
+  ----------------------------------- ------------------------------
+  PRIMARY KEY(answer_id, option_key)  Prevent duplicate selections
 
 ------------------------------------------------------------------------
 
@@ -289,7 +337,7 @@ Canonical list of selectable value chips.
 
 Stores selectable options for single_select questions.
 
-Provides question-specific option lists, separate from the global value chips in evp_value_options.
+Provides question-specific option lists, separate from the global selection options.
 
 ## Purpose
 
@@ -317,66 +365,12 @@ Provides question-specific option lists, separate from the global value chips in
 ## Usage
 
 - **single_select questions**: Options loaded from evp_question_options WHERE question_key = question.key
-- **multi_select questions (value-based)**: Options loaded from evp_value_options (e.g., core_values)
-- **multi_select questions (area-based)**: Options loaded from evp_area_options (e.g., exclude_values)
+- **multi_select questions**: Options loaded from evp_selection_options (all values and areas)
 - **text/long_text questions**: No options loaded
 
 ## Notes
 
 - Raw survey answers remain in evp_survey_answers (immutable)
-- Selected values stored in evp_answer_value_selections
+- Selected options stored in evp_answer_selections
 - Question definitions stored in evp_survey_questions
 - Separation ensures clean data model: question definitions vs. selectable options vs. actual answers
-
-------------------------------------------------------------------------
-
-# evp_area_options
-
-Canonical list of selectable area/factor chips for multi-select questions about areas (not values).
-
-## Fields
-
-  Field      Type   Constraints   Description
-  ---------- ------ ------------- --------------------------------
-  key        TEXT   PRIMARY KEY   Stable area key (e.g., career_growth, leadership_style)
-  label_de   TEXT   NOT NULL      German display label
-
-## Examples
-
-- career_growth → "Karrierewachstum & Beförderungen"
-- leadership_style → "Führungsstil"
-- compensation → "Vergütung & finanzielle Vorteile"
-
-## Usage
-
-Used for multi-select questions about areas/factors rather than values, such as:
-- Step 4: Areas to avoid overstating strengths
-- Future: Hiring needs, focus areas, etc.
-
-------------------------------------------------------------------------
-
-# evp_answer_value_selections
-
-Join table for multi-select value answers.
-
-## Fields
-
-  ----------------------------------------------------------------------------
-  Field         Type        Constraints               Description
-  ------------- ----------- ------------------------- ------------------------
-  answer_id     UUID        FK →                      Related answer
-                            evp_survey_answers(id),   
-                            ON DELETE CASCADE         
-
-  value_key     TEXT        FK →                      Selected value
-                            evp_value_options(key),   
-                            ON DELETE RESTRICT        
-
-  position      INT         NULLABLE                  Optional ranking/order
-  ----------------------------------------------------------------------------
-
-## Constraints
-
-  Constraint                          Purpose
-  ----------------------------------- ------------------------------
-  PRIMARY KEY(answer_id, value_key)   Prevent duplicate selections

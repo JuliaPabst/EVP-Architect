@@ -1,10 +1,9 @@
-import {AreaOptionRepository} from '@/lib/repositories/areaOptionRepository';
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
+import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
-import {ValueOptionRepository} from '@/lib/repositories/valueOptionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 import {
   QuestionWithAnswer,
@@ -18,13 +17,8 @@ import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
 /**
  * Service for employer survey operations
  */
-// Questions that use area options instead of value options
-const AREA_BASED_QUESTIONS = new Set(['exclude_values']);
-
 class EmployerSurveyService {
   private readonly answerRepository: SurveyAnswerRepository;
-
-  private readonly areaOptionRepository: AreaOptionRepository;
 
   private readonly projectRepository: ProjectRepository;
 
@@ -34,7 +28,7 @@ class EmployerSurveyService {
 
   private readonly submissionRepository: SurveySubmissionRepository;
 
-  private readonly valueOptionRepository: ValueOptionRepository;
+  private readonly selectionOptionRepository: SelectionOptionRepository;
 
   private readonly valueSelectionRepository: ValueSelectionRepository;
 
@@ -44,8 +38,7 @@ class EmployerSurveyService {
     this.questionOptionRepository = new QuestionOptionRepository();
     this.submissionRepository = new SurveySubmissionRepository();
     this.answerRepository = new SurveyAnswerRepository();
-    this.areaOptionRepository = new AreaOptionRepository();
-    this.valueOptionRepository = new ValueOptionRepository();
+    this.selectionOptionRepository = new SelectionOptionRepository();
     this.valueSelectionRepository = new ValueSelectionRepository();
   }
 
@@ -88,20 +81,12 @@ class EmployerSurveyService {
         singleSelectKeys,
       );
 
-    // Load global value options for value-based multi_select questions
-    const hasValueBasedMultiSelect = questions.some(
-      q => q.question_type === 'multi_select' && !AREA_BASED_QUESTIONS.has(q.key),
+    // Load all selection options for multi-select questions (unified values and areas)
+    const hasMultiSelect = questions.some(
+      q => q.question_type === 'multi_select',
     );
-    const globalValueOptions = hasValueBasedMultiSelect
-      ? await this.valueOptionRepository.getAllValueOptions()
-      : [];
-
-    // Load global area options for area-based multi_select questions
-    const hasAreaBasedMultiSelect = questions.some(
-      q => q.question_type === 'multi_select' && AREA_BASED_QUESTIONS.has(q.key),
-    );
-    const globalAreaOptions = hasAreaBasedMultiSelect
-      ? await this.areaOptionRepository.getAllAreaOptions()
+    const globalSelectionOptions = hasMultiSelect
+      ? await this.selectionOptionRepository.getAllOptions()
       : [];
 
     // Merge questions with answers and options
@@ -123,10 +108,20 @@ class EmployerSurveyService {
       if (q.question_type === 'single_select') {
         options = questionOptionsMap.get(q.key) || [];
       } else if (q.question_type === 'multi_select') {
-        // Use area options for area-based questions, otherwise use value options
-        options = AREA_BASED_QUESTIONS.has(q.key)
-          ? globalAreaOptions
-          : globalValueOptions;
+        // Filter selection options based on question key
+        // core_values (step 1) -> show only 'value' type options
+        // exclude_values (step 4) -> show only 'area' type options
+        let filteredOptions = globalSelectionOptions;
+        if (q.key === 'core_values') {
+          filteredOptions = globalSelectionOptions.filter(opt => opt.option_type === 'value');
+        } else if (q.key === 'exclude_values') {
+          filteredOptions = globalSelectionOptions.filter(opt => opt.option_type === 'area');
+        }
+        
+        options = filteredOptions.map(opt => ({
+          label: opt.label_de,
+          value_key: opt.key,
+        }));
       }
 
       if (!answer) {
@@ -291,7 +286,7 @@ class EmployerSurveyService {
       answer.answer_text || null,
     );
 
-    // Handle value selections for select-type questions
+    // Handle selections for select-type questions
     const isSelectType =
       question.question_type === 'single_select' ||
       question.question_type === 'multi_select';

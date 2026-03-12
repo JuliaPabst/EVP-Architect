@@ -45,10 +45,7 @@ export default function Step3Content({
     try {
       const answers = buildTextAnswersPayload(questions, textAnswers);
       await saveAnswers(answers);
-      
-      if (!error) {
-        navigateToNextStep();
-      }
+      navigateToNextStep();
     } catch (error_) {
       // Error is already set by the hook
     }
