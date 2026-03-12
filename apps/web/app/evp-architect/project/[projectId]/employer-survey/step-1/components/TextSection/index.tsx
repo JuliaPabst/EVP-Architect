@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import TextArea from '@kununu/ui/atoms/TextArea';
 
@@ -19,9 +19,14 @@ export default function TextSection({
   onChange,
   placeholder,
   title,
-  value: initialValue = '',
+  value: externalValue = '',
 }: TextSectionProps) {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(externalValue);
+
+  // Sync internal state with external value
+  useEffect(() => {
+    setValue(externalValue);
+  }, [externalValue]);
 
   const handleChange = (newValue: string) => {
     setValue(newValue);

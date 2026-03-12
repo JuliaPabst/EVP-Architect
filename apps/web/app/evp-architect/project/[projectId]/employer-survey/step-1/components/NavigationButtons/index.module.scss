@@ -2,9 +2,10 @@
 
 .navigationButtons {
   display: flex;
+  gap: spacings.$kun-spacing-xs;
   width: 100%;
 
   > button {
-    width: 100%;
+    flex: 1;
   }
 }

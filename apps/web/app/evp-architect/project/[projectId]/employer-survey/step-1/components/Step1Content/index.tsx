@@ -2,6 +2,7 @@
 
 import {useRouter} from 'next/navigation';
 
+import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 
 import useSurveyStepState from '../../../hooks/useSurveyStepState';
@@ -22,22 +23,15 @@ import styles from './index.module.scss';
 
 interface Step1ContentProps {
   readonly adminToken: string | null;
-  readonly companyName: string;
   readonly projectId: string;
-  readonly industry?: string;
-  readonly location?: string;
-  readonly logoUrl?: string;
 }
 
 export default function Step1Content({
   adminToken,
-  companyName,
   projectId,
-  industry,
-  location,
-  logoUrl,
 }: Step1ContentProps) {
   const router = useRouter();
+  const {project} = useAdminTokenValidation(projectId, adminToken);
   const {error, isLoading, isSaving, saveAnswers, stepData} = useEmployerSurveyStep(
     projectId,
     1,
@@ -125,10 +119,10 @@ export default function Step1Content({
         />
 
         <SelectedCompany
-          companyName={companyName}
-          industry={industry}
-          location={location}
-          logoUrl={logoUrl}
+          companyName={project?.company_name || ''}
+          industry={project?.industry_name}
+          location={project?.location}
+          logoUrl={project?.profile_image_url}
         />
 
         <FocusSelection

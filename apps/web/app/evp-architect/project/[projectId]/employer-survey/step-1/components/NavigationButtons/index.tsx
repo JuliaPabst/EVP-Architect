@@ -8,14 +8,26 @@ import styles from './index.module.scss';
 interface NavigationButtonsProps {
   readonly canContinue?: boolean;
   readonly onContinue?: () => void;
+  readonly onBack?: () => void;
+  readonly showBackButton?: boolean;
 }
 
 export default function NavigationButtons({
   canContinue = false,
   onContinue,
+  onBack,
+  showBackButton = false,
 }: NavigationButtonsProps) {
   return (
     <div className={styles.navigationButtons}>
+      {showBackButton && onBack && (
+        <Button
+          color={ButtonColor.SECONDARY}
+          onClick={onBack}
+          size={ButtonSize.M}
+          text="Back"
+        />
+      )}
       <Button
         color={ButtonColor.PRIMARY}
         disabled={!canContinue}
