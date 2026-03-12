@@ -16,7 +16,7 @@ import {
 } from '../../../utils/surveyStepUtils';
 import FocusSelection from '../FocusSelection';
 import NavigationButtons from '../NavigationButtons';
-import ProgressHeader from '../ProgressHeader';
+import SurveyCardHeader from '../../../components/SurveyCardHeader';
 import SelectedCompany from '../SelectedCompany';
 import TextSection from '../TextSection';
 import styles from './index.module.scss';
@@ -111,9 +111,8 @@ export default function Step1Content({
   return (
     <div className={styles.step1Content}>
       <div className={styles.container}>
-        <ProgressHeader
+        <SurveyCardHeader
           currentStep={1}
-          onBack={handleBack}
           title="Who you are today (Culture & Values)?"
           totalSteps={5}
         />

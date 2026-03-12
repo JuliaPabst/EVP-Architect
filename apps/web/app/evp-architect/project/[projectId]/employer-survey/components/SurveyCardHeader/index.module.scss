@@ -3,12 +3,19 @@
 @use '@kununu/ui/theme/scss/variables/shadows';
 
 .headerWrapper {
-  width: 100%;
+  width: calc(100% + 2 * spacings.$kun-spacing-4xl);
   margin-right: calc(-1 * spacings.$kun-spacing-4xl);
   margin-left: calc(-1 * spacings.$kun-spacing-4xl);
-  padding: 0 spacings.$kun-spacing-4xl spacings.$kun-spacing-m;
+  margin-top: calc(-1 * spacings.$kun-spacing-2xl);
+  padding: spacings.$kun-spacing-m spacings.$kun-spacing-4xl;
   background: colors.$kun-color-base-white-100;
+  border-top-left-radius: spacings.$kun-spacing-2xs;
+  border-top-right-radius: spacings.$kun-spacing-2xs;
   box-shadow: 0 2px 4px 0 rgba(2, 2, 7, 0.1);
+}
+
+.headerInner {
+  width: 100%;
 }
 
 .surveyCardHeader {

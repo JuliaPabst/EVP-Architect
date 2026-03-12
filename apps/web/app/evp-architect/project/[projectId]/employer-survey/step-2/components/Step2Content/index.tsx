@@ -121,7 +121,6 @@ export default function Step2Content({
       <div className={styles.container}>
         <SurveyCardHeader
           currentStep={2}
-          onBack={handleBack}
           title="What it takes to succeed (Expectations & Requirements)"
           totalSteps={5}
         />
