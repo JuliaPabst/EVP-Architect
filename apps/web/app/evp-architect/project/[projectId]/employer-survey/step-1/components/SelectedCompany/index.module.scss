@@ -1,0 +1,68 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+@use '@kununu/ui/theme/scss/mixins/typography';
+
+.selectedCompany {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.companyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.companyName {
+  margin: 0;
+  font-weight: 600;
+  font-size: 20px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 28px;
+  color: colors.$kun-color-text-title;
+  letter-spacing: 0.2px;
+}
+
+.infoRow {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: colors.$kun-color-text-primary;
+}
+
+.infoText {
+  font-weight: 400;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  line-height: 22px;
+  color: colors.$kun-color-text-primary;
+}
+
+.logoContainer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  padding: spacings.$kun-spacing-2xs;
+}
+
+.logoSurface {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 2px;
+  background: colors.$kun-color-bg-white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+}
+
+.logo {
+  position: absolute;
+  inset: 0;
+  width: 80px;
+  height: 80px;
+  margin: auto;
+  object-fit: contain;
+  pointer-events: none;
+}

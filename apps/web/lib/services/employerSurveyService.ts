@@ -1,9 +1,9 @@
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
+import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
-import {ValueOptionRepository} from '@/lib/repositories/valueOptionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 import {
   QuestionWithAnswer,
@@ -28,7 +28,7 @@ class EmployerSurveyService {
 
   private readonly submissionRepository: SurveySubmissionRepository;
 
-  private readonly valueOptionRepository: ValueOptionRepository;
+  private readonly selectionOptionRepository: SelectionOptionRepository;
 
   private readonly valueSelectionRepository: ValueSelectionRepository;
 
@@ -38,7 +38,7 @@ class EmployerSurveyService {
     this.questionOptionRepository = new QuestionOptionRepository();
     this.submissionRepository = new SurveySubmissionRepository();
     this.answerRepository = new SurveyAnswerRepository();
-    this.valueOptionRepository = new ValueOptionRepository();
+    this.selectionOptionRepository = new SelectionOptionRepository();
     this.valueSelectionRepository = new ValueSelectionRepository();
   }
 
@@ -50,44 +50,81 @@ class EmployerSurveyService {
    * @returns Step response with questions and answers
    */
   async getStepData(projectId: string, step: number): Promise<StepResponse> {
-    // Fetch questions for this step
-    const questions = await this.questionRepository.getQuestionsByStep(
-      'employer',
-      step,
-    );
+    const [questions, submission] = await Promise.all([
+      this.questionRepository.getQuestionsByStep('employer', step),
+      this.submissionRepository.getOrCreateEmployerSubmission(projectId),
+    ]);
 
-    // Get or create employer submission
-    const submission =
-      await this.submissionRepository.getOrCreateEmployerSubmission(projectId);
-
-    // Fetch existing answers for these questions
     const questionIds = questions.map(q => q.id);
-    const answersMap = await this.answerRepository.getAnswersByQuestions(
-      submission.id,
-      questionIds,
-    );
-
-    // Get answer IDs that have selections
-    const answerIds = Array.from(answersMap.values()).map(a => a.id);
-    const selectionsMap =
-      await this.valueSelectionRepository.getSelectionsByAnswers(answerIds);
-
-    // Load options for single_select questions
     const singleSelectKeys = questions
       .filter(q => q.question_type === 'single_select')
       .map(q => q.key);
-    const questionOptionsMap =
-      await this.questionOptionRepository.getOptionsByQuestionKeys(
-        singleSelectKeys,
-      );
 
-    // Load options for multi_select questions (all value options)
-    const hasMultiSelect = questions.some(
-      q => q.question_type === 'multi_select',
+    const hasCoreValuesQuestion = questions.some(
+      q => q.question_type === 'multi_select' && q.key === 'core_values',
     );
-    const multiSelectOptions = hasMultiSelect
-      ? await this.valueOptionRepository.getAllValueOptions()
-      : [];
+    const hasExcludeValuesQuestion = questions.some(
+      q => q.question_type === 'multi_select' && q.key === 'exclude_values',
+    );
+    const hasFallbackMultiSelectQuestion = questions.some(
+      q =>
+        q.question_type === 'multi_select' &&
+        q.key !== 'core_values' &&
+        q.key !== 'exclude_values',
+    );
+
+    const shouldFetchAllSelectionOptions = hasFallbackMultiSelectQuestion;
+    const shouldFetchValueSelectionOptions =
+      !shouldFetchAllSelectionOptions && hasCoreValuesQuestion;
+    const shouldFetchAreaSelectionOptions =
+      !shouldFetchAllSelectionOptions && hasExcludeValuesQuestion;
+
+    const answersPromise = this.answerRepository.getAnswersByQuestions(
+      submission.id,
+      questionIds,
+    );
+    const questionOptionsPromise =
+      singleSelectKeys.length > 0
+        ? this.questionOptionRepository.getOptionsByQuestionKeys(singleSelectKeys)
+        : Promise.resolve(
+            new Map<string, {label: string; value_key: string}[]>(),
+          );
+    const allSelectionOptionsPromise = shouldFetchAllSelectionOptions
+      ? this.selectionOptionRepository.getAllOptions()
+      : Promise.resolve([]);
+    const valueSelectionOptionsPromise = shouldFetchValueSelectionOptions
+      ? this.selectionOptionRepository.getOptionsByType('value')
+      : Promise.resolve([]);
+    const areaSelectionOptionsPromise = shouldFetchAreaSelectionOptions
+      ? this.selectionOptionRepository.getOptionsByType('area')
+      : Promise.resolve([]);
+
+    const answersMap = await answersPromise;
+    const answerIds = Array.from(answersMap.values()).map(answer => answer.id);
+    const selectionsPromise =
+      this.valueSelectionRepository.getSelectionsByAnswers(answerIds);
+
+    const [
+      selectionsMap,
+      questionOptionsMap,
+      allSelectionOptions,
+      valueSelectionOptions,
+      areaSelectionOptions,
+    ] = await Promise.all([
+      selectionsPromise,
+      questionOptionsPromise,
+      allSelectionOptionsPromise,
+      valueSelectionOptionsPromise,
+      areaSelectionOptionsPromise,
+    ]);
+
+    const mapSelectionOptions = (
+      selectionOptions: readonly {key: string; label_de: string}[],
+    ) =>
+      selectionOptions.map(option => ({
+        label: option.label_de,
+        value_key: option.key,
+      }));
 
     // Merge questions with answers and options
     const questionsWithAnswers: QuestionWithAnswer[] = questions.map(q => {
@@ -108,7 +145,15 @@ class EmployerSurveyService {
       if (q.question_type === 'single_select') {
         options = questionOptionsMap.get(q.key) || [];
       } else if (q.question_type === 'multi_select') {
-        options = multiSelectOptions;
+        if (shouldFetchAllSelectionOptions) {
+          options = mapSelectionOptions(allSelectionOptions);
+        } else if (q.key === 'core_values') {
+          options = mapSelectionOptions(valueSelectionOptions);
+        } else if (q.key === 'exclude_values') {
+          options = mapSelectionOptions(areaSelectionOptions);
+        } else {
+          options = [];
+        }
       }
 
       if (!answer) {
@@ -273,7 +318,7 @@ class EmployerSurveyService {
       answer.answer_text || null,
     );
 
-    // Handle value selections for select-type questions
+    // Handle selections for select-type questions
     const isSelectType =
       question.question_type === 'single_select' ||
       question.question_type === 'multi_select';

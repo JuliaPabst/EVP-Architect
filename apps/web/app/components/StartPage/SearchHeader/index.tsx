@@ -59,7 +59,7 @@ export default function SearchHeader() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create project');
+        throw new Error(data.message || 'Failed to create project');
       }
 
       // Redirect to employer survey step-1 with admin token
@@ -70,7 +70,9 @@ export default function SearchHeader() {
       // eslint-disable-next-line no-console
       console.error('Failed to create project:', error);
       setErrorMessage(
-        'Sorry, this should not have happened. Please, try again later.',
+        error instanceof Error
+          ? error.message
+          : 'Sorry, this should not have happened. Please, try again later.',
       );
     } finally {
       setIsLoading(false);

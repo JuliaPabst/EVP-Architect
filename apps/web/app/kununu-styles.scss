@@ -1,6 +1,7 @@
 // UI Shared styles
 @import '@kununu/ui/shared/styles/button.css';
 @import '@kununu/ui/shared/styles/textInput.css';
+@import '@kununu/ui/shared/styles/select.css';
 
 // UI Particles styles
 @import '@kununu/ui/particles/Backdrop/all.css';
@@ -13,11 +14,16 @@
 @import '@kununu/ui/atoms/Badge/all.css';
 @import '@kununu/ui/atoms/Button/all.css';
 @import '@kununu/ui/atoms/Card/all.css';
+@import '@kununu/ui/atoms/ChoiceChip/all.css';
 @import '@kununu/ui/atoms/ExpansionPanel/all.css';
 @import '@kununu/ui/atoms/Icon/all.css';
 @import '@kununu/ui/atoms/LinkButton/all.css';
 @import '@kununu/ui/atoms/Message/all.css';
+@import '@kununu/ui/atoms/ProgressBar/all.css';
 @import '@kununu/ui/atoms/RatingStars/all.css';
+@import '@kununu/ui/atoms/ResultListGroup/all.css';
+@import '@kununu/ui/atoms/ResultsListItem/all.css';
+@import '@kununu/ui/atoms/TextArea/all.css';
 @import '@kununu/ui/atoms/TextInput/all.css';
 @import '@kununu/ui/atoms/TopCompanyBadge/all.css';
 @import '@kununu/ui/atoms/UnunuBackground/all.css';
@@ -28,6 +34,7 @@
 @import '@kununu/ui/molecules/KununuScore/all.css';
 @import '@kununu/ui/molecules/NavigationPopover/all.css';
 @import '@kununu/ui/molecules/Popover/all.css';
+@import '@kununu/ui/molecules/Select/all.css';
 @import '@kununu/ui/molecules/SidePanel/all.css';
 @import '@kununu/ui/molecules/SkipLink/all.css';
 @import '@kununu/ui/molecules/Subnav/all.css';
