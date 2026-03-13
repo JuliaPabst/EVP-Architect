@@ -9,7 +9,7 @@ import {QuestionOptionRepository} from '@/lib/repositories/questionOptionReposit
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
-import {ValueOptionRepository} from '@/lib/repositories/valueOptionRepository';
+import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 
 // Mock all repositories
@@ -18,7 +18,7 @@ jest.mock('@/lib/repositories/questionOptionRepository');
 jest.mock('@/lib/repositories/surveyAnswerRepository');
 jest.mock('@/lib/repositories/surveyQuestionRepository');
 jest.mock('@/lib/repositories/surveySubmissionRepository');
-jest.mock('@/lib/repositories/valueOptionRepository');
+jest.mock('@/lib/repositories/selectionOptionRepository');
 jest.mock('@/lib/repositories/valueSelectionRepository');
 
 describe('EmployerSurveyService', () => {
@@ -28,7 +28,7 @@ describe('EmployerSurveyService', () => {
   let mockQuestionOptionRepository: jest.Mocked<QuestionOptionRepository>;
   let mockSubmissionRepository: jest.Mocked<SurveySubmissionRepository>;
   let mockAnswerRepository: jest.Mocked<SurveyAnswerRepository>;
-  let mockValueOptionRepository: jest.Mocked<ValueOptionRepository>;
+  let mockSelectionOptionRepository: jest.Mocked<SelectionOptionRepository>;
   let mockValueSelectionRepository: jest.Mocked<ValueSelectionRepository>;
 
   beforeEach(() => {
@@ -61,8 +61,8 @@ describe('EmployerSurveyService', () => {
       upsertAnswer: jest.fn(),
     };
 
-    mockValueOptionRepository = {
-      getAllValueOptions: jest.fn(),
+    mockSelectionOptionRepository = {
+      getAllOptions: jest.fn(),
     };
 
     mockValueSelectionRepository = {
@@ -94,8 +94,8 @@ describe('EmployerSurveyService', () => {
       SurveyAnswerRepository as jest.MockedClass<typeof SurveyAnswerRepository>
     ).mockImplementation(() => mockAnswerRepository);
     (
-      ValueOptionRepository as jest.MockedClass<typeof ValueOptionRepository>
-    ).mockImplementation(() => mockValueOptionRepository);
+      SelectionOptionRepository as jest.MockedClass<typeof SelectionOptionRepository>
+    ).mockImplementation(() => mockSelectionOptionRepository);
     (
       ValueSelectionRepository as jest.MockedClass<
         typeof ValueSelectionRepository
@@ -160,9 +160,9 @@ describe('EmployerSurveyService', () => {
           ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
         ]),
       );
-      mockValueOptionRepository.getAllValueOptions.mockResolvedValue([
-        {value_key: 'health_insurance', label: 'Health Insurance'},
-        {value_key: 'remote_work', label: 'Remote Work'},
+      mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
+        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
+        {key: 'remote_work', label_de: 'Remote Work', option_type: 'value'},
       ]);
 
       const result = await service.getStepData('project-123', 2);
@@ -230,8 +230,8 @@ describe('EmployerSurveyService', () => {
           ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
         ]),
       );
-      mockValueOptionRepository.getAllValueOptions.mockResolvedValue([
-        {value_key: 'health_insurance', label: 'Health Insurance'},
+      mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
+        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
       ]);
 
       const result = await service.getStepData('project-123', 2);
@@ -263,7 +263,7 @@ describe('EmployerSurveyService', () => {
       await service.getStepData('project-123', 2);
 
       expect(
-        mockValueOptionRepository.getAllValueOptions,
+        mockSelectionOptionRepository.getAllOptions,
       ).not.toHaveBeenCalled();
     });
   });
@@ -856,7 +856,7 @@ describe('EmployerSurveyService', () => {
   let mockQuestionOptionRepository: jest.Mocked<QuestionOptionRepository>;
   let mockSubmissionRepository: jest.Mocked<SurveySubmissionRepository>;
   let mockAnswerRepository: jest.Mocked<SurveyAnswerRepository>;
-  let mockValueOptionRepository: jest.Mocked<ValueOptionRepository>;
+  let mockSelectionOptionRepository: jest.Mocked<SelectionOptionRepository>;
   let mockValueSelectionRepository: jest.Mocked<ValueSelectionRepository>;
 
   beforeEach(() => {
@@ -889,8 +889,8 @@ describe('EmployerSurveyService', () => {
       upsertAnswer: jest.fn(),
     };
 
-    mockValueOptionRepository = {
-      getAllValueOptions: jest.fn(),
+    mockSelectionOptionRepository = {
+      getAllOptions: jest.fn(),
     };
 
     mockValueSelectionRepository = {
@@ -922,8 +922,8 @@ describe('EmployerSurveyService', () => {
       SurveyAnswerRepository as jest.MockedClass<typeof SurveyAnswerRepository>
     ).mockImplementation(() => mockAnswerRepository);
     (
-      ValueOptionRepository as jest.MockedClass<typeof ValueOptionRepository>
-    ).mockImplementation(() => mockValueOptionRepository);
+      SelectionOptionRepository as jest.MockedClass<typeof SelectionOptionRepository>
+    ).mockImplementation(() => mockSelectionOptionRepository);
     (
       ValueSelectionRepository as jest.MockedClass<
         typeof ValueSelectionRepository
@@ -988,9 +988,9 @@ describe('EmployerSurveyService', () => {
           ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
         ]),
       );
-      mockValueOptionRepository.getAllValueOptions.mockResolvedValue([
-        {value_key: 'health_insurance', label: 'Health Insurance'},
-        {value_key: 'remote_work', label: 'Remote Work'},
+      mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
+        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
+        {key: 'remote_work', label_de: 'Remote Work', option_type: 'value'},
       ]);
 
       const result = await service.getStepData('project-123', 2);
@@ -1058,8 +1058,8 @@ describe('EmployerSurveyService', () => {
           ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
         ]),
       );
-      mockValueOptionRepository.getAllValueOptions.mockResolvedValue([
-        {value_key: 'health_insurance', label: 'Health Insurance'},
+      mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
+        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
       ]);
 
       const result = await service.getStepData('project-123', 2);
@@ -1091,7 +1091,7 @@ describe('EmployerSurveyService', () => {
       await service.getStepData('project-123', 2);
 
       expect(
-        mockValueOptionRepository.getAllValueOptions,
+        mockSelectionOptionRepository.getAllOptions,
       ).not.toHaveBeenCalled();
     });
   });

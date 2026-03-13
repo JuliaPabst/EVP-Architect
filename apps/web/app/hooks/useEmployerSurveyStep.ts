@@ -37,6 +37,80 @@ interface SaveAnswerPayload {
   readonly selected_values?: readonly string[];
 }
 
+const STEP_CACHE_TTL_MS = 30_000;
+
+interface CachedStepData {
+  readonly data: StepData;
+  readonly fetchedAt: number;
+}
+
+const stepDataCache = new Map<string, CachedStepData>();
+const inFlightStepRequests = new Map<string, Promise<StepData>>();
+
+function getCacheKey(projectId: string, step: number): string {
+  return `${projectId}:${step}`;
+}
+
+function getCachedStepData(cacheKey: string): StepData | null {
+  const cached = stepDataCache.get(cacheKey);
+
+  if (!cached) {
+    return null;
+  }
+
+  if (Date.now() - cached.fetchedAt > STEP_CACHE_TTL_MS) {
+    stepDataCache.delete(cacheKey);
+    return null;
+  }
+
+  return cached.data;
+}
+
+function setCachedStepData(cacheKey: string, data: StepData): void {
+  stepDataCache.set(cacheKey, {
+    data,
+    fetchedAt: Date.now(),
+  });
+}
+
+function mergeSavedAnswers(
+  currentStepData: StepData,
+  answers: readonly SaveAnswerPayload[],
+): StepData {
+  const answersByQuestionId = new Map(answers.map(answer => [answer.question_id, answer]));
+
+  return {
+    ...currentStepData,
+    questions: currentStepData.questions.map(question => {
+      const updatedAnswer = answersByQuestionId.get(question.id);
+
+      if (!updatedAnswer) {
+        return question;
+      }
+
+      if (updatedAnswer.selected_values !== undefined) {
+        return {
+          ...question,
+          answer: {
+            values: [...updatedAnswer.selected_values],
+          },
+        };
+      }
+
+      if (updatedAnswer.answer_text !== undefined) {
+        return {
+          ...question,
+          answer: updatedAnswer.answer_text
+            ? {text: updatedAnswer.answer_text}
+            : null,
+        };
+      }
+
+      return question;
+    }),
+  };
+}
+
 /**
  * Custom hook to fetch and save employer survey step data.
  *
@@ -60,35 +134,81 @@ export default function useEmployerSurveyStep(
   const [stepData, setStepData] = useState<StepData | null>(null);
 
   useEffect(() => {
+    let isDisposed = false;
+
     const fetchStepData = async () => {
       if (!adminToken) {
-        setError('Authentication token is missing');
-        setIsLoading(false);
+        if (!isDisposed) {
+          setError('Authentication token is missing');
+          setIsLoading(false);
+        }
         return;
       }
 
       try {
-        setIsLoading(true);
-        setError(null);
+        const cacheKey = getCacheKey(projectId, step);
+        const cached = getCachedStepData(cacheKey);
 
-        const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
-        const response = await fetch(url);
+        if (cached) {
+          if (!isDisposed) {
+            setError(null);
+            setIsLoading(false);
+            setStepData(cached);
+          }
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch survey data');
+          return;
         }
 
-        const data: StepData = await response.json();
-        setStepData(data);
+        if (!isDisposed) {
+          setIsLoading(true);
+          setError(null);
+        }
+
+        const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
+        let inFlightRequest = inFlightStepRequests.get(cacheKey);
+
+        if (!inFlightRequest) {
+          inFlightRequest = (async () => {
+            const response = await fetch(url);
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to fetch survey data');
+            }
+
+            return (await response.json()) as StepData;
+          })();
+
+          inFlightStepRequests.set(cacheKey, inFlightRequest);
+        }
+
+        const data = await inFlightRequest;
+
+        setCachedStepData(cacheKey, data);
+
+        if (!isDisposed) {
+          setStepData(data);
+        }
       } catch (error_) {
-        setError(error_ instanceof Error ? error_.message : 'An error occurred');
+        if (!isDisposed) {
+          setError(error_ instanceof Error ? error_.message : 'An error occurred');
+        }
       } finally {
-        setIsLoading(false);
+        const cacheKey = getCacheKey(projectId, step);
+
+        inFlightStepRequests.delete(cacheKey);
+
+        if (!isDisposed) {
+          setIsLoading(false);
+        }
       }
     };
 
     void fetchStepData();
+
+    return () => {
+      isDisposed = true;
+    };
   }, [projectId, step, adminToken]);
 
   const saveAnswers = async (answers: SaveAnswerPayload[]): Promise<void> => {
@@ -112,6 +232,26 @@ export default function useEmployerSurveyStep(
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to save survey data');
+      }
+
+      const cacheKey = getCacheKey(projectId, step);
+
+      setStepData(currentStepData => {
+        if (!currentStepData) {
+          return currentStepData;
+        }
+
+        const updatedStepData = mergeSavedAnswers(currentStepData, answers);
+
+        setCachedStepData(cacheKey, updatedStepData);
+
+        return updatedStepData;
+      });
+
+      const cachedStepData = getCachedStepData(cacheKey);
+
+      if (cachedStepData) {
+        setCachedStepData(cacheKey, mergeSavedAnswers(cachedStepData, answers));
       }
     } catch (error_) {
       const errorMessage = error_ instanceof Error ? error_.message : 'Failed to save data';

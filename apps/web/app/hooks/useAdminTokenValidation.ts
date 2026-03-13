@@ -14,6 +14,53 @@ interface ValidationResult {
   };
 }
 
+const VALIDATION_CACHE_TTL_MS = 5 * 60 * 1000;
+
+interface CachedValidation {
+  readonly companyName: string;
+  readonly project: ValidationResult['project'];
+  readonly validatedAt: number;
+}
+
+const validationCache = new Map<string, CachedValidation>();
+const inFlightValidationRequests = new Map<
+  string,
+  Promise<CachedValidation | null>
+>();
+
+function getValidationCacheKey(projectId: string, adminToken: string): string {
+  return `${projectId}:${adminToken}`;
+}
+
+function getCachedValidation(cacheKey: string): CachedValidation | null {
+  const cachedValidation = validationCache.get(cacheKey);
+
+  if (!cachedValidation) {
+    return null;
+  }
+
+  if (Date.now() - cachedValidation.validatedAt > VALIDATION_CACHE_TTL_MS) {
+    validationCache.delete(cacheKey);
+    return null;
+  }
+
+  return cachedValidation;
+}
+
+function setCachedValidation(
+  cacheKey: string,
+  cachedValidation: CachedValidation,
+): void {
+  validationCache.set(cacheKey, cachedValidation);
+}
+
+export function __clearAdminValidationCacheForTests(): void {
+  if (process.env.NODE_ENV === 'test') {
+    validationCache.clear();
+    inFlightValidationRequests.clear();
+  }
+}
+
 /**
  * Custom hook to validate admin token for employer-facing routes.
  *
@@ -35,41 +82,102 @@ export default function useAdminTokenValidation(
   const [project, setProject] = useState<ValidationResult['project']>(undefined);
 
   useEffect(() => {
+    let isDisposed = false;
+
     async function validateAccess() {
       if (!adminToken) {
-        router.push('/evp-architect');
+        if (!isDisposed) {
+          setIsValidating(false);
+          router.push('/evp-architect');
+        }
+
         return;
       }
 
+      const cacheKey = getValidationCacheKey(projectId, adminToken);
+      const cachedValidation = getCachedValidation(cacheKey);
+
+      if (cachedValidation) {
+        if (!isDisposed) {
+          setProject(cachedValidation.project);
+          setCompanyName(cachedValidation.companyName);
+          setIsValidating(false);
+        }
+
+        return;
+      }
+
+      if (!isDisposed) {
+        setIsValidating(true);
+      }
+
       try {
-        const response = await fetch(
-          `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
-        );
+        let inFlightRequest = inFlightValidationRequests.get(cacheKey);
 
-        const data = await response.json();
+        if (!inFlightRequest) {
+          inFlightRequest = (async () => {
+            const response = await fetch(
+              `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
+            );
 
-        if (!response.ok || !data.valid) {
-          router.push('/evp-architect');
+            const data = await response.json();
+
+            if (!response.ok || !data.valid) {
+              return null;
+            }
+
+            return {
+              companyName: data.project.company_name,
+              project: {
+                company_name: data.project.company_name,
+                employee_count: data.project.employee_count,
+                industry_name: data.project.industry_name,
+                location: data.project.location,
+                profile_image_url: data.project.profile_image_url,
+              },
+              validatedAt: Date.now(),
+            };
+          })();
+
+          inFlightValidationRequests.set(cacheKey, inFlightRequest);
+        }
+
+        const validationResult = await inFlightRequest;
+
+        if (!validationResult) {
+          if (!isDisposed) {
+            setIsValidating(false);
+            router.push('/evp-architect');
+          }
+
           return;
         }
 
-        setProject({
-          company_name: data.project.company_name,
-          employee_count: data.project.employee_count,
-          industry_name: data.project.industry_name,
-          location: data.project.location,
-          profile_image_url: data.project.profile_image_url,
-        });
-        setCompanyName(data.project.company_name);
-        setIsValidating(false);
+        setCachedValidation(cacheKey, validationResult);
+
+        if (!isDisposed) {
+          setProject(validationResult.project);
+          setCompanyName(validationResult.companyName);
+          setIsValidating(false);
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Validation error:', error);
-        router.push('/evp-architect, project');
+
+        if (!isDisposed) {
+          setIsValidating(false);
+          router.push('/evp-architect');
+        }
+      } finally {
+        inFlightValidationRequests.delete(cacheKey);
       }
     }
 
-    validateAccess();
+    void validateAccess();
+
+    return () => {
+      isDisposed = true;
+    };
   }, [adminToken, projectId, router]);
 
   return {companyName, isValidating, project};
