@@ -3,15 +3,17 @@
 import {useState, useMemo, useEffect} from 'react';
 
 import FormInputWrapper from '@kununu/ui/atoms/FormInputWrapper';
-import Select from '@kununu/ui/molecules/Select';
 import TextInput from '@kununu/ui/atoms/TextInput';
+import Select from '@kununu/ui/molecules/Select';
 import {ResultItem} from '@kununu/ui/shared/typings/resultItem';
 
-import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
-import useStepNavigation from '../../../hooks/useStepNavigation';
 import StepContentLayout from '../../../components/StepContentLayout';
+import useStepNavigation from '../../../hooks/useStepNavigation';
 import NavigationButtons from '../../../step-1/components/NavigationButtons';
+
 import styles from './index.module.scss';
+
+import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 
 interface Step5ContentProps {
   readonly adminToken: string | null;
@@ -31,7 +33,7 @@ export default function Step5Content({
   );
 
   const questions = stepData?.questions || [];
-  
+
   // Find questions by their keys
   const targetAudienceQuestion = questions.find(
     q => q.key === 'target_audience',
@@ -146,8 +148,8 @@ export default function Step5Content({
         targetAudienceDetail.trim()
       ) {
         answers.push({
-          question_id: targetAudienceDetailQuestion.id,
           answer_text: targetAudienceDetail.trim(),
+          question_id: targetAudienceDetailQuestion.id,
         });
       }
 
@@ -167,14 +169,10 @@ export default function Step5Content({
         });
       }
 
-      // Debug log
-      console.log('Saving answers for step 5:', answers);
-
       await saveAnswers(answers);
       navigateToNextStep();
-    } catch (error_) {
+    } catch {
       // Error is already set by the hook
-      console.error('Failed to save step 5:', error_);
     }
   };
 
@@ -304,8 +302,8 @@ export default function Step5Content({
 
             <NavigationButtons
               canContinue={canContinue && !isSaving}
-              onContinue={handleContinue}
               onBack={navigateToPreviousStep}
+              onContinue={handleContinue}
               showBackButton
             />
           </>

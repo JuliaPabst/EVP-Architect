@@ -7,10 +7,10 @@ import TextArea from '@kununu/ui/atoms/TextArea';
 import styles from './index.module.scss';
 
 interface TextSectionProps {
+  readonly title: string;
   readonly maxLength?: number;
   readonly onChange?: (value: string) => void;
   readonly placeholder?: string;
-  readonly title: string;
   readonly value?: string;
 }
 
@@ -39,7 +39,7 @@ export default function TextSection({
       <TextArea
         id={`text-section-${title.toLowerCase().replace(/\s+/g, '-')}`}
         maxLength={maxLength}
-        onChange={(e) => handleChange(e.target.value)}
+        onChange={e => handleChange(e.target.value)}
         placeholder={placeholder}
         rows={6}
         value={value}

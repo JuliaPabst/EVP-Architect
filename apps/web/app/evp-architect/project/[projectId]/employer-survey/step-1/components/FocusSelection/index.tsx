@@ -15,12 +15,12 @@ interface FocusOption {
 }
 
 interface FocusSelectionProps {
+  readonly options: readonly FocusOption[];
+  readonly title: string;
   readonly initialValue?: readonly string[];
   readonly maxSelections?: number;
   readonly minSelections?: number;
   readonly onChange?: (selected: string[]) => void;
-  readonly options: readonly FocusOption[];
-  readonly title: string;
 }
 
 export default function FocusSelection({
@@ -31,7 +31,9 @@ export default function FocusSelection({
   options,
   title,
 }: FocusSelectionProps) {
-  const [selectedFactors, setSelectedFactors] = useState<string[]>([...initialValue]);
+  const [selectedFactors, setSelectedFactors] = useState<string[]>([
+    ...initialValue,
+  ]);
 
   // Update internal state when initialValue changes
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function FocusSelection({
   const handleChipChange = (value: string, checked: boolean) => {
     const newSelected = checked
       ? [...selectedFactors, value]
-      : selectedFactors.filter((v) => v !== value);
+      : selectedFactors.filter(v => v !== value);
 
     // Enforce max selections
     if (newSelected.length <= maxSelections) {
@@ -61,7 +63,9 @@ export default function FocusSelection({
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
         <div className={styles.instructionRow}>
-          <span className={styles.instructionText}>Select max. {maxSelections}</span>
+          <span className={styles.instructionText}>
+            Select max. {maxSelections}
+          </span>
           <div className={styles.factorsSelected}>
             <div className={styles.iconWrapper}>
               {meetsMinimum && (
@@ -78,7 +82,7 @@ export default function FocusSelection({
         </div>
       </div>
       <div className={styles.tags}>
-        {options.map((option) => {
+        {options.map(option => {
           const isSelected = selectedFactors.includes(option.id);
           const isDisabled = maxReached && !isSelected;
 
@@ -90,7 +94,7 @@ export default function FocusSelection({
               id={option.id}
               key={option.id}
               name="focus-factors"
-              onChange={(e) => handleChipChange(option.id, e.target.checked)}
+              onChange={e => handleChipChange(option.id, e.target.checked)}
               size={ChoiceChipSize.L}
               text={option.label}
               value={option.id}

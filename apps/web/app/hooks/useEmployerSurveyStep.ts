@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
 
 interface QuestionOption {
-  readonly value_key: string;
   readonly label: string;
+  readonly value_key: string;
 }
 
 interface Question {
@@ -11,16 +11,16 @@ interface Question {
   readonly prompt: string;
   readonly question_type: string;
   readonly selection_limit: number | null;
-  readonly options?: readonly QuestionOption[];
   readonly answer?: {
     readonly text?: string;
     readonly values?: readonly string[];
   } | null;
+  readonly options?: readonly QuestionOption[];
 }
 
 interface StepData {
-  readonly step: number;
   readonly questions: readonly Question[];
+  readonly step: number;
 }
 
 interface UseEmployerSurveyStepResult {
@@ -77,7 +77,9 @@ function mergeSavedAnswers(
   currentStepData: StepData,
   answers: readonly SaveAnswerPayload[],
 ): StepData {
-  const answersByQuestionId = new Map(answers.map(answer => [answer.question_id, answer]));
+  const answersByQuestionId = new Map(
+    answers.map(answer => [answer.question_id, answer]),
+  );
 
   return {
     ...currentStepData,
@@ -173,7 +175,10 @@ export default function useEmployerSurveyStep(
 
             if (!response.ok) {
               const errorData = await response.json();
-              throw new Error(errorData.message || 'Failed to fetch survey data');
+
+              throw new Error(
+                errorData.message || 'Failed to fetch survey data',
+              );
             }
 
             return (await response.json()) as StepData;
@@ -191,7 +196,9 @@ export default function useEmployerSurveyStep(
         }
       } catch (error_) {
         if (!isDisposed) {
-          setError(error_ instanceof Error ? error_.message : 'An error occurred');
+          setError(
+            error_ instanceof Error ? error_.message : 'An error occurred',
+          );
         }
       } finally {
         const cacheKey = getCacheKey(projectId, step);
@@ -204,7 +211,7 @@ export default function useEmployerSurveyStep(
       }
     };
 
-    void fetchStepData();
+    fetchStepData().catch(() => undefined);
 
     return () => {
       isDisposed = true;
@@ -222,15 +229,16 @@ export default function useEmployerSurveyStep(
 
       const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
       const response = await fetch(url, {
-        method: 'POST',
+        body: JSON.stringify({answers}),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({answers}),
+        method: 'POST',
       });
 
       if (!response.ok) {
         const errorData = await response.json();
+
         throw new Error(errorData.message || 'Failed to save survey data');
       }
 
@@ -254,7 +262,9 @@ export default function useEmployerSurveyStep(
         setCachedStepData(cacheKey, mergeSavedAnswers(cachedStepData, answers));
       }
     } catch (error_) {
-      const errorMessage = error_ instanceof Error ? error_.message : 'Failed to save data';
+      const errorMessage =
+        error_ instanceof Error ? error_.message : 'Failed to save data';
+
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

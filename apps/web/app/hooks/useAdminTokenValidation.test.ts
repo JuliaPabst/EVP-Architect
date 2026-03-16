@@ -2,7 +2,7 @@ import {renderHook, waitFor} from '@testing-library/react';
 import {useRouter} from 'next/navigation';
 
 import useAdminTokenValidation, {
-  __clearAdminValidationCacheForTests,
+  clearAdminValidationCacheForTests,
 } from './useAdminTokenValidation';
 
 // Mock next/navigation
@@ -20,7 +20,7 @@ describe('useAdminTokenValidation', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    __clearAdminValidationCacheForTests();
+    clearAdminValidationCacheForTests();
     (useRouter as jest.Mock).mockReturnValue({
       push: mockPush,
     });

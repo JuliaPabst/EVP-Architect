@@ -6,10 +6,10 @@ import EmployerSurveyService from './employerSurveyService';
 
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
+import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
 import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository';
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
-import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 
 // Mock all repositories
@@ -94,7 +94,9 @@ describe('EmployerSurveyService', () => {
       SurveyAnswerRepository as jest.MockedClass<typeof SurveyAnswerRepository>
     ).mockImplementation(() => mockAnswerRepository);
     (
-      SelectionOptionRepository as jest.MockedClass<typeof SelectionOptionRepository>
+      SelectionOptionRepository as jest.MockedClass<
+        typeof SelectionOptionRepository
+      >
     ).mockImplementation(() => mockSelectionOptionRepository);
     (
       ValueSelectionRepository as jest.MockedClass<
@@ -161,7 +163,11 @@ describe('EmployerSurveyService', () => {
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
-        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
+        {
+          key: 'health_insurance',
+          label_de: 'Health Insurance',
+          option_type: 'value',
+        },
         {key: 'remote_work', label_de: 'Remote Work', option_type: 'value'},
       ]);
 
@@ -231,7 +237,11 @@ describe('EmployerSurveyService', () => {
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
-        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
+        {
+          key: 'health_insurance',
+          label_de: 'Health Insurance',
+          option_type: 'value',
+        },
       ]);
 
       const result = await service.getStepData('project-123', 2);
@@ -922,7 +932,9 @@ describe('EmployerSurveyService', () => {
       SurveyAnswerRepository as jest.MockedClass<typeof SurveyAnswerRepository>
     ).mockImplementation(() => mockAnswerRepository);
     (
-      SelectionOptionRepository as jest.MockedClass<typeof SelectionOptionRepository>
+      SelectionOptionRepository as jest.MockedClass<
+        typeof SelectionOptionRepository
+      >
     ).mockImplementation(() => mockSelectionOptionRepository);
     (
       ValueSelectionRepository as jest.MockedClass<
@@ -989,7 +1001,11 @@ describe('EmployerSurveyService', () => {
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
-        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
+        {
+          key: 'health_insurance',
+          label_de: 'Health Insurance',
+          option_type: 'value',
+        },
         {key: 'remote_work', label_de: 'Remote Work', option_type: 'value'},
       ]);
 
@@ -1059,7 +1075,11 @@ describe('EmployerSurveyService', () => {
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
-        {key: 'health_insurance', label_de: 'Health Insurance', option_type: 'value'},
+        {
+          key: 'health_insurance',
+          label_de: 'Health Insurance',
+          option_type: 'value',
+        },
       ]);
 
       const result = await service.getStepData('project-123', 2);

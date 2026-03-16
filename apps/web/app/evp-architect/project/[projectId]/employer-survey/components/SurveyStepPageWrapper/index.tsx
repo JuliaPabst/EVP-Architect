@@ -6,10 +6,10 @@ import UnunuBackground, {
   UnunuBackgroundColors,
 } from '@kununu/ui/atoms/UnunuBackground';
 
+import styles from './index.module.scss';
+
 import KununuHeader from '@/app/components/KununuHeader';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
-
-import styles from './index.module.scss';
 
 interface SurveyStepPageWrapperProps {
   readonly adminToken: string | null;
@@ -40,9 +40,7 @@ export default function SurveyStepPageWrapper({
         {isValidating ? (
           <div>Loading...</div>
         ) : (
-          <Suspense fallback={<div>Loading...</div>}>
-            {children}
-          </Suspense>
+          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
         )}
       </div>
     </div>

@@ -1,14 +1,15 @@
 'use client';
 
-import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
-
-import useSurveyStepState from '../../../hooks/useSurveyStepState';
-import useStepNavigation from '../../../hooks/useStepNavigation';
-import {buildTextAnswersPayload} from '../../../utils/surveyStepUtils';
 import StepContentLayout from '../../../components/StepContentLayout';
+import useStepNavigation from '../../../hooks/useStepNavigation';
+import useSurveyStepState from '../../../hooks/useSurveyStepState';
 import NavigationButtons from '../../../step-1/components/NavigationButtons';
 import TextSection from '../../../step-1/components/TextSection';
+import {buildTextAnswersPayload} from '../../../utils/surveyStepUtils';
+
 import styles from './index.module.scss';
+
+import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 
 interface Step3ContentProps {
   readonly adminToken: string | null;
@@ -19,12 +20,9 @@ export default function Step3Content({
   adminToken,
   projectId,
 }: Step3ContentProps) {
-  const {error, isLoading, isSaving, saveAnswers, stepData} = useEmployerSurveyStep(
-    projectId,
-    3,
-    adminToken,
-  );
-  const {textAnswers, setTextAnswer} = useSurveyStepState(stepData);
+  const {error, isLoading, isSaving, saveAnswers, stepData} =
+    useEmployerSurveyStep(projectId, 3, adminToken);
+  const {setTextAnswer, textAnswers} = useSurveyStepState(stepData);
   const {navigateToNextStep, navigateToPreviousStep} = useStepNavigation(
     projectId,
     3,
@@ -44,6 +42,7 @@ export default function Step3Content({
 
     try {
       const answers = buildTextAnswersPayload(questions, textAnswers);
+
       await saveAnswers(answers);
       navigateToNextStep();
     } catch (error_) {
@@ -76,7 +75,7 @@ export default function Step3Content({
         <>
           <div className={styles.questionsContainer}>
             <TextSection
-              onChange={(value) => setTextAnswer(question.id, value)}
+              onChange={value => setTextAnswer(question.id, value)}
               placeholder=""
               title={question.prompt}
               value={answer}
@@ -87,8 +86,8 @@ export default function Step3Content({
 
           <NavigationButtons
             canContinue={canContinue && !isSaving}
-            onContinue={handleContinue}
             onBack={navigateToPreviousStep}
+            onContinue={handleContinue}
             showBackButton
           />
         </>

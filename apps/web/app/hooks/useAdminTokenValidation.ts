@@ -54,7 +54,7 @@ function setCachedValidation(
   validationCache.set(cacheKey, cachedValidation);
 }
 
-export function __clearAdminValidationCacheForTests(): void {
+export function clearAdminValidationCacheForTests(): void {
   if (process.env.NODE_ENV === 'test') {
     validationCache.clear();
     inFlightValidationRequests.clear();
@@ -79,7 +79,8 @@ export default function useAdminTokenValidation(
   const router = useRouter();
   const [isValidating, setIsValidating] = useState(true);
   const [companyName, setCompanyName] = useState<string>('');
-  const [project, setProject] = useState<ValidationResult['project']>(undefined);
+  const [project, setProject] =
+    useState<ValidationResult['project']>(undefined);
 
   useEffect(() => {
     let isDisposed = false;
@@ -173,7 +174,7 @@ export default function useAdminTokenValidation(
       }
     }
 
-    void validateAccess();
+    validateAccess().catch(() => undefined);
 
     return () => {
       isDisposed = true;

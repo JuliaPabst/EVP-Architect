@@ -2,10 +2,11 @@
 
 import React from 'react';
 
-import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
-
-import useSurveyStepState from '../../hooks/useSurveyStepState';
 import useStepNavigation from '../../hooks/useStepNavigation';
+import useSurveyStepState from '../../hooks/useSurveyStepState';
+import FocusSelection from '../../step-1/components/FocusSelection';
+import NavigationButtons from '../../step-1/components/NavigationButtons';
+import TextSection from '../../step-1/components/TextSection';
 import {
   buildAnswersPayload,
   findQuestionByType,
@@ -13,19 +14,19 @@ import {
   transformOptionsForSelection,
 } from '../../utils/surveyStepUtils';
 import StepContentLayout from '../StepContentLayout';
-import FocusSelection from '../../step-1/components/FocusSelection';
-import NavigationButtons from '../../step-1/components/NavigationButtons';
-import TextSection from '../../step-1/components/TextSection';
+
 import styles from './index.module.scss';
+
+import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 
 interface MultiSelectWithTextStepProps {
   readonly adminToken: string | null;
-  readonly headerContent?: React.ReactNode;
   readonly onBackNavigation: () => void;
   readonly projectId: string;
-  readonly showBackButton?: boolean;
   readonly stepNumber: number;
   readonly stepTitle: string;
+  readonly headerContent?: React.ReactNode;
+  readonly showBackButton?: boolean;
 }
 
 /**
@@ -53,24 +54,35 @@ export default function MultiSelectWithTextStep({
   stepNumber,
   stepTitle,
 }: MultiSelectWithTextStepProps) {
-  const {error, isLoading, isSaving, saveAnswers, stepData} = useEmployerSurveyStep(
+  const {error, isLoading, isSaving, saveAnswers, stepData} =
+    useEmployerSurveyStep(projectId, stepNumber, adminToken);
+  const {
+    additionalContext,
+    selectedFactors,
+    setAdditionalContext,
+    setSelectedFactors,
+  } = useSurveyStepState(stepData);
+  const {navigateToNextStep} = useStepNavigation(
     projectId,
     stepNumber,
     adminToken,
   );
-  const {additionalContext, selectedFactors, setAdditionalContext, setSelectedFactors} =
-    useSurveyStepState(stepData);
-  const {navigateToNextStep} = useStepNavigation(projectId, stepNumber, adminToken);
 
   // Find the relevant questions from fetched data
-  const multiSelectQuestion = findQuestionByType(stepData?.questions, 'multi_select');
+  const multiSelectQuestion = findQuestionByType(
+    stepData?.questions,
+    'multi_select',
+  );
   const textQuestion = findTextQuestion(stepData?.questions);
 
   // Transform options for FocusSelection component
-  const focusOptions = transformOptionsForSelection(multiSelectQuestion?.options);
+  const focusOptions = transformOptionsForSelection(
+    multiSelectQuestion?.options,
+  );
 
   const maxSelections = multiSelectQuestion?.selection_limit || 5;
-  const canContinue = selectedFactors.length >= 1 && selectedFactors.length <= maxSelections;
+  const canContinue =
+    selectedFactors.length >= 1 && selectedFactors.length <= maxSelections;
 
   const handleContinue = async () => {
     if (!adminToken || !stepData) {

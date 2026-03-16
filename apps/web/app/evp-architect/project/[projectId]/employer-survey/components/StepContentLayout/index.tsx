@@ -1,14 +1,15 @@
 import React from 'react';
 
 import SurveyCardHeader from '../SurveyCardHeader';
+
 import styles from './index.module.scss';
 
 interface StepContentLayoutProps {
   readonly children: React.ReactNode;
   readonly currentStep: number;
-  readonly error?: string | null;
   readonly isLoading: boolean;
   readonly stepTitle: string;
+  readonly error?: string | null;
   readonly totalSteps?: number;
 }
 
@@ -41,15 +42,17 @@ export default function StepContentLayout({
           title={stepTitle}
           totalSteps={totalSteps}
         />
-        
+
         {isLoading && (
-          <div className={styles.loadingMessage}>Loading survey questions...</div>
+          <div className={styles.loadingMessage}>
+            Loading survey questions...
+          </div>
         )}
-        
+
         {error && !isLoading && (
           <div className={styles.errorMessage}>Error: {error}</div>
         )}
-        
+
         {!isLoading && !error && children}
       </div>
     </div>

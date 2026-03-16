@@ -7,8 +7,8 @@ import styles from './index.module.scss';
 
 interface SurveyCardHeaderProps {
   readonly currentStep: number;
-  readonly totalSteps: number;
   readonly title: string;
+  readonly totalSteps: number;
 }
 
 /**

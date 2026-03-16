@@ -85,7 +85,9 @@ class EmployerSurveyService {
     );
     const questionOptionsPromise =
       singleSelectKeys.length > 0
-        ? this.questionOptionRepository.getOptionsByQuestionKeys(singleSelectKeys)
+        ? this.questionOptionRepository.getOptionsByQuestionKeys(
+            singleSelectKeys,
+          )
         : Promise.resolve(
             new Map<string, {label: string; value_key: string}[]>(),
           );

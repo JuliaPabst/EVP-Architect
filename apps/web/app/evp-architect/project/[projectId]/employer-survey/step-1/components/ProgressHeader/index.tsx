@@ -8,8 +8,8 @@ import styles from './index.module.scss';
 
 interface ProgressHeaderProps {
   readonly currentStep: number;
-  readonly totalSteps: number;
   readonly title: string;
+  readonly totalSteps: number;
   readonly onBack?: () => void;
 }
 

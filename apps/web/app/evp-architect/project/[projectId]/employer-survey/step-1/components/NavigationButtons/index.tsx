@@ -7,15 +7,15 @@ import styles from './index.module.scss';
 
 interface NavigationButtonsProps {
   readonly canContinue?: boolean;
-  readonly onContinue?: () => void;
   readonly onBack?: () => void;
+  readonly onContinue?: () => void;
   readonly showBackButton?: boolean;
 }
 
 export default function NavigationButtons({
   canContinue = false,
-  onContinue,
   onBack,
+  onContinue,
   showBackButton = false,
 }: NavigationButtonsProps) {
   return (

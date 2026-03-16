@@ -38,7 +38,11 @@ export default function SelectedCompany({
       {logoUrl && (
         <div className={styles.logoContainer}>
           <div className={styles.logoSurface}>
-            <img alt={`${companyName} logo`} className={styles.logo} src={logoUrl} />
+            <img
+              alt={`${companyName} logo`}
+              className={styles.logo}
+              src={logoUrl}
+            />
           </div>
         </div>
       )}

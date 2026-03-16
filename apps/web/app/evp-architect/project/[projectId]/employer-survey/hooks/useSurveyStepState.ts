@@ -6,19 +6,19 @@ interface Question {
   readonly prompt: string;
   readonly question_type: string;
   readonly selection_limit: number | null;
-  readonly options?: readonly {
-    readonly value_key: string;
-    readonly label: string;
-  }[];
   readonly answer?: {
     readonly text?: string;
     readonly values?: readonly string[];
   } | null;
+  readonly options?: readonly {
+    readonly label: string;
+    readonly value_key: string;
+  }[];
 }
 
 interface StepData {
-  readonly step: number;
   readonly questions: readonly Question[];
+  readonly step: number;
 }
 
 interface UseSurveyStepStateResult {
@@ -26,8 +26,8 @@ interface UseSurveyStepStateResult {
   readonly selectedFactors: string[];
   readonly setAdditionalContext: (value: string) => void;
   readonly setSelectedFactors: (values: string[]) => void;
-  readonly textAnswers: Record<string, string>;
   readonly setTextAnswer: (questionId: string, value: string) => void;
+  readonly textAnswers: Record<string, string>;
 }
 
 /**
@@ -52,18 +52,23 @@ export default function useSurveyStepState(
 
     const newTextAnswers: Record<string, string> = {};
 
-    stepData.questions.forEach((question) => {
-      if (question.question_type === 'multi_select' && question.answer?.values) {
+    stepData.questions.forEach(question => {
+      if (
+        question.question_type === 'multi_select' &&
+        question.answer?.values
+      ) {
         setSelectedFactors([...question.answer.values]);
       } else if (
-        (question.question_type === 'text' || question.question_type === 'long_text') &&
+        (question.question_type === 'text' ||
+          question.question_type === 'long_text') &&
         question.answer?.text
       ) {
         newTextAnswers[question.id] = question.answer.text;
         // For backward compatibility, set the first text answer as additionalContext
-        if (!additionalContext) {
-          setAdditionalContext(question.answer.text);
-        }
+        setAdditionalContext(
+          currentAdditionalContext =>
+            currentAdditionalContext || question.answer.text || '',
+        );
       }
     });
 
@@ -73,7 +78,7 @@ export default function useSurveyStepState(
   }, [stepData]);
 
   const setTextAnswer = (questionId: string, value: string) => {
-    setTextAnswers((prev) => ({
+    setTextAnswers(prev => ({
       ...prev,
       [questionId]: value,
     }));
@@ -88,4 +93,3 @@ export default function useSurveyStepState(
     textAnswers,
   };
 }
-

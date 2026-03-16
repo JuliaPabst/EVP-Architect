@@ -4,14 +4,14 @@ interface Question {
   readonly prompt: string;
   readonly question_type: string;
   readonly selection_limit: number | null;
-  readonly options?: readonly {
-    readonly value_key: string;
-    readonly label: string;
-  }[];
   readonly answer?: {
     readonly text?: string;
     readonly values?: readonly string[];
   } | null;
+  readonly options?: readonly {
+    readonly label: string;
+    readonly value_key: string;
+  }[];
 }
 
 interface FocusOption {
@@ -26,29 +26,35 @@ export function findQuestionByType(
   questions: readonly Question[] | undefined,
   questionType: string,
 ): Question | undefined {
-  return questions?.find((q) => q.question_type === questionType);
+  return questions?.find(q => q.question_type === questionType);
 }
 
 /**
  * Find any text-based question (text or long_text)
  */
-export function findTextQuestion(questions: readonly Question[] | undefined): Question | undefined {
-  return questions?.find((q) => q.question_type === 'text' || q.question_type === 'long_text');
+export function findTextQuestion(
+  questions: readonly Question[] | undefined,
+): Question | undefined {
+  return questions?.find(
+    q => q.question_type === 'text' || q.question_type === 'long_text',
+  );
 }
 
 /**
  * Transform API options to the format expected by FocusSelection component
  */
 export function transformOptionsForSelection(
-  options?: readonly {readonly value_key: string; readonly label: string}[],
+  options?: readonly {readonly label: string; readonly value_key: string}[],
 ): readonly FocusOption[] {
-  return options?.map((opt) => ({id: opt.value_key, label: opt.label})) || [];
+  return options?.map(opt => ({id: opt.value_key, label: opt.label})) || [];
 }
 
 /**
  * Extract initial multi-select values from a question's answer
  */
-export function extractMultiSelectValues(question: Question | undefined): string[] {
+export function extractMultiSelectValues(
+  question: Question | undefined,
+): string[] {
   if (question?.answer?.values) {
     return [...question.answer.values];
   }
@@ -70,15 +76,19 @@ export function buildAnswersPayload(params: {
   readonly selectedValues?: readonly string[];
   readonly textQuestion?: Question;
   readonly textValue?: string;
-}): Array<{
+}): {
   readonly question_id: string;
   readonly answer_text?: string;
   readonly selected_values?: readonly string[];
-}> {
+}[] {
   const answers = [];
 
   // Add multi-select answer
-  if (params.multiSelectQuestion && params.selectedValues && params.selectedValues.length > 0) {
+  if (
+    params.multiSelectQuestion &&
+    params.selectedValues &&
+    params.selectedValues.length > 0
+  ) {
     answers.push({
       question_id: params.multiSelectQuestion.id,
       selected_values: params.selectedValues,
@@ -102,13 +112,13 @@ export function buildAnswersPayload(params: {
 export function buildTextAnswersPayload(
   questions: readonly Question[],
   textAnswers: Record<string, string>,
-): Array<{
-  readonly question_id: string;
+): {
   readonly answer_text: string;
-}> {
+  readonly question_id: string;
+}[] {
   return questions
-    .filter((q) => textAnswers[q.id]?.trim())
-    .map((q) => ({
+    .filter(q => textAnswers[q.id]?.trim())
+    .map(q => ({
       answer_text: textAnswers[q.id],
       question_id: q.id,
     }));
@@ -123,6 +133,7 @@ export function buildStepUrl(
   adminToken: string | null,
 ): string {
   const baseUrl = `/evp-architect/project/${projectId}/employer-survey/step-${step}`;
+
   return adminToken ? `${baseUrl}?admin=${adminToken}` : baseUrl;
 }
 
