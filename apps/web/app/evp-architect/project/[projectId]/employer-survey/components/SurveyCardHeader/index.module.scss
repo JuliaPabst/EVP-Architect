@@ -4,14 +4,14 @@
 
 .headerWrapper {
   width: calc(100% + 2 * spacings.$kun-spacing-4xl);
+  margin-top: calc(-1 * spacings.$kun-spacing-2xl);
   margin-right: calc(-1 * spacings.$kun-spacing-4xl);
   margin-left: calc(-1 * spacings.$kun-spacing-4xl);
-  margin-top: calc(-1 * spacings.$kun-spacing-2xl);
   padding: spacings.$kun-spacing-m spacings.$kun-spacing-4xl;
-  background: colors.$kun-color-base-white-100;
   border-top-left-radius: spacings.$kun-spacing-2xs;
   border-top-right-radius: spacings.$kun-spacing-2xs;
-  box-shadow: 0 2px 4px 0 rgba(2, 2, 7, 0.1);
+  background: colors.$kun-color-base-white-100;
+  box-shadow: 0 2px 4px 0 rgb(2, 2, 7, 0.1);
 }
 
 .headerInner {
@@ -37,11 +37,11 @@
   flex: 1;
   margin: 0;
   padding: 0 spacings.$kun-spacing-xs;
+  color: colors.$kun-color-text-link;
   font-weight: 600;
   font-size: 15px;
   font-family: 'Sharp Grotesk Medium', sans-serif;
   line-height: 21px;
-  color: colors.$kun-color-text-link;
   letter-spacing: 0.2px;
   text-align: center;
 }
@@ -49,10 +49,10 @@
 .stepCounter {
   position: absolute;
   right: 0;
+  color: colors.$kun-color-text-inactive;
   font-weight: 600;
   font-size: 15px;
   font-family: 'Sharp Grotesk Medium', sans-serif;
   line-height: 21px;
-  color: colors.$kun-color-text-inactive;
   letter-spacing: 0.2px;
 }

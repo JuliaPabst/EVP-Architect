@@ -21,13 +21,13 @@
   flex: 1;
   margin: 0;
   padding: 0 spacings.$kun-spacing-xs;
+  color: colors.$kun-color-text-link;
   font-weight: 600;
   font-size: 15px;
   font-family: 'Sharp Grotesk Medium', sans-serif;
   line-height: 21px;
-  color: colors.$kun-color-text-link;
-  text-align: center;
   letter-spacing: 0.2px;
+  text-align: center;
 }
 
 .backButton {
@@ -58,12 +58,12 @@
 .stepCounter {
   flex-shrink: 0;
   width: 36.5px;
+  color: colors.$kun-color-text-inactive;
   font-weight: 600;
   font-size: 15px;
   font-family: 'Sharp Grotesk Medium', sans-serif;
   line-height: 21px;
-  color: colors.$kun-color-text-inactive;
-  text-align: right;
   letter-spacing: 0.2px;
   white-space: nowrap;
+  text-align: right;
 }

@@ -18,11 +18,11 @@
 
 .companyName {
   margin: 0;
+  color: colors.$kun-color-text-title;
   font-weight: 600;
   font-size: 20px;
   font-family: 'Sharp Grotesk Medium', sans-serif;
   line-height: 28px;
-  color: colors.$kun-color-text-title;
   letter-spacing: 0.2px;
 }
 
@@ -34,11 +34,11 @@
 }
 
 .infoText {
+  color: colors.$kun-color-text-primary;
   font-weight: 400;
   font-size: 15px;
   font-family: Inter, sans-serif;
   line-height: 22px;
-  color: colors.$kun-color-text-primary;
 }
 
 .logoContainer {
@@ -54,7 +54,7 @@
   height: 96px;
   border-radius: 2px;
   background: colors.$kun-color-bg-white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px 0 rgb(0, 0, 0, 0.25);
 }
 
 .logo {
