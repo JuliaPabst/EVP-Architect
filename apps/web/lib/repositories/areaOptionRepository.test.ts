@@ -103,8 +103,14 @@ describe('AreaOptionRepository', () => {
       const result = await repository.getAllAreaOptions();
 
       expect(result).toHaveLength(5);
-      expect(result[0]).toEqual({label: 'Arbeitsatmosphäre', value_key: 'atmosphere'});
-      expect(result[4]).toEqual({label: 'Work-Life-Balance', value_key: 'work_life'});
+      expect(result[0]).toEqual({
+        label: 'Arbeitsatmosphäre',
+        value_key: 'atmosphere',
+      });
+      expect(result[4]).toEqual({
+        label: 'Work-Life-Balance',
+        value_key: 'work_life',
+      });
     });
   });
 });

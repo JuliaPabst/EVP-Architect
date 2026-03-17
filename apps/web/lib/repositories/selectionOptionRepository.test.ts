@@ -1,7 +1,10 @@
 /**
  * @jest-environment node
  */
-import {SelectionOptionRepository, SelectionOption} from './selectionOptionRepository';
+import {
+  SelectionOptionRepository,
+  SelectionOption,
+} from './selectionOptionRepository';
 
 import {supabase} from '@/lib/supabase';
 

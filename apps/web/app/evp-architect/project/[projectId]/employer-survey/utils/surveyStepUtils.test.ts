@@ -152,7 +152,10 @@ describe('extractTextValue', () => {
 
 describe('buildAnswersPayload', () => {
   it('should build payload with both multi-select and text answers', () => {
-    const multiSelectQuestion = makeQuestion({id: 'q1', question_type: 'multi_select'});
+    const multiSelectQuestion = makeQuestion({
+      id: 'q1',
+      question_type: 'multi_select',
+    });
     const textQuestion = makeQuestion({id: 'q2', question_type: 'text'});
 
     const result = buildAnswersPayload({
@@ -163,7 +166,10 @@ describe('buildAnswersPayload', () => {
     });
 
     expect(result).toHaveLength(2);
-    expect(result[0]).toEqual({question_id: 'q1', selected_values: ['val1', 'val2']});
+    expect(result[0]).toEqual({
+      question_id: 'q1',
+      selected_values: ['val1', 'val2'],
+    });
     expect(result[1]).toEqual({answer_text: 'My text', question_id: 'q2'});
   });
 
@@ -262,7 +268,9 @@ describe('buildStepUrl', () => {
   it('should handle step 1', () => {
     const url = buildStepUrl('abc', 1, 'token');
 
-    expect(url).toBe('/evp-architect/project/abc/employer-survey/step-1?admin=token');
+    expect(url).toBe(
+      '/evp-architect/project/abc/employer-survey/step-1?admin=token',
+    );
   });
 });
 
