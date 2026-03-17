@@ -31,7 +31,7 @@ describe('SelectionOptionRepository', () => {
     mockIn = jest.fn();
     mockSelect = jest
       .fn()
-      .mockReturnValue({order: mockOrder, eq: mockEq, in: mockIn});
+      .mockReturnValue({eq: mockEq, in: mockIn, order: mockOrder});
     mockFrom = jest.fn().mockReturnValue({select: mockSelect});
 
     (supabase.from as jest.Mock) = mockFrom;

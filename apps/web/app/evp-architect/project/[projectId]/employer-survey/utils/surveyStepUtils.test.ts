@@ -22,8 +22,8 @@ const makeQuestion = (overrides = {}) => ({
 describe('findQuestionByType', () => {
   it('should find a question by type', () => {
     const questions = [
-      makeQuestion({question_type: 'text', id: 'q1'}),
-      makeQuestion({question_type: 'multi_select', id: 'q2'}),
+      makeQuestion({id: 'q1', question_type: 'text'}),
+      makeQuestion({id: 'q2', question_type: 'multi_select'}),
     ];
 
     expect(findQuestionByType(questions, 'multi_select')?.id).toBe('q2');
@@ -47,15 +47,15 @@ describe('findQuestionByType', () => {
 describe('findTextQuestion', () => {
   it('should find a question with type "text"', () => {
     const questions = [
-      makeQuestion({question_type: 'multi_select', id: 'q1'}),
-      makeQuestion({question_type: 'text', id: 'q2'}),
+      makeQuestion({id: 'q1', question_type: 'multi_select'}),
+      makeQuestion({id: 'q2', question_type: 'text'}),
     ];
 
     expect(findTextQuestion(questions)?.id).toBe('q2');
   });
 
   it('should find a question with type "long_text"', () => {
-    const questions = [makeQuestion({question_type: 'long_text', id: 'q3'})];
+    const questions = [makeQuestion({id: 'q3', question_type: 'long_text'})];
 
     expect(findTextQuestion(questions)?.id).toBe('q3');
   });
