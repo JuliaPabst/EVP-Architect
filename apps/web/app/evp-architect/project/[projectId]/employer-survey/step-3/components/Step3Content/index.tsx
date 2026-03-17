@@ -40,14 +40,10 @@ export default function Step3Content({
       return;
     }
 
-    try {
-      const answers = buildTextAnswersPayload(questions, textAnswers);
+    const answers = buildTextAnswersPayload(questions, textAnswers);
+    const saved = await saveAnswers(answers);
 
-      await saveAnswers(answers);
-      navigateToNextStep();
-    } catch (error_) {
-      // Error is already set by the hook
-    }
+    if (saved) navigateToNextStep();
   };
 
   // Show error if no data loaded

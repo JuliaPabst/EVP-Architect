@@ -1,0 +1,157 @@
+import '@testing-library/jest-dom';
+import {render, screen} from '@testing-library/react';
+
+import Step2Content from '.';
+
+jest.mock('@/app/hooks/useEmployerSurveyStep', () => jest.fn());
+
+jest.mock('../../../hooks/useSurveyStepState', () => jest.fn());
+
+jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
+
+jest.mock('../../../step-1/components/TextSection', () => {
+  return function MockTextSection({title}: any) {
+    return <div data-testid="text-section">{title}</div>;
+  };
+});
+
+jest.mock('../../../step-1/components/NavigationButtons', () => {
+  return function MockNavButtons({canContinue, onBack, onContinue}: any) {
+    return (
+      <div>
+        <button disabled={!canContinue} onClick={onContinue}>
+          Continue
+        </button>
+        {onBack && <button onClick={onBack}>Back</button>}
+      </div>
+    );
+  };
+});
+
+jest.mock('../../../components/StepContentLayout', () => {
+  return function MockStepContentLayout({children, error, isLoading}: any) {
+    if (isLoading) {
+      return <div data-testid="loading">Loading survey questions...</div>;
+    }
+    if (error && !isLoading) {
+      return <div data-testid="error">Error: {error}</div>;
+    }
+    return <div>{children}</div>;
+  };
+});
+
+jest.mock('../../../components/SurveyCardHeader', () => {
+  return function MockSurveyCardHeader() {
+    return null;
+  };
+});
+
+const MOCK_STEP_DATA_TWO_QUESTIONS = {
+  questions: [
+    {id: 'q1', prompt: 'Question One prompt', type: 'text'},
+    {id: 'q2', prompt: 'Question Two prompt', type: 'text'},
+  ],
+};
+
+function setupMocks({
+  error = null,
+  isLoading = false,
+  isSaving = false,
+  saveAnswers = jest.fn().mockResolvedValue(true),
+  stepData = null,
+  textAnswers = {},
+}: {
+  error?: string | null;
+  isLoading?: boolean;
+  isSaving?: boolean;
+  saveAnswers?: jest.Mock;
+  stepData?: any;
+  textAnswers?: Record<string, string>;
+} = {}) {
+  const useEmployerSurveyStep = jest.requireMock(
+    '@/app/hooks/useEmployerSurveyStep',
+  );
+  const useSurveyStepState = jest.requireMock(
+    '../../../hooks/useSurveyStepState',
+  );
+  const useStepNavigation = jest.requireMock(
+    '../../../hooks/useStepNavigation',
+  );
+
+  useEmployerSurveyStep.mockReturnValue({
+    error,
+    isLoading,
+    isSaving,
+    saveAnswers,
+    stepData,
+  });
+
+  useSurveyStepState.mockReturnValue({
+    setTextAnswer: jest.fn(),
+    textAnswers,
+  });
+
+  useStepNavigation.mockReturnValue({
+    navigateToNextStep: jest.fn(),
+    navigateToPreviousStep: jest.fn(),
+  });
+}
+
+const DEFAULT_PROPS = {
+  adminToken: 'test-admin-token',
+  projectId: 'test-project-123',
+};
+
+describe('Step2Content', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('shows "Failed to load survey questions" when no stepData after load', () => {
+    setupMocks({isLoading: false, stepData: null});
+
+    render(<Step2Content {...DEFAULT_PROPS} />);
+
+    expect(
+      screen.getByText('Error: Failed to load survey questions'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows loading state when isLoading is true', () => {
+    setupMocks({isLoading: true, stepData: null});
+
+    render(<Step2Content {...DEFAULT_PROPS} />);
+
+    expect(screen.getByTestId('loading')).toBeInTheDocument();
+  });
+
+  it('renders two text sections when step data has 2 questions', () => {
+    setupMocks({
+      isLoading: false,
+      stepData: MOCK_STEP_DATA_TWO_QUESTIONS,
+      textAnswers: {q1: 'some answer', q2: 'another answer'},
+    });
+
+    render(<Step2Content {...DEFAULT_PROPS} />);
+
+    const textSections = screen.getAllByTestId('text-section');
+
+    expect(textSections).toHaveLength(2);
+    expect(textSections[0]).toHaveTextContent('Question One prompt');
+    expect(textSections[1]).toHaveTextContent('Question Two prompt');
+  });
+
+  it('has Continue button disabled when answers are empty', () => {
+    setupMocks({
+      isLoading: false,
+      stepData: MOCK_STEP_DATA_TWO_QUESTIONS,
+      textAnswers: {q1: '', q2: ''},
+    });
+
+    render(<Step2Content {...DEFAULT_PROPS} />);
+
+    const continueButton = screen.getByRole('button', {name: 'Continue'});
+
+    expect(continueButton).toBeDisabled();
+  });
+});

@@ -27,7 +27,7 @@ interface UseEmployerSurveyStepResult {
   readonly error: string | null;
   readonly isLoading: boolean;
   readonly isSaving: boolean;
-  readonly saveAnswers: (answers: SaveAnswerPayload[]) => Promise<void>;
+  readonly saveAnswers: (answers: SaveAnswerPayload[]) => Promise<boolean>;
   readonly stepData: StepData | null;
 }
 
@@ -46,6 +46,18 @@ interface CachedStepData {
 
 const stepDataCache = new Map<string, CachedStepData>();
 const inFlightStepRequests = new Map<string, Promise<StepData>>();
+
+async function fetchStepFromApi(url: string): Promise<StepData> {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+
+    throw new Error(errorData.message || 'Failed to fetch survey data');
+  }
+
+  return (await response.json()) as StepData;
+}
 
 function getCacheKey(projectId: string, step: number): string {
   return `${projectId}:${step}`;
@@ -170,19 +182,7 @@ export default function useEmployerSurveyStep(
         let inFlightRequest = inFlightStepRequests.get(cacheKey);
 
         if (!inFlightRequest) {
-          inFlightRequest = (async () => {
-            const response = await fetch(url);
-
-            if (!response.ok) {
-              const errorData = await response.json();
-
-              throw new Error(
-                errorData.message || 'Failed to fetch survey data',
-              );
-            }
-
-            return (await response.json()) as StepData;
-          })();
+          inFlightRequest = fetchStepFromApi(url);
 
           inFlightStepRequests.set(cacheKey, inFlightRequest);
         }
@@ -218,9 +218,12 @@ export default function useEmployerSurveyStep(
     };
   }, [projectId, step, adminToken]);
 
-  const saveAnswers = async (answers: SaveAnswerPayload[]): Promise<void> => {
+  const saveAnswers = async (
+    answers: SaveAnswerPayload[],
+  ): Promise<boolean> => {
     if (!adminToken) {
-      throw new Error('Authentication token is missing');
+      setError('Authentication token is missing');
+      return false;
     }
 
     try {
@@ -261,12 +264,14 @@ export default function useEmployerSurveyStep(
       if (cachedStepData) {
         setCachedStepData(cacheKey, mergeSavedAnswers(cachedStepData, answers));
       }
+
+      return true;
     } catch (error_) {
       const errorMessage =
         error_ instanceof Error ? error_.message : 'Failed to save data';
 
       setError(errorMessage);
-      throw new Error(errorMessage);
+      return false;
     } finally {
       setIsSaving(false);
     }

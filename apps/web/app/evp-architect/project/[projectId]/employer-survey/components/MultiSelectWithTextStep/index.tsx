@@ -89,19 +89,15 @@ export default function MultiSelectWithTextStep({
       return;
     }
 
-    try {
-      const answers = buildAnswersPayload({
-        multiSelectQuestion,
-        selectedValues: selectedFactors,
-        textQuestion,
-        textValue: additionalContext,
-      });
+    const answers = buildAnswersPayload({
+      multiSelectQuestion,
+      selectedValues: selectedFactors,
+      textQuestion,
+      textValue: additionalContext,
+    });
+    const saved = await saveAnswers(answers);
 
-      await saveAnswers(answers);
-      navigateToNextStep();
-    } catch (error_) {
-      // Error is already set by the hook
-    }
+    if (saved) navigateToNextStep();
   };
 
   // Show error if no data loaded

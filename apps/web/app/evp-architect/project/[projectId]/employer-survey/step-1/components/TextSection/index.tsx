@@ -37,7 +37,7 @@ export default function TextSection({
     <div className={styles.textSection}>
       <h3 className={styles.sectionTitle}>{title}</h3>
       <TextArea
-        id={`text-section-${title.toLowerCase().replace(/\s+/g, '-')}`}
+        id={`text-section-${title.toLowerCase().replaceAll(/\s+/g, '-')}`}
         maxLength={maxLength}
         onChange={e => handleChange(e.target.value)}
         placeholder={placeholder}

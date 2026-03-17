@@ -130,50 +130,47 @@ export default function Step5Content({
       return;
     }
 
-    try {
-      const answers = [];
+    const answers = [];
 
-      // Target Audience
-      if (targetAudienceQuestion && selectedTargetAudience) {
-        answers.push({
-          question_id: targetAudienceQuestion.id,
-          selected_values: [selectedTargetAudience],
-        });
-      }
-
-      // Target Audience Detail (only if question exists, external communication is selected, and has text)
-      if (
-        targetAudienceDetailQuestion &&
-        isExternalCommunication &&
-        targetAudienceDetail.trim()
-      ) {
-        answers.push({
-          answer_text: targetAudienceDetail.trim(),
-          question_id: targetAudienceDetailQuestion.id,
-        });
-      }
-
-      // Style
-      if (styleQuestion && selectedStyle) {
-        answers.push({
-          question_id: styleQuestion.id,
-          selected_values: [selectedStyle],
-        });
-      }
-
-      // Language
-      if (languageQuestion && selectedLanguage) {
-        answers.push({
-          question_id: languageQuestion.id,
-          selected_values: [selectedLanguage],
-        });
-      }
-
-      await saveAnswers(answers);
-      navigateToNextStep();
-    } catch {
-      // Error is already set by the hook
+    // Target Audience
+    if (targetAudienceQuestion && selectedTargetAudience) {
+      answers.push({
+        question_id: targetAudienceQuestion.id,
+        selected_values: [selectedTargetAudience],
+      });
     }
+
+    // Target Audience Detail (only if question exists, external communication is selected, and has text)
+    if (
+      targetAudienceDetailQuestion &&
+      isExternalCommunication &&
+      targetAudienceDetail.trim()
+    ) {
+      answers.push({
+        answer_text: targetAudienceDetail.trim(),
+        question_id: targetAudienceDetailQuestion.id,
+      });
+    }
+
+    // Style
+    if (styleQuestion && selectedStyle) {
+      answers.push({
+        question_id: styleQuestion.id,
+        selected_values: [selectedStyle],
+      });
+    }
+
+    // Language
+    if (languageQuestion && selectedLanguage) {
+      answers.push({
+        question_id: languageQuestion.id,
+        selected_values: [selectedLanguage],
+      });
+    }
+
+    const saved = await saveAnswers(answers);
+
+    if (saved) navigateToNextStep();
   };
 
   // Show error if no data loaded
