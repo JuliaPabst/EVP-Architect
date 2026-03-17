@@ -36,13 +36,13 @@ export default function SurveyStepPageWrapper({
       <div className={styles.header}>
         <KununuHeader />
       </div>
-      <div className={styles.content}>
+      <main className={styles.content}>
         {isValidating ? (
-          <div>Loading...</div>
+          <div data-testid="loading">Loading...</div>
         ) : (
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
         )}
-      </div>
+      </main>
     </div>
   );
 }

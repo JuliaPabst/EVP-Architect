@@ -45,6 +45,10 @@ describe('isValidKununuUrl', () => {
 describe('scrapeCompanyProfile', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
+    // AbortSignal.timeout does not exist in jsdom; define it as a mock
+    (AbortSignal as unknown as Record<string, unknown>).timeout = jest.fn(
+      () => new AbortController().signal,
+    );
   });
 
   afterEach(() => {
@@ -60,12 +64,13 @@ describe('scrapeCompanyProfile', () => {
   it('should throw error when fetch fails', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: false,
+      status: 404,
       statusText: 'Not Found',
     });
 
     await expect(
       scrapeCompanyProfile('https://www.kununu.com/de/test-company'),
-    ).rejects.toThrow('Failed to fetch URL: Not Found');
+    ).rejects.toThrow('Failed to fetch URL: 404 Not Found');
   });
 
   it('should throw error when company name cannot be extracted', async () => {

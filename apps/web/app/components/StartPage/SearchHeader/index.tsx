@@ -70,9 +70,7 @@ export default function SearchHeader() {
       // eslint-disable-next-line no-console
       console.error('Failed to create project:', error);
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Sorry, this should not have happened. Please, try again later.',
+        'Sorry, this should not have happened. Please, try again later.',
       );
     } finally {
       setIsLoading(false);

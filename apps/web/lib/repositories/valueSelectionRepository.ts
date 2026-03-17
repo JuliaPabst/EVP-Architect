@@ -20,13 +20,13 @@ export class ValueSelectionRepository {
     }
 
     const {data, error} = await supabase
-      .from('evp_answer_selections')
+      .from('evp_answer_value_selections')
       .select('*')
       .in('answer_id', answerIds as string[])
       .order('position', {ascending: true});
 
     if (error) {
-      throw new Error(`Failed to fetch selections: ${error.message}`);
+      throw new Error(`Failed to fetch value selections: ${error.message}`);
     }
 
     const selectionsMap = new Map<string, string[]>();
@@ -34,7 +34,7 @@ export class ValueSelectionRepository {
     for (const selection of data || []) {
       const existing = selectionsMap.get(selection.answer_id) || [];
 
-      existing.push(selection.option_key);
+      existing.push(selection.value_key);
       selectionsMap.set(selection.answer_id, existing);
     }
 
@@ -48,12 +48,12 @@ export class ValueSelectionRepository {
    */
   async deleteSelectionsByAnswer(answerId: string): Promise<void> {
     const {error} = await supabase
-      .from('evp_answer_selections')
+      .from('evp_answer_value_selections')
       .delete()
       .eq('answer_id', answerId);
 
     if (error) {
-      throw new Error(`Failed to delete selections: ${error.message}`);
+      throw new Error(`Failed to delete value selections: ${error.message}`);
     }
   }
 
@@ -73,14 +73,16 @@ export class ValueSelectionRepository {
 
     const rows = optionKeys.map((optionKey, index) => ({
       answer_id: answerId,
-      option_key: optionKey,
       position: index,
+      value_key: optionKey,
     }));
 
-    const {error} = await supabase.from('evp_answer_selections').insert(rows);
+    const {error} = await supabase
+      .from('evp_answer_value_selections')
+      .insert(rows);
 
     if (error) {
-      throw new Error(`Failed to insert selections: ${error.message}`);
+      throw new Error(`Failed to insert value selections: ${error.message}`);
     }
   }
 }
