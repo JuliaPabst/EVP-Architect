@@ -77,9 +77,7 @@ export class ValueSelectionRepository {
       position: index,
     }));
 
-    const {error} = await supabase
-      .from('evp_answer_selections')
-      .insert(rows);
+    const {error} = await supabase.from('evp_answer_selections').insert(rows);
 
     if (error) {
       throw new Error(`Failed to insert value selections: ${error.message}`);

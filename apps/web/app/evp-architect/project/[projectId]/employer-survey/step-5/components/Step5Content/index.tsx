@@ -24,9 +24,14 @@ export default function Step5Content({
   adminToken,
   projectId,
 }: Step5ContentProps) {
-  const {error: stepError, isLoading, isSaving, saveAnswers, stepData} =
-    useEmployerSurveyStep(projectId, 5, adminToken);
-  const {navigateToProject, navigateToPreviousStep} = useStepNavigation(
+  const {
+    error: stepError,
+    isLoading,
+    isSaving,
+    saveAnswers,
+    stepData,
+  } = useEmployerSurveyStep(projectId, 5, adminToken);
+  const {navigateToPreviousStep, navigateToProject} = useStepNavigation(
     projectId,
     5,
     adminToken,
