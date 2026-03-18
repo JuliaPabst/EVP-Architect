@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kununu/common':
-        specifier: 20.2.3
-        version: 20.2.3(@types/react@18.2.79)(next@14.2.35(@babel/core@7.28.5)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.97.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^21.1.1
+        version: 21.1.1(@types/react@18.2.79)(next@14.2.35(@babel/core@7.28.5)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.97.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@kununu/ui':
         specifier: ^32.10.0
         version: 32.10.0(@types/react@18.2.79)(next@14.2.35(@babel/core@7.28.5)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.97.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -356,6 +356,10 @@ packages:
     resolution: {integrity: sha512-x3sK6Lff4BVusIzcdBeHZqA3B4kLs3kM/pJ7vvLTJwb6N/+Yn99EF1yc0XU6cfDVqFq6uFkvIFhMwDWUaKD73g==}
     engines: {node: '>=10'}
 
+  '@growthbook/growthbook@1.6.3':
+    resolution: {integrity: sha512-9G8ERv4oW5klFwyJUYs5c+TkTNKUL7/DkgjjvR2dKavj9lGpHSQI6XHKzfZxC7BrnHsOiEGpdCWlNplKQ7iBcw==}
+    engines: {node: '>=10'}
+
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
@@ -470,6 +474,44 @@ packages:
 
   '@kununu/common@20.2.3':
     resolution: {integrity: sha512-FJD9yqJOWZjJ9ANOCg1ZIVJcusITboGkQr7IO2wJWUq9xtj7sSHcembreJFw404leXMNbQaLlVKnhnX2PbdddQ==}
+    engines: {node: '>= 20.x.x', npm: '>= 10.x.x'}
+    hasBin: true
+    peerDependencies:
+      '@braze/web-sdk': 6.5.0
+      '@redux-devtools/extension': '>=3.3.0'
+      '@types/react': 18.x
+      express: 4.x
+      isomorphic-fetch: '>=3.0.0'
+      next: '>=13.2.4'
+      react: '>=18.2.0'
+      react-dom: '>=18.2.0'
+      react-redux: '>=7.2.5'
+      redux: '>=4.2.0'
+      redux-thunk: '>=2.4.2'
+    peerDependenciesMeta:
+      '@braze/web-sdk':
+        optional: true
+      '@redux-devtools/extension':
+        optional: true
+      express:
+        optional: true
+      isomorphic-fetch:
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      react-redux:
+        optional: true
+      redux:
+        optional: true
+      redux-thunk:
+        optional: true
+
+  '@kununu/common@21.1.1':
+    resolution: {integrity: sha512-5YeHR7VyXqQQXoCx6PrgGjoN1qHy0cYgfwqbCKeRbGvb0H8uyZsPJEZ9ErupOChe0BW0FEmsaKJ7uAKpuiEPsw==}
     engines: {node: '>= 20.x.x', npm: '>= 10.x.x'}
     hasBin: true
     peerDependencies:
@@ -3803,6 +3845,10 @@ packages:
     resolution: {integrity: sha512-CFdHVHr+6YfbktNZegH3qbYvYgC7nRNEUm2tk7nSFXSODUu4tDBpaFpP1jdXBUOKKwapVlWRfTtS8bCPzsQ47w==}
     hasBin: true
 
+  ua-parser-js@2.0.8:
+    resolution: {integrity: sha512-BdnBM5waFormdrOFBU+cA90R689V0tWUWlIG2i30UXxElHjuCu5+dOV2Etw3547jcQ/yaLtPm9wrqIuOY2bSJg==}
+    hasBin: true
+
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
@@ -4280,6 +4326,10 @@ snapshots:
     dependencies:
       dom-mutator: 0.6.0
 
+  '@growthbook/growthbook@1.6.3':
+    dependencies:
+      dom-mutator: 0.6.0
+
   '@humanwhocodes/config-array@0.13.0':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
@@ -4511,6 +4561,35 @@ snapshots:
       process: 0.11.10
       qs: 6.14.1
       ua-parser-js: 2.0.7
+      winston: 3.19.0
+      xss: 1.0.15
+    optionalDependencies:
+      next: 14.2.35(@babel/core@7.28.5)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.97.3)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@kununu/common@21.1.1(@types/react@18.2.79)(next@14.2.35(@babel/core@7.28.5)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(sass@1.97.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@growthbook/growthbook': 1.6.3
+      '@types/react': 18.2.79
+      body-parser: 2.2.2
+      camelize: 1.0.1
+      compression: 1.8.1
+      config: 3.3.12
+      cookie-parser: 1.4.7
+      eventsource: 2.0.2
+      fast-safe-stringify: 2.1.1
+      geoip-lite: 1.4.10
+      helmet: 8.1.0
+      js-cookie: 3.0.5
+      jwt-decode: 4.0.0
+      logform: 2.7.0
+      minimist: 1.2.8
+      process: 0.11.10
+      qs: 6.14.1
+      ua-parser-js: 2.0.8
       winston: 3.19.0
       xss: 1.0.15
     optionalDependencies:
@@ -8321,6 +8400,12 @@ snapshots:
   ua-is-frozen@0.1.2: {}
 
   ua-parser-js@2.0.7:
+    dependencies:
+      detect-europe-js: 0.1.2
+      is-standalone-pwa: 0.1.1
+      ua-is-frozen: 0.1.2
+
+  ua-parser-js@2.0.8:
     dependencies:
       detect-europe-js: 0.1.2
       is-standalone-pwa: 0.1.1
