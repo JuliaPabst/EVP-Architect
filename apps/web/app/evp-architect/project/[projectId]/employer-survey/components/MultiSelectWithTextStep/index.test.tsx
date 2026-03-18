@@ -1,4 +1,6 @@
 import '@testing-library/jest-dom';
+import type {ReactNode} from 'react';
+
 import {render, screen} from '@testing-library/react';
 
 import MultiSelectWithTextStep from '.';
@@ -10,24 +12,31 @@ jest.mock('../../hooks/useSurveyStepState', () => jest.fn());
 jest.mock('../../hooks/useStepNavigation', () => jest.fn());
 
 jest.mock('../../step-1/components/FocusSelection', () => {
-  return function MockFocusSelection({title}: any) {
+  return function MockFocusSelection({title}: {title: string}) {
     return <div data-testid="focus-selection">{title}</div>;
   };
 });
 
 jest.mock('../../step-1/components/TextSection', () => {
-  return function MockTextSection({title}: any) {
+  return function MockTextSection({title}: {title: string}) {
     return <div data-testid="text-section">{title}</div>;
   };
 });
 
 jest.mock('../../step-1/components/NavigationButtons', () => {
-  return function MockNavigationButtons({canContinue, onContinue}: any) {
+  return function MockNavigationButtons({
+    canContinue,
+    onContinue,
+  }: {
+    canContinue: boolean;
+    onContinue?: () => void;
+  }) {
     return (
       <button
         data-can-continue={String(canContinue)}
         disabled={!canContinue}
         onClick={onContinue}
+        type="button"
       >
         Continue
       </button>
@@ -36,7 +45,15 @@ jest.mock('../../step-1/components/NavigationButtons', () => {
 });
 
 jest.mock('../StepContentLayout', () => {
-  return function MockStepContentLayout({children, error, isLoading}: any) {
+  return function MockStepContentLayout({
+    children,
+    error,
+    isLoading,
+  }: {
+    children: ReactNode;
+    isLoading: boolean;
+    error?: string | null;
+  }) {
     if (isLoading) {
       return <div data-testid="loading">Loading</div>;
     }
@@ -56,18 +73,18 @@ jest.mock('../SurveyCardHeader', () => {
 const MOCK_MULTI_SELECT_QUESTION = {
   id: 'ms-q1',
   options: [
-    {id: 'opt-1', label: 'Option One'},
-    {id: 'opt-2', label: 'Option Two'},
+    {label: 'Option One', value_key: 'opt-1'},
+    {label: 'Option Two', value_key: 'opt-2'},
   ],
   prompt: 'Select your focus areas',
+  question_type: 'multi_select',
   selection_limit: 5,
-  type: 'multi_select',
 };
 
 const MOCK_TEXT_QUESTION = {
   id: 'txt-q1',
   prompt: 'Add additional context',
-  type: 'text',
+  question_type: 'text',
 };
 
 const MOCK_STEP_DATA_WITH_TEXT = {
@@ -84,8 +101,24 @@ function setupMocks({
   isLoading = false,
   isSaving = false,
   saveAnswers = jest.fn().mockResolvedValue(true),
-  selectedFactors = [] as string[],
-  stepData = null as any,
+  selectedFactors = [],
+  stepData = null,
+}: {
+  additionalContext?: string;
+  error?: string | null;
+  isLoading?: boolean;
+  isSaving?: boolean;
+  saveAnswers?: jest.Mock;
+  selectedFactors?: string[];
+  stepData?: {
+    questions: {
+      id: string;
+      prompt: string;
+      question_type: string;
+      options?: {label: string; value_key: string}[];
+      selection_limit?: number;
+    }[];
+  } | null;
 } = {}) {
   const useEmployerSurveyStep = jest.requireMock(
     '@/app/hooks/useEmployerSurveyStep',

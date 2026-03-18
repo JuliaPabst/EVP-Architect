@@ -11,11 +11,13 @@ jest.mock('@/app/components/KununuHeader', () => {
   };
 });
 
-jest.mock('@kununu/ui/atoms/UnunuBackground', () => {
-  return function MockBg() {
+jest.mock('@kununu/ui/atoms/UnunuBackground', () => ({
+  __esModule: true,
+  UnunuBackgroundColors: {YELLOW: 'yellow'},
+  default: function MockBg() {
     return null;
-  };
-});
+  },
+}));
 
 describe('SurveyStepPageWrapper', () => {
   const DEFAULT_PROPS = {

@@ -1,4 +1,6 @@
 import '@testing-library/jest-dom';
+import type {ReactNode} from 'react';
+
 import {render, screen} from '@testing-library/react';
 
 import Step1Content from '.';
@@ -13,7 +15,12 @@ jest.mock('../../../components/MultiSelectWithTextStep', () => {
     showBackButton,
     stepNumber,
     stepTitle,
-  }: any) {
+  }: {
+    headerContent: ReactNode;
+    stepNumber: number;
+    stepTitle: string;
+    showBackButton?: boolean;
+  }) {
     return (
       <div data-testid="multi-select-step">
         <span data-testid="step-title">{stepTitle}</span>
@@ -26,7 +33,7 @@ jest.mock('../../../components/MultiSelectWithTextStep', () => {
 });
 
 jest.mock('../SelectedCompany', () => {
-  return function MockSelectedCompany({companyName}: any) {
+  return function MockSelectedCompany({companyName}: {companyName: string}) {
     return (
       <div data-testid="selected-company">
         <span data-testid="company-name">{companyName}</span>

@@ -10,7 +10,11 @@ jest.mock('../../../components/MultiSelectWithTextStep', () => {
     showBackButton,
     stepNumber,
     stepTitle,
-  }: any) {
+  }: {
+    stepNumber: number;
+    stepTitle: string;
+    showBackButton?: boolean;
+  }) {
     return (
       <div data-testid="multi-select-step">
         <span data-testid="step-title">{stepTitle}</span>

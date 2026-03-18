@@ -45,7 +45,7 @@ describe('useEmployerSurveyStep', () => {
   });
 
   it('returns loading state initially', () => {
-    (global.fetch as jest.Mock).mockReturnValue(new Promise(() => undefined));
+    (global.fetch as jest.Mock).mockReturnValue(new Promise<never>(() => {}));
 
     const {result} = renderHook(() =>
       useEmployerSurveyStep(PROJECT_ID, STEP, ADMIN_TOKEN),

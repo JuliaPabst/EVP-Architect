@@ -1,4 +1,6 @@
 import '@testing-library/jest-dom';
+import type {ReactNode} from 'react';
+
 import {render, screen} from '@testing-library/react';
 
 import Step2Content from '.';
@@ -10,26 +12,46 @@ jest.mock('../../../hooks/useSurveyStepState', () => jest.fn());
 jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
 
 jest.mock('../../../step-1/components/TextSection', () => {
-  return function MockTextSection({title}: any) {
+  return function MockTextSection({title}: {title: string}) {
     return <div data-testid="text-section">{title}</div>;
   };
 });
 
 jest.mock('../../../step-1/components/NavigationButtons', () => {
-  return function MockNavButtons({canContinue, onBack, onContinue}: any) {
+  return function MockNavButtons({
+    canContinue,
+    onBack,
+    onContinue,
+  }: {
+    canContinue: boolean;
+    onBack?: () => void;
+    onContinue?: () => void;
+  }) {
     return (
       <div>
-        <button disabled={!canContinue} onClick={onContinue}>
+        <button disabled={!canContinue} onClick={onContinue} type="button">
           Continue
         </button>
-        {onBack && <button onClick={onBack}>Back</button>}
+        {onBack && (
+          <button onClick={onBack} type="button">
+            Back
+          </button>
+        )}
       </div>
     );
   };
 });
 
 jest.mock('../../../components/StepContentLayout', () => {
-  return function MockStepContentLayout({children, error, isLoading}: any) {
+  return function MockStepContentLayout({
+    children,
+    error,
+    isLoading,
+  }: {
+    children: ReactNode;
+    isLoading: boolean;
+    error?: string | null;
+  }) {
     if (isLoading) {
       return <div data-testid="loading">Loading survey questions...</div>;
     }
@@ -65,7 +87,9 @@ function setupMocks({
   isLoading?: boolean;
   isSaving?: boolean;
   saveAnswers?: jest.Mock;
-  stepData?: any;
+  stepData?: {
+    questions: {id: string; prompt: string; type: string}[];
+  } | null;
   textAnswers?: Record<string, string>;
 } = {}) {
   const useEmployerSurveyStep = jest.requireMock(

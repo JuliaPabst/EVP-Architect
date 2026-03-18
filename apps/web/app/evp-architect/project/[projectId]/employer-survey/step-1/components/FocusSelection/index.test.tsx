@@ -1,11 +1,25 @@
 import '@testing-library/jest-dom';
-import {act, render, screen} from '@testing-library/react';
+import type {ChangeEvent} from 'react';
+
+import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import FocusSelection from '.';
 
 jest.mock('@kununu/ui/atoms/ChoiceChip', () => {
-  return function MockChoiceChip({checked, disabled, id, onChange, text}: any) {
+  return function MockChoiceChip({
+    checked,
+    disabled,
+    id,
+    onChange,
+    text,
+  }: {
+    checked: boolean;
+    id: string;
+    text: string;
+    disabled?: boolean;
+    onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  }) {
     return (
       <input
         aria-label={text}
@@ -157,15 +171,13 @@ describe('FocusSelection', () => {
     expect(screen.getByTestId('opt-1')).toBeChecked();
     expect(screen.getByTestId('opt-2')).not.toBeChecked();
 
-    act(() => {
-      rerender(
-        <FocusSelection
-          initialValue={['opt-2', 'opt-3']}
-          options={OPTIONS}
-          title="Pick your focus areas"
-        />,
-      );
-    });
+    rerender(
+      <FocusSelection
+        initialValue={['opt-2', 'opt-3']}
+        options={OPTIONS}
+        title="Pick your focus areas"
+      />,
+    );
 
     expect(screen.getByTestId('opt-1')).not.toBeChecked();
     expect(screen.getByTestId('opt-2')).toBeChecked();
