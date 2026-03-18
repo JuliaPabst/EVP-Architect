@@ -28,7 +28,9 @@ jobs:
 
         - name: Setup .npmrc
           run: |
-            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+            echo "@kununu:registry=https://npm.pkg.github.com" > .npmrc
+            echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
         
         - run: pnpm install --frozen-lockfile
           env:
