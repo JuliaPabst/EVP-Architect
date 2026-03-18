@@ -148,14 +148,12 @@ export default function Step5Content({
       });
     }
 
-    // Target Audience Detail (only if question exists, external communication is selected, and has text)
-    if (
-      targetAudienceDetailQuestion &&
-      isExternalCommunication &&
-      targetAudienceDetail.trim()
-    ) {
+    // Target Audience Detail: always save when the question exists.
+    // Send the text when external communication is selected, empty string otherwise
+    // (empty string clears a previously saved answer so the survey can be completed).
+    if (targetAudienceDetailQuestion) {
       answers.push({
-        answer_text: targetAudienceDetail.trim(),
+        answer_text: isExternalCommunication ? targetAudienceDetail.trim() : '',
         question_id: targetAudienceDetailQuestion.id,
       });
     }

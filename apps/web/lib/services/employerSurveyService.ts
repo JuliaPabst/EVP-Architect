@@ -220,7 +220,7 @@ class EmployerSurveyService {
    * Validate text or long_text answer
    */
   private static validateTextAnswer(answer: AnswerInput): void {
-    if (!answer.answer_text) {
+    if (answer.answer_text === undefined) {
       throw new Error(
         `answer_text required for question ${answer.question_id}`,
       );
