@@ -6,6 +6,7 @@ import EmployerSurveyStep4 from './page';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({push: jest.fn(), replace: jest.fn()})),
   useSearchParams: jest.fn(),
 }));
 
@@ -79,11 +80,11 @@ describe('EmployerSurveyStep4', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('employer-survey-step-4')).toBeInTheDocument();
+      expect(screen.getByRole('main')).toBeInTheDocument();
     });
   });
 
-  it('should display step 4 heading and company name', async () => {
+  it('should display step 4 heading', async () => {
     const useAdminTokenValidation = jest.requireMock(
       '@/app/hooks/useAdminTokenValidation',
     );
@@ -101,9 +102,8 @@ describe('EmployerSurveyStep4', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-        'Employer Survey - Step 4',
+        'Guardrails (Tone & Reality Check)',
       );
-      expect(screen.getByText('Company: Test Company')).toBeInTheDocument();
     });
   });
 

@@ -59,7 +59,7 @@ export default function SearchHeader() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create project');
+        throw new Error(data.message || 'Failed to create project');
       }
 
       // Redirect to employer survey step-1 with admin token

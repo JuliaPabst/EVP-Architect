@@ -1,0 +1,58 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+@use '@kununu/ui/theme/scss/variables/shadows';
+
+.headerWrapper {
+  width: calc(100% + 2 * spacings.$kun-spacing-4xl);
+  margin-top: calc(-1 * spacings.$kun-spacing-2xl);
+  margin-right: calc(-1 * spacings.$kun-spacing-4xl);
+  margin-left: calc(-1 * spacings.$kun-spacing-4xl);
+  padding: spacings.$kun-spacing-m spacings.$kun-spacing-4xl;
+  border-top-left-radius: spacings.$kun-spacing-2xs;
+  border-top-right-radius: spacings.$kun-spacing-2xs;
+  background: colors.$kun-color-base-white-100;
+  box-shadow: 0 2px 4px 0 rgb(2, 2, 7, 0.1);
+}
+
+.headerInner {
+  width: 100%;
+}
+
+.surveyCardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-2xs;
+  width: 100%;
+}
+
+.headerContent {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  padding: 0 spacings.$kun-spacing-xs;
+  color: colors.$kun-color-text-link;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 21px;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+
+.stepCounter {
+  position: absolute;
+  right: 0;
+  color: colors.$kun-color-text-inactive;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 21px;
+  letter-spacing: 0.2px;
+}

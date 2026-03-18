@@ -25,6 +25,241 @@ AI_IMPLEMENTATION_GUIDELINES.md
    - After confirming with user that no library component matches
 4. When building custom components, compose them using @kununu/ui atoms
 
+---
+
+## Storybook MCP Troubleshooting Guide
+
+### Prerequisites
+- **Location:** `/Users/julia.pabst/Desktop/Bachelor thesis/ui/`
+- **Configuration:** `.vscode/mcp.json` (in workspace root)
+- **Required Addon:** `@storybook/addon-mcp@0.3.3` (already installed)
+
+### Quick Start: Starting Storybook MCP
+
+**Option 1: Start Storybook Dev Server**
+```bash
+cd "/Users/julia.pabst/Desktop/Bachelor thesis/ui"
+npm run start
+```
+This starts Storybook on `http://localhost:3000` with MCP endpoint at `http://localhost:3000/mcp`
+
+**Option 2: Check if Already Running**
+```bash
+lsof -i :3000 | grep node
+```
+If you see a node process, Storybook is already running.
+
+### Verifying MCP Connection
+
+**Step 1: Check VS Code MCP Connection Status**
+Look for connection logs in VS Code Output panel:
+```
+Connection state: Running
+```
+
+**Step 2: Verify Storybook Process**
+```bash
+ps aux | grep storybook | grep -v grep
+```
+Should show: `node .../storybook dev -p 3000`
+
+**Step 3: Check Port 3000**
+```bash
+lsof -i :3000
+```
+Should show node process listening on port 3000.
+
+**Step 4: Test MCP Tools Availability**
+In Claude Code, search for tools:
+- `get-storybook-story-instructions` - Should return writing guidelines
+- `preview-stories` - Should be available for getting story URLs
+
+### Common Issues and Solutions
+
+#### Issue 1: "Storybook MCP tools not found"
+**Symptoms:** Cannot find `mcp_storybook_*` tools in Claude Code
+
+**Solutions:**
+1. **Start Storybook if not running:**
+   ```bash
+   cd "/Users/julia.pabst/Desktop/Bachelor thesis/ui"
+   npm run start
+   ```
+
+2. **Wait for connection:** Check VS Code Output panel for "Connection state: Running"
+
+3. **Restart VS Code:** Sometimes MCP connections need a VS Code restart after starting Storybook
+
+#### Issue 2: "Port 3000 already in use"
+**Symptoms:** Cannot start Storybook, port conflict error
+
+**Solutions:**
+1. **Find what's using port 3000:**
+   ```bash
+   lsof -i :3000
+   ```
+
+2. **Kill the process if it's a stale Storybook:**
+   ```bash
+   kill -9 <PID>
+   ```
+   Replace `<PID>` with the process ID from lsof output
+
+3. **Or use a different port:**
+   ```bash
+   npm run start -- -p 3001
+   ```
+   Then update `.vscode/mcp.json` URL to `http://localhost:3001/mcp`
+
+#### Issue 3: "Connection state: Stopped"
+**Symptoms:** MCP shows as stopped in VS Code
+
+**Solutions:**
+1. **Ensure Storybook is running first** (see Quick Start above)
+
+2. **Restart MCP connection in VS Code:**
+   - Open Command Palette (Cmd+Shift+P)
+   - Search for "MCP: Restart Server"
+   - Select "storybook"
+
+3. **Check mcp.json configuration:**
+   ```json
+   {
+     "servers": {
+       "storybook": {
+         "type": "http",
+         "url": "http://localhost:3000/mcp"
+       }
+     }
+   }
+   ```
+
+#### Issue 4: "Only 2 tools available instead of 4+"
+**Symptoms:** Only see `get-storybook-story-instructions` and `preview-stories`
+
+**Explanation:** This is NORMAL for Storybook 9.1.17
+- **Dev Tools (2):** ✅ Available
+  - `get-storybook-story-instructions`
+  - `preview-stories`
+- **Docs Tools (2):** ❌ Not available (requires Storybook 10.1.0+)
+  - `list-all-documentation` (requires upgrade)
+  - `get-documentation` (requires upgrade)
+
+**To enable Docs Tools (optional):**
+1. Upgrade Storybook:
+   ```bash
+   cd "/Users/julia.pabst/Desktop/Bachelor thesis/ui"
+   npm install storybook@next @storybook/react-webpack5@next
+   ```
+
+2. Enable feature flag in `.storybook/main.ts`:
+   ```typescript
+   export default {
+     // ... existing config
+     features: {
+       experimentalComponentsManifest: true,
+     },
+   };
+   ```
+
+### Diagnostic Commands Reference
+
+**Check if Storybook is Running:**
+```bash
+ps aux | grep "storybook dev" | grep -v grep
+```
+
+**Check Port Status:**
+```bash
+lsof -i :3000
+```
+
+**Check Addon Installation:**
+```bash
+cd "/Users/julia.pabst/Desktop/Bachelor thesis/ui"
+npm list @storybook/addon-mcp
+```
+Should show: `@storybook/addon-mcp@0.3.3`
+
+**View Storybook Config:**
+```bash
+cat "/Users/julia.pabst/Desktop/Bachelor thesis/ui/.storybook/main.ts"
+```
+Should include: `'@storybook/addon-mcp'` in addons array
+
+**Test MCP Endpoint (should hang/wait for input):**
+```bash
+curl -v http://localhost:3000/mcp
+```
+Press Ctrl+C to exit. If it connects, endpoint is working.
+
+### Complete Restart Procedure
+
+If all else fails, do a complete restart:
+
+1. **Stop Storybook:**
+   ```bash
+   # Find the process
+   ps aux | grep "storybook dev" | grep -v grep
+   # Kill it (use PID from above)
+   kill -9 <PID>
+   ```
+
+2. **Clear any locks:**
+   ```bash
+   cd "/Users/julia.pabst/Desktop/Bachelor thesis/ui"
+   rm -rf node_modules/.cache
+   ```
+
+3. **Restart Storybook:**
+   ```bash
+   npm run start
+   ```
+
+4. **Wait for "webpack compiled" message**
+
+5. **Restart VS Code** (to reconnect MCP)
+
+6. **Verify tools are available** in Claude Code
+
+### Expected Tool Behavior
+
+**`get-storybook-story-instructions`**
+- No parameters required
+- Returns comprehensive guidelines for writing stories
+- Includes CSF3 format, Storybook 9 changes, mocking patterns
+- Should work immediately when Storybook is running
+
+**`preview-stories`**
+- Requires story information (file path + export name OR story ID)
+- Returns clickable URLs to view stories in browser
+- Example: `http://localhost:3000/?path=/story/example-button--primary`
+
+### MCP Configuration Location
+
+**File:** `/Users/julia.pabst/Desktop/Bachelor thesis/.vscode/mcp.json`
+
+**Current Configuration:**
+```json
+{
+  "servers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=jntjnblkgvrjgdtjxffy"
+    },
+    "storybook": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp"
+    }
+  },
+  "inputs": []
+}
+```
+
+**Note:** MCP configuration is at workspace root, not in ui/ folder
+
+---
+
 ## Required Import Patterns
 
 ```tsx

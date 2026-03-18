@@ -1,0 +1,15 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
+.questionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+  width: 100%;
+}
+
+.errorMessage {
+  padding: spacings.$kun-spacing-m;
+  color: colors.$kun-color-text-error;
+  text-align: center;
+}

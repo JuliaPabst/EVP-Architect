@@ -6,6 +6,7 @@ import EmployerSurveyStep1 from './page';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({push: jest.fn(), replace: jest.fn()})),
   useSearchParams: jest.fn(),
 }));
 
@@ -100,9 +101,7 @@ describe('EmployerSurveyStep1', () => {
       });
 
       await waitFor(() => {
-        expect(
-          screen.getByTestId('employer-survey-step-1'),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('main')).toBeInTheDocument();
       });
     });
 
@@ -146,7 +145,7 @@ describe('EmployerSurveyStep1', () => {
       });
     });
 
-    it('should have proper main element styling', async () => {
+    it('should have proper main element', async () => {
       render(<EmployerSurveyStep1 params={mockParams} />);
 
       await act(async () => {
@@ -156,7 +155,7 @@ describe('EmployerSurveyStep1', () => {
       await waitFor(() => {
         const main = screen.getByRole('main');
 
-        expect(main).toHaveStyle({padding: '2rem'});
+        expect(main).toBeInTheDocument();
       });
     });
   });
@@ -182,12 +181,12 @@ describe('EmployerSurveyStep1', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-          'Employer Survey - Step 1',
+          'Who you are today (Culture & Values)?',
         );
       });
     });
 
-    it('should display company name', async () => {
+    it('should render the header', async () => {
       render(<EmployerSurveyStep1 params={mockParams} />);
 
       await act(async () => {
@@ -195,11 +194,11 @@ describe('EmployerSurveyStep1', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Company: Test Company')).toBeInTheDocument();
+        expect(screen.getByTestId('header')).toBeInTheDocument();
       });
     });
 
-    it('should display step 1 description', async () => {
+    it('should render the main content area', async () => {
       render(<EmployerSurveyStep1 params={mockParams} />);
 
       await act(async () => {
@@ -207,25 +206,7 @@ describe('EmployerSurveyStep1', () => {
       });
 
       await waitFor(() => {
-        expect(
-          screen.getByText('This is step 1 of the employer survey.'),
-        ).toBeInTheDocument();
-      });
-    });
-
-    it('should display placeholder text', async () => {
-      render(<EmployerSurveyStep1 params={mockParams} />);
-
-      await act(async () => {
-        jest.runAllTimers();
-      });
-
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            'Survey content will be implemented in future stories.',
-          ),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('main')).toBeInTheDocument();
       });
     });
   });
@@ -249,7 +230,7 @@ describe('EmployerSurveyStep1', () => {
       );
     });
 
-    it('should handle different company names', async () => {
+    it('should render with different validation states', async () => {
       const useAdminTokenValidation = jest.requireMock(
         '@/app/hooks/useAdminTokenValidation',
       );
@@ -266,9 +247,7 @@ describe('EmployerSurveyStep1', () => {
       });
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Company: Another Company'),
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('header')).toBeInTheDocument();
       });
     });
   });

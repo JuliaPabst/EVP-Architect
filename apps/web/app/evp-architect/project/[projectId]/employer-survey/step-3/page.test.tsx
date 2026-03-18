@@ -6,6 +6,7 @@ import EmployerSurveyStep3 from './page';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({push: jest.fn(), replace: jest.fn()})),
   useSearchParams: jest.fn(),
 }));
 
@@ -79,11 +80,11 @@ describe('EmployerSurveyStep3', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('employer-survey-step-3')).toBeInTheDocument();
+      expect(screen.getByRole('main')).toBeInTheDocument();
     });
   });
 
-  it('should display step 3 heading and company name', async () => {
+  it('should display step 3 heading', async () => {
     const useAdminTokenValidation = jest.requireMock(
       '@/app/hooks/useAdminTokenValidation',
     );
@@ -101,9 +102,8 @@ describe('EmployerSurveyStep3', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-        'Employer Survey - Step 3',
+        'What makes you different (Positioning)',
       );
-      expect(screen.getByText('Company: Test Company')).toBeInTheDocument();
     });
   });
 

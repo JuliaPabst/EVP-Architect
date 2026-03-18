@@ -33,21 +33,122 @@ export function isValidKununuUrl(url: string): boolean {
 }
 
 /**
- * Fetches HTML content from a given URL
+ * Helper function to add delay between retries
  */
-async function fetchHtml(url: string): Promise<string> {
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    },
+async function delay(ms: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
   });
+}
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch URL: ${response.statusText}`);
-  }
+interface RetryableFetchError extends Error {
+  isRetryable?: boolean;
+}
 
-  return response.text();
+function createRetryableFetchError(
+  message: string,
+  isRetryable = true,
+): RetryableFetchError {
+  const error = new Error(message) as RetryableFetchError;
+
+  error.isRetryable = isRetryable;
+
+  return error;
+}
+
+/**
+ * Fetches HTML content from a given URL with retry logic
+ * Falls back to simple fetch if advanced fetching is not available
+ */
+async function fetchHtml(
+  url: string,
+  retries = 3,
+  retryDelay = 1000,
+): Promise<string> {
+  const fetchHtmlAttempt = async (attempt: number): Promise<string> => {
+    try {
+      // Add progressive delay between retries (not on first attempt)
+      if (attempt > 1) {
+        await delay(retryDelay * attempt);
+      }
+
+      const response = await fetch(url, {
+        cache: 'no-cache',
+        headers: {
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Cache-Control': 'max-age=0',
+          Connection: 'keep-alive',
+          DNT: '1',
+          Referer: 'https://www.kununu.com/',
+          'Sec-Ch-Ua':
+            '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+          'Sec-Ch-Ua-Mobile': '?0',
+          'Sec-Ch-Ua-Platform': '"macOS"',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'same-origin',
+          'Sec-Fetch-User': '?1',
+          'Upgrade-Insecure-Requests': '1',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+        redirect: 'follow',
+        // Add signal for timeout
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+
+      if (!response.ok) {
+        const error = createRetryableFetchError(
+          `Failed to fetch URL: ${response.status} ${response.statusText}. The website may be blocking automated requests. Consider using a headless browser or proxy service.`,
+          !(
+            response.status >= 400 &&
+            response.status < 500 &&
+            response.status !== 429
+          ),
+        );
+
+        if (!error.isRetryable || attempt === retries) {
+          throw error;
+        }
+
+        return await fetchHtmlAttempt(attempt + 1);
+      }
+
+      return await response.text();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw createRetryableFetchError(
+          'Network error: Unable to reach kununu.com. Check your internet connection or firewall settings.',
+          false,
+        );
+      }
+
+      let handledError: RetryableFetchError =
+        error instanceof Error
+          ? error
+          : createRetryableFetchError('Unknown error during fetch');
+
+      if (
+        handledError.name === 'TimeoutError' ||
+        handledError.name === 'AbortError'
+      ) {
+        handledError = createRetryableFetchError(
+          'Request timeout: kununu.com took too long to respond. Please try again later.',
+        );
+      }
+
+      if (handledError.isRetryable === false || attempt === retries) {
+        throw handledError;
+      }
+
+      return fetchHtmlAttempt(attempt + 1);
+    }
+  };
+
+  return fetchHtmlAttempt(1);
 }
 
 /**

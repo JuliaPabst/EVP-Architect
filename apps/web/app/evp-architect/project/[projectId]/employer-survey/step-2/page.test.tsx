@@ -6,6 +6,7 @@ import EmployerSurveyStep2 from './page';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({push: jest.fn(), replace: jest.fn()})),
   useSearchParams: jest.fn(),
 }));
 
@@ -90,9 +91,7 @@ describe('EmployerSurveyStep2', () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        expect(
-          screen.getByTestId('employer-survey-step-2'),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('main')).toBeInTheDocument();
       });
     });
 
@@ -131,15 +130,11 @@ describe('EmployerSurveyStep2', () => {
       });
     });
 
-    it('should have proper main element styling', async () => {
+    it('should have proper main element', async () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        const main = screen.queryByRole('main');
-
-        if (main) {
-          expect(main).toHaveStyle({padding: '2rem'});
-        }
+        expect(screen.getByRole('main')).toBeInTheDocument();
       });
     });
   });
@@ -160,42 +155,25 @@ describe('EmployerSurveyStep2', () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        expect(
-          screen.getByRole('heading', {
-            level: 1,
-            name: 'Employer Survey - Step 2',
-          }),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
+          'What it takes to succeed (Expectations & Requirements)',
+        );
       });
     });
 
-    it('should display company name', async () => {
+    it('should render the header', async () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        expect(screen.getByText('Company: Test Company')).toBeInTheDocument();
+        expect(screen.getByTestId('header')).toBeInTheDocument();
       });
     });
 
-    it('should display step 2 description', async () => {
+    it('should render the main content area', async () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('This is step 2 of the employer survey.'),
-        ).toBeInTheDocument();
-      });
-    });
-
-    it('should display placeholder text', async () => {
-      render(<EmployerSurveyStep2 params={mockParams} />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            'Survey content will be implemented in future stories.',
-          ),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('main')).toBeInTheDocument();
       });
     });
   });
@@ -219,7 +197,7 @@ describe('EmployerSurveyStep2', () => {
       );
     });
 
-    it('should handle different company names', async () => {
+    it('should render with different validation states', async () => {
       const useAdminTokenValidation = jest.requireMock(
         '@/app/hooks/useAdminTokenValidation',
       );
@@ -232,9 +210,7 @@ describe('EmployerSurveyStep2', () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Company: Another Company'),
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('header')).toBeInTheDocument();
       });
     });
   });
@@ -255,9 +231,8 @@ describe('EmployerSurveyStep2', () => {
       render(<EmployerSurveyStep2 params={mockParams} />);
 
       await waitFor(() => {
-        const container = screen.queryByTestId('employer-survey-step-2');
-
-        expect(container).toBeInTheDocument();
+        expect(screen.getByRole('main')).toBeInTheDocument();
+        expect(screen.getByTestId('header')).toBeInTheDocument();
       });
     });
   });

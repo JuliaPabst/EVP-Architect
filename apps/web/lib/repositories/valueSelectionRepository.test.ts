@@ -47,9 +47,9 @@ describe('ValueSelectionRepository', () => {
 
     it('should fetch and organize value selections by answer ID', async () => {
       const mockData = [
-        {answer_id: 'answer1', position: 0, value_key: 'value1'},
-        {answer_id: 'answer1', position: 1, value_key: 'value2'},
-        {answer_id: 'answer2', position: 0, value_key: 'value3'},
+        {answer_id: 'answer1', option_key: 'value1', position: 0},
+        {answer_id: 'answer1', option_key: 'value2', position: 1},
+        {answer_id: 'answer2', option_key: 'value3', position: 0},
       ];
 
       mockOrder.mockResolvedValue({data: mockData, error: null});
@@ -60,7 +60,7 @@ describe('ValueSelectionRepository', () => {
         'answer2',
       ]);
 
-      expect(mockFrom).toHaveBeenCalledWith('evp_answer_value_selections');
+      expect(mockFrom).toHaveBeenCalledWith('evp_answer_selections');
       expect(mockSelect).toHaveBeenCalledWith('*');
       expect(mockIn).toHaveBeenCalledWith('answer_id', ['answer1', 'answer2']);
       expect(mockOrder).toHaveBeenCalledWith('position', {ascending: true});
@@ -109,7 +109,7 @@ describe('ValueSelectionRepository', () => {
 
       await repository.deleteSelectionsByAnswer('answer123');
 
-      expect(mockFrom).toHaveBeenCalledWith('evp_answer_value_selections');
+      expect(mockFrom).toHaveBeenCalledWith('evp_answer_selections');
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith('answer_id', 'answer123');
     });
@@ -143,11 +143,11 @@ describe('ValueSelectionRepository', () => {
         'value3',
       ]);
 
-      expect(mockFrom).toHaveBeenCalledWith('evp_answer_value_selections');
+      expect(mockFrom).toHaveBeenCalledWith('evp_answer_selections');
       expect(mockInsert).toHaveBeenCalledWith([
-        {answer_id: 'answer123', position: 0, value_key: 'value1'},
-        {answer_id: 'answer123', position: 1, value_key: 'value2'},
-        {answer_id: 'answer123', position: 2, value_key: 'value3'},
+        {answer_id: 'answer123', option_key: 'value1', position: 0},
+        {answer_id: 'answer123', option_key: 'value2', position: 1},
+        {answer_id: 'answer123', option_key: 'value3', position: 2},
       ]);
     });
 
@@ -158,7 +158,7 @@ describe('ValueSelectionRepository', () => {
       await repository.insertSelections('answer123', ['value1']);
 
       expect(mockInsert).toHaveBeenCalledWith([
-        {answer_id: 'answer123', position: 0, value_key: 'value1'},
+        {answer_id: 'answer123', option_key: 'value1', position: 0},
       ]);
     });
 

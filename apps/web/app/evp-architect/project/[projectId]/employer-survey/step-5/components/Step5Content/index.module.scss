@@ -1,0 +1,29 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacings-space-m, 24px);
+  width: 100%;
+}
+
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacings-space-3xs, 4px);
+  width: 100%;
+}
+
+.label {
+  color: var(--text-dark-80, #333438);
+  font-weight: 600;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  line-height: 22px;
+}
+
+.errorMessage {
+  margin-top: var(--spacings-space-s, 16px);
+  color: var(--system-red-100, #da1e28);
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  line-height: 22px;
+}

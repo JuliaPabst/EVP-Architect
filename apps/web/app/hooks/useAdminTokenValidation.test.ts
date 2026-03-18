@@ -1,7 +1,9 @@
 import {renderHook, waitFor} from '@testing-library/react';
 import {useRouter} from 'next/navigation';
 
-import useAdminTokenValidation from './useAdminTokenValidation';
+import useAdminTokenValidation, {
+  clearAdminValidationCacheForTests,
+} from './useAdminTokenValidation';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -18,6 +20,7 @@ describe('useAdminTokenValidation', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    clearAdminValidationCacheForTests();
     (useRouter as jest.Mock).mockReturnValue({
       push: mockPush,
     });
@@ -53,6 +56,10 @@ describe('useAdminTokenValidation', () => {
       json: async () => ({
         project: {
           company_name: 'Test Company',
+          employee_count: '100-500',
+          industry_name: 'Technology',
+          location: 'Berlin, Germany',
+          profile_image_url: 'https://example.com/logo.png',
         },
         valid: true,
       }),
@@ -66,6 +73,7 @@ describe('useAdminTokenValidation', () => {
     // Initially validating
     expect(result.current.isValidating).toBe(true);
     expect(result.current.companyName).toBe('');
+    expect(result.current.project).toBeUndefined();
 
     // After validation
     await waitFor(() => {
@@ -73,6 +81,13 @@ describe('useAdminTokenValidation', () => {
     });
 
     expect(result.current.companyName).toBe('Test Company');
+    expect(result.current.project).toEqual({
+      company_name: 'Test Company',
+      employee_count: '100-500',
+      industry_name: 'Technology',
+      location: 'Berlin, Germany',
+      profile_image_url: 'https://example.com/logo.png',
+    });
     expect(mockPush).not.toHaveBeenCalled();
   });
 

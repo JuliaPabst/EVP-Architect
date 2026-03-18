@@ -5,9 +5,26 @@
   --foreground: #171717;
 }
 
+html {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
 body {
   margin: 0;
   padding: 0;
   color: var(--foreground);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   background: var(--background);
 }

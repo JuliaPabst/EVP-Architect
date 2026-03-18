@@ -1,0 +1,69 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+@use '@kununu/ui/theme/scss/mixins/typography';
+
+.progressHeader {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-2xs;
+  width: 100%;
+}
+
+.headerContent {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  padding: 0 spacings.$kun-spacing-xs;
+  color: colors.$kun-color-text-link;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 21px;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+
+.backButton {
+  position: absolute;
+  left: -8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: spacings.$kun-spacing-3xs;
+  color: colors.$kun-color-text-primary;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: colors.$kun-color-bg-medium;
+  }
+
+  &:focus {
+    outline: 2px solid colors.$kun-color-base-darkblue-100;
+    outline-offset: 2px;
+  }
+}
+
+.stepCounter {
+  flex-shrink: 0;
+  width: 36.5px;
+  color: colors.$kun-color-text-inactive;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 21px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  text-align: right;
+}

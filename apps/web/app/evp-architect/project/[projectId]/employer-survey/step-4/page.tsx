@@ -1,4 +1,10 @@
-import SurveyStepLayout from '../SurveyStepLayout';
+'use client';
+
+import {useSearchParams} from 'next/navigation';
+
+import SurveyStepPageWrapper from '../components/SurveyStepPageWrapper';
+
+import Step4Content from './components/Step4Content';
 
 interface StepPageProps {
   readonly params: {
@@ -7,5 +13,12 @@ interface StepPageProps {
 }
 
 export default function EmployerSurveyStep4({params}: StepPageProps) {
-  return <SurveyStepLayout projectId={params.projectId} stepNumber={4} />;
+  const searchParams = useSearchParams();
+  const adminToken = searchParams.get('admin');
+
+  return (
+    <SurveyStepPageWrapper adminToken={adminToken} projectId={params.projectId}>
+      <Step4Content adminToken={adminToken} projectId={params.projectId} />
+    </SurveyStepPageWrapper>
+  );
 }
