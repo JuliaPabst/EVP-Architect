@@ -20,7 +20,7 @@ export class ValueSelectionRepository {
     }
 
     const {data, error} = await supabase
-      .from('evp_answer_value_selections')
+      .from('evp_answer_selections')
       .select('*')
       .in('answer_id', answerIds as string[])
       .order('position', {ascending: true});
@@ -34,7 +34,7 @@ export class ValueSelectionRepository {
     for (const selection of data || []) {
       const existing = selectionsMap.get(selection.answer_id) || [];
 
-      existing.push(selection.value_key);
+      existing.push(selection.option_key);
       selectionsMap.set(selection.answer_id, existing);
     }
 
@@ -48,7 +48,7 @@ export class ValueSelectionRepository {
    */
   async deleteSelectionsByAnswer(answerId: string): Promise<void> {
     const {error} = await supabase
-      .from('evp_answer_value_selections')
+      .from('evp_answer_selections')
       .delete()
       .eq('answer_id', answerId);
 
@@ -73,12 +73,12 @@ export class ValueSelectionRepository {
 
     const rows = optionKeys.map((optionKey, index) => ({
       answer_id: answerId,
+      option_key: optionKey,
       position: index,
-      value_key: optionKey,
     }));
 
     const {error} = await supabase
-      .from('evp_answer_value_selections')
+      .from('evp_answer_selections')
       .insert(rows);
 
     if (error) {

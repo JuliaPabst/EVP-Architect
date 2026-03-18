@@ -24,13 +24,16 @@ export default function Step5Content({
   adminToken,
   projectId,
 }: Step5ContentProps) {
-  const {error, isLoading, isSaving, saveAnswers, stepData} =
+  const {error: stepError, isLoading, isSaving, saveAnswers, stepData} =
     useEmployerSurveyStep(projectId, 5, adminToken);
-  const {navigateToNextStep, navigateToPreviousStep} = useStepNavigation(
+  const {navigateToProject, navigateToPreviousStep} = useStepNavigation(
     projectId,
     5,
     adminToken,
   );
+
+  const [completeError, setCompleteError] = useState<string | null>(null);
+  const error = stepError ?? completeError;
 
   const questions = stepData?.questions || [];
 
@@ -170,7 +173,21 @@ export default function Step5Content({
 
     const saved = await saveAnswers(answers);
 
-    if (saved) navigateToNextStep();
+    if (!saved) return;
+
+    const response = await fetch(
+      `/api/employer-survey/complete?projectId=${projectId}&admin_token=${adminToken}`,
+      {method: 'POST'},
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+
+      setCompleteError(errorData.message || 'Failed to complete survey');
+      return;
+    }
+
+    navigateToProject();
   };
 
   // Show error if no data loaded

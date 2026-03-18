@@ -15,7 +15,7 @@
     "validate": "pnpm run lint && pnpm run test:coverage"
   },
   "dependencies": {
-    "@kununu/common": "20.2.3",
+    "@kununu/common": "^21.1.1",
     "@kununu/ui": "^32.10.0",
     "@supabase/supabase-js": "^2.98.0",
     "cheerio": "1.0.0-rc.12",
