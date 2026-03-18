@@ -78,6 +78,10 @@ function getCachedStepData(cacheKey: string): StepData | null {
   return cached.data;
 }
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'An error occurred';
+}
+
 function setCachedStepData(cacheKey: string, data: StepData): void {
   stepDataCache.set(cacheKey, {
     data,
@@ -196,9 +200,7 @@ export default function useEmployerSurveyStep(
         }
       } catch (error_) {
         if (!isDisposed) {
-          setError(
-            error_ instanceof Error ? error_.message : 'An error occurred',
-          );
+          setError(getErrorMessage(error_));
         }
       } finally {
         const cacheKey = getCacheKey(projectId, step);
