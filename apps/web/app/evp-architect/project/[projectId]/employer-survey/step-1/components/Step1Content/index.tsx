@@ -2,7 +2,7 @@
 
 import MultiSelectWithTextStep from '../../../components/MultiSelectWithTextStep';
 import useStepNavigation from '../../../hooks/useStepNavigation';
-import SelectedCompany from '../SelectedCompany';
+import SelectedCompany from '@/app/components/survey/SelectedCompany';
 
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 

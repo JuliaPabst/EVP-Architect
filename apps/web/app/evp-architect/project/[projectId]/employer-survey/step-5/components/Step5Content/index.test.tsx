@@ -11,7 +11,7 @@ jest.mock('@/app/hooks/useEmployerSurveyStep', () => jest.fn());
 
 jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
 
-jest.mock('../../../step-1/components/NavigationButtons', () => {
+jest.mock('@/app/components/survey/NavigationButtons', () => {
   return function MockNavButtons({
     canContinue,
     onBack,
@@ -36,7 +36,7 @@ jest.mock('../../../step-1/components/NavigationButtons', () => {
   };
 });
 
-jest.mock('../../../components/StepContentLayout', () => {
+jest.mock('@/app/components/survey/StepContentLayout', () => {
   return function MockStepContentLayout({
     children,
     error,

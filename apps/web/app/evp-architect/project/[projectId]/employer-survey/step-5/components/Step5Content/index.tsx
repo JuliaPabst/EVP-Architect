@@ -7,9 +7,9 @@ import TextInput from '@kununu/ui/atoms/TextInput';
 import Select from '@kununu/ui/molecules/Select';
 import {ResultItem} from '@kununu/ui/shared/typings/resultItem';
 
-import StepContentLayout from '../../../components/StepContentLayout';
+import StepContentLayout from '@/app/components/survey/StepContentLayout';
 import useStepNavigation from '../../../hooks/useStepNavigation';
-import NavigationButtons from '../../../step-1/components/NavigationButtons';
+import NavigationButtons from '@/app/components/survey/NavigationButtons';
 
 import styles from './index.module.scss';
 

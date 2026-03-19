@@ -11,19 +11,19 @@ jest.mock('../../hooks/useSurveyStepState', () => jest.fn());
 
 jest.mock('../../hooks/useStepNavigation', () => jest.fn());
 
-jest.mock('../../step-1/components/FocusSelection', () => {
+jest.mock('@/app/components/survey/FocusSelection', () => {
   return function MockFocusSelection({title}: {title: string}) {
     return <div data-testid="focus-selection">{title}</div>;
   };
 });
 
-jest.mock('../../step-1/components/TextSection', () => {
+jest.mock('@/app/components/survey/TextSection', () => {
   return function MockTextSection({title}: {title: string}) {
     return <div data-testid="text-section">{title}</div>;
   };
 });
 
-jest.mock('../../step-1/components/NavigationButtons', () => {
+jest.mock('@/app/components/survey/NavigationButtons', () => {
   return function MockNavigationButtons({
     canContinue,
     onContinue,
@@ -44,7 +44,7 @@ jest.mock('../../step-1/components/NavigationButtons', () => {
   };
 });
 
-jest.mock('../StepContentLayout', () => {
+jest.mock('@/app/components/survey/StepContentLayout', () => {
   return function MockStepContentLayout({
     children,
     error,
@@ -64,7 +64,7 @@ jest.mock('../StepContentLayout', () => {
   };
 });
 
-jest.mock('../SurveyCardHeader', () => {
+jest.mock('@/app/components/survey/SurveyCardHeader', () => {
   return function MockSurveyCardHeader() {
     return null;
   };
