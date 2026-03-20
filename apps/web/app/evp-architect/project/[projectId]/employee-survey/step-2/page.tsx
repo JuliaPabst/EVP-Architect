@@ -1,7 +1,8 @@
 'use client';
 
-import SurveyStepPageWrapper from '@/app/components/survey/SurveyStepPageWrapper';
 import Step2Content from './components/Step2Content';
+
+import SurveyStepPageWrapper from '@/app/components/survey/SurveyStepPageWrapper';
 
 interface StepPageProps {
   readonly params: {

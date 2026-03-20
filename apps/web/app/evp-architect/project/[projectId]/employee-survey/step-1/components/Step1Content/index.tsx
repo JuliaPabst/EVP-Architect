@@ -1,9 +1,9 @@
 'use client';
 
-import SelectedCompany from '@/app/components/survey/SelectedCompany';
 import MultiSelectStep from '../../../components/MultiSelectStep';
-import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
 
+import SelectedCompany from '@/app/components/survey/SelectedCompany';
+import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
 import useProjectInfo from '@/app/hooks/useProjectInfo';
 
 interface Step1ContentProps {

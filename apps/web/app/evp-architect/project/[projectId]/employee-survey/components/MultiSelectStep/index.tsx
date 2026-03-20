@@ -2,12 +2,6 @@
 
 import React from 'react';
 
-import StepContentLayout from '@/app/components/survey/StepContentLayout';
-import FocusSelection from '@/app/components/survey/FocusSelection';
-import NavigationButtons from '@/app/components/survey/NavigationButtons';
-import TextSection from '@/app/components/survey/TextSection';
-import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
-import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 import {
   buildAnswersPayload,
   findQuestionByType,
@@ -17,15 +11,21 @@ import {
 
 import styles from './index.module.scss';
 
+import FocusSelection from '@/app/components/survey/FocusSelection';
+import NavigationButtons from '@/app/components/survey/NavigationButtons';
+import StepContentLayout from '@/app/components/survey/StepContentLayout';
+import TextSection from '@/app/components/survey/TextSection';
+import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
 import useEmployeeSurveyStep from '@/app/hooks/useEmployeeSurveyStep';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 
 interface MultiSelectStepProps {
-  readonly headerContent?: React.ReactNode;
   readonly onBackNavigation: () => void;
   readonly projectId: string;
-  readonly showBackButton?: boolean;
   readonly stepNumber: number;
   readonly stepTitle: string;
+  readonly headerContent?: React.ReactNode;
+  readonly showBackButton?: boolean;
 }
 
 /**

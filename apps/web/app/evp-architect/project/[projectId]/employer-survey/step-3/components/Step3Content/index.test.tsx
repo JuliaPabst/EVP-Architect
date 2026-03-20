@@ -62,12 +62,6 @@ jest.mock('@/app/components/survey/StepContentLayout', () => {
   };
 });
 
-jest.mock('../../../components/SurveyCardHeader', () => {
-  return function MockSurveyCardHeader() {
-    return null;
-  };
-});
-
 const MOCK_STEP_DATA_ONE_QUESTION = {
   questions: [{id: 'q1', prompt: 'What makes you different?', type: 'text'}],
 };
@@ -92,9 +86,7 @@ function setupMocks({
   const useEmployerSurveyStep = jest.requireMock(
     '@/app/hooks/useEmployerSurveyStep',
   );
-  const useSurveyStepState = jest.requireMock(
-    '@/app/hooks/useSurveyStepState',
-  );
+  const useSurveyStepState = jest.requireMock('@/app/hooks/useSurveyStepState');
   const useStepNavigation = jest.requireMock(
     '@/app/hooks/useEmployerStepNavigation',
   );

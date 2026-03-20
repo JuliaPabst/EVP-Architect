@@ -60,7 +60,11 @@ async function fetchStepFromApi(url: string): Promise<StepData> {
   return (await response.json()) as StepData;
 }
 
-function getCacheKey(projectId: string, submissionId: string, step: number): string {
+function getCacheKey(
+  projectId: string,
+  submissionId: string,
+  step: number,
+): string {
   return `${projectId}:${submissionId}:${step}`;
 }
 

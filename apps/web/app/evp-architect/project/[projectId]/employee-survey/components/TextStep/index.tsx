@@ -1,15 +1,15 @@
 'use client';
 
-import StepContentLayout from '@/app/components/survey/StepContentLayout';
-import NavigationButtons from '@/app/components/survey/NavigationButtons';
-import TextSection from '@/app/components/survey/TextSection';
-import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
-import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 import {findTextQuestion} from '../../utils/surveyStepUtils';
 
 import styles from './index.module.scss';
 
+import NavigationButtons from '@/app/components/survey/NavigationButtons';
+import StepContentLayout from '@/app/components/survey/StepContentLayout';
+import TextSection from '@/app/components/survey/TextSection';
+import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
 import useEmployeeSurveyStep from '@/app/hooks/useEmployeeSurveyStep';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 
 interface TextStepProps {
   readonly projectId: string;

@@ -1,15 +1,15 @@
 'use client';
 
-import StepContentLayout from '@/app/components/survey/StepContentLayout';
-import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
-import useSurveyStepState from '@/app/hooks/useSurveyStepState';
-import NavigationButtons from '@/app/components/survey/NavigationButtons';
-import TextSection from '@/app/components/survey/TextSection';
 import {buildTextAnswersPayload} from '../../../utils/surveyStepUtils';
 
 import styles from './index.module.scss';
 
+import NavigationButtons from '@/app/components/survey/NavigationButtons';
+import StepContentLayout from '@/app/components/survey/StepContentLayout';
+import TextSection from '@/app/components/survey/TextSection';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 
 interface Step3ContentProps {
   readonly adminToken: string | null;

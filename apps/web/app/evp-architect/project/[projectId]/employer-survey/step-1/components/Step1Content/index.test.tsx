@@ -32,7 +32,7 @@ jest.mock('../../../components/MultiSelectWithTextStep', () => {
   };
 });
 
-jest.mock('../SelectedCompany', () => {
+jest.mock('@/app/components/survey/SelectedCompany', () => {
   return function MockSelectedCompany({companyName}: {companyName: string}) {
     return (
       <div data-testid="selected-company">

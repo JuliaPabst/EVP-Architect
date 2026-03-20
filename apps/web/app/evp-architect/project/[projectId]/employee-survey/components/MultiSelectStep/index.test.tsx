@@ -3,13 +3,13 @@ import type {ReactNode} from 'react';
 
 import {render, screen} from '@testing-library/react';
 
-import MultiSelectWithTextStep from '.';
+import MultiSelectStep from '.';
 
-jest.mock('@/app/hooks/useEmployerSurveyStep', () => jest.fn());
+jest.mock('@/app/hooks/useEmployeeSurveyStep', () => jest.fn());
 
 jest.mock('@/app/hooks/useSurveyStepState', () => jest.fn());
 
-jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
+jest.mock('@/app/hooks/useEmployeeStepNavigation', () => jest.fn());
 
 jest.mock('@/app/components/survey/FocusSelection', () => {
   return function MockFocusSelection({title}: {title: string}) {
@@ -27,13 +27,16 @@ jest.mock('@/app/components/survey/NavigationButtons', () => {
   return function MockNavigationButtons({
     canContinue,
     onContinue,
+    showBackButton,
   }: {
     canContinue: boolean;
     onContinue?: () => void;
+    showBackButton?: boolean;
   }) {
     return (
       <button
         data-can-continue={String(canContinue)}
+        data-show-back={String(showBackButton)}
         disabled={!canContinue}
         onClick={onContinue}
         type="button"
@@ -49,9 +52,11 @@ jest.mock('@/app/components/survey/StepContentLayout', () => {
     children,
     error,
     isLoading,
+    stepTitle,
   }: {
     children: ReactNode;
     isLoading: boolean;
+    stepTitle: string;
     error?: string | null;
   }) {
     if (isLoading) {
@@ -60,13 +65,12 @@ jest.mock('@/app/components/survey/StepContentLayout', () => {
     if (error && !isLoading) {
       return <div data-testid="error">{error}</div>;
     }
-    return <div>{children}</div>;
-  };
-});
-
-jest.mock('@/app/components/survey/SurveyCardHeader', () => {
-  return function MockSurveyCardHeader() {
-    return null;
+    return (
+      <div>
+        <span data-testid="step-title">{stepTitle}</span>
+        {children}
+      </div>
+    );
   };
 });
 
@@ -76,14 +80,14 @@ const MOCK_MULTI_SELECT_QUESTION = {
     {label: 'Option One', value_key: 'opt-1'},
     {label: 'Option Two', value_key: 'opt-2'},
   ],
-  prompt: 'Select your focus areas',
+  prompt: 'Select your lived values',
   question_type: 'multi_select',
   selection_limit: 5,
 };
 
 const MOCK_TEXT_QUESTION = {
   id: 'txt-q1',
-  prompt: 'Add additional context',
+  prompt: 'Any additional thoughts?',
   question_type: 'text',
 };
 
@@ -120,15 +124,15 @@ function setupMocks({
     }[];
   } | null;
 } = {}) {
-  const useEmployerSurveyStep = jest.requireMock(
-    '@/app/hooks/useEmployerSurveyStep',
+  const useEmployeeSurveyStep = jest.requireMock(
+    '@/app/hooks/useEmployeeSurveyStep',
   );
   const useSurveyStepState = jest.requireMock('@/app/hooks/useSurveyStepState');
   const useStepNavigation = jest.requireMock(
-    '@/app/hooks/useEmployerStepNavigation',
+    '@/app/hooks/useEmployeeStepNavigation',
   );
 
-  useEmployerSurveyStep.mockReturnValue({
+  useEmployeeSurveyStep.mockReturnValue({
     error,
     isLoading,
     isSaving,
@@ -149,79 +153,78 @@ function setupMocks({
 }
 
 const DEFAULT_PROPS = {
-  adminToken: 'test-admin-token',
   onBackNavigation: jest.fn(),
   projectId: 'test-project-123',
   stepNumber: 1,
-  stepTitle: 'Who you are today (Culture & Values)?',
+  stepTitle: 'Lived Values',
 };
 
-describe('MultiSelectWithTextStep', () => {
+describe('MultiSelectStep', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('shows error fallback when no multiSelectQuestion and not loading', () => {
+  it('shows error fallback when no stepData and not loading', () => {
     setupMocks({isLoading: false, stepData: null});
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
     expect(
       screen.getByText('Failed to load survey questions'),
     ).toBeInTheDocument();
   });
 
-  it('shows loading state when isLoading is true', () => {
+  it('shows loading indicator when isLoading is true', () => {
     setupMocks({isLoading: true, stepData: null});
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('loading')).toBeInTheDocument();
   });
 
-  it('renders FocusSelection when step data with multi-select question is available', () => {
+  it('renders FocusSelection with the question prompt when step data is available', () => {
     setupMocks({
       isLoading: false,
       selectedFactors: [],
       stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
     });
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('focus-selection')).toBeInTheDocument();
     expect(screen.getByTestId('focus-selection')).toHaveTextContent(
-      'Select your focus areas',
+      'Select your lived values',
     );
   });
 
-  it('renders optional TextSection when a text question exists', () => {
+  it('renders TextSection when a text question is present in step data', () => {
     setupMocks({
       isLoading: false,
       selectedFactors: ['opt-1'],
       stepData: MOCK_STEP_DATA_WITH_TEXT,
     });
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('text-section')).toBeInTheDocument();
     expect(screen.getByTestId('text-section')).toHaveTextContent(
-      'Add additional context',
+      'Any additional thoughts?',
     );
   });
 
-  it('does not render TextSection when no text question exists', () => {
+  it('does not render TextSection when no text question is present', () => {
     setupMocks({
       isLoading: false,
       selectedFactors: ['opt-1'],
       stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
     });
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
     expect(screen.queryByTestId('text-section')).not.toBeInTheDocument();
   });
 
-  it('enables Continue button when 1 factor is selected', () => {
+  it('enables the Continue button when at least one factor is selected', () => {
     setupMocks({
       isLoading: false,
       isSaving: false,
@@ -229,15 +232,16 @@ describe('MultiSelectWithTextStep', () => {
       stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
     });
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
-    const continueButton = screen.getByRole('button', {name: 'Continue'});
-
-    expect(continueButton).toBeEnabled();
-    expect(continueButton).toHaveAttribute('data-can-continue', 'true');
+    expect(screen.getByRole('button', {name: 'Continue'})).toBeEnabled();
+    expect(screen.getByRole('button', {name: 'Continue'})).toHaveAttribute(
+      'data-can-continue',
+      'true',
+    );
   });
 
-  it('disables Continue button when no factors are selected', () => {
+  it('disables the Continue button when no factors are selected', () => {
     setupMocks({
       isLoading: false,
       isSaving: false,
@@ -245,11 +249,50 @@ describe('MultiSelectWithTextStep', () => {
       stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
     });
 
-    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
 
-    const continueButton = screen.getByRole('button', {name: 'Continue'});
+    expect(screen.getByRole('button', {name: 'Continue'})).toBeDisabled();
+    expect(screen.getByRole('button', {name: 'Continue'})).toHaveAttribute(
+      'data-can-continue',
+      'false',
+    );
+  });
 
-    expect(continueButton).toBeDisabled();
-    expect(continueButton).toHaveAttribute('data-can-continue', 'false');
+  it('disables the Continue button while saving', () => {
+    setupMocks({
+      isLoading: false,
+      isSaving: true,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
+    });
+
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
+
+    expect(screen.getByRole('button', {name: 'Continue'})).toBeDisabled();
+  });
+
+  it('renders headerContent when provided', () => {
+    setupMocks({
+      isLoading: false,
+      selectedFactors: [],
+      stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
+    });
+
+    render(
+      <MultiSelectStep
+        {...DEFAULT_PROPS}
+        headerContent={<div data-testid="custom-header">Header</div>}
+      />,
+    );
+
+    expect(screen.getByTestId('custom-header')).toBeInTheDocument();
+  });
+
+  it('passes the stepTitle to the layout', () => {
+    setupMocks({isLoading: false, stepData: MOCK_STEP_DATA_WITHOUT_TEXT});
+
+    render(<MultiSelectStep {...DEFAULT_PROPS} />);
+
+    expect(screen.getByTestId('step-title')).toHaveTextContent('Lived Values');
   });
 });

@@ -9,18 +9,21 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('@/app/evp-architect/project/[projectId]/employer-survey/utils/surveyStepUtils', () => ({
-  buildProjectUrl: jest.fn(
-    (projectId: string) => `/evp-architect/project/${projectId}`,
-  ),
-  buildStepUrl: jest.fn(
-    (projectId: string, step: number, adminToken: string | null) => {
-      const base = `/evp-architect/project/${projectId}/employer-survey/step-${step}`;
+jest.mock(
+  '@/app/evp-architect/project/[projectId]/employer-survey/utils/surveyStepUtils',
+  () => ({
+    buildProjectUrl: jest.fn(
+      (projectId: string) => `/evp-architect/project/${projectId}`,
+    ),
+    buildStepUrl: jest.fn(
+      (projectId: string, step: number, adminToken: string | null) => {
+        const base = `/evp-architect/project/${projectId}/employer-survey/step-${step}`;
 
-      return adminToken ? `${base}?admin=${adminToken}` : base;
-    },
-  ),
-}));
+        return adminToken ? `${base}?admin=${adminToken}` : base;
+      },
+    ),
+  }),
+);
 
 describe('useStepNavigation', () => {
   const mockPush = jest.fn();

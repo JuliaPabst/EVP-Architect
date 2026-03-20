@@ -2,7 +2,10 @@ import {useCallback} from 'react';
 
 import {useRouter} from 'next/navigation';
 
-import {buildCompleteUrl, buildStepUrl} from '@/app/evp-architect/project/[projectId]/employee-survey/utils/surveyStepUtils';
+import {
+  buildCompleteUrl,
+  buildStepUrl,
+} from '@/app/evp-architect/project/[projectId]/employee-survey/utils/surveyStepUtils';
 
 interface UseStepNavigationResult {
   readonly navigateToComplete: () => void;

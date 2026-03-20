@@ -1,10 +1,10 @@
 'use client';
 
 import MultiSelectWithTextStep from '../../../components/MultiSelectWithTextStep';
-import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
-import SelectedCompany from '@/app/components/survey/SelectedCompany';
 
+import SelectedCompany from '@/app/components/survey/SelectedCompany';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 
 interface Step1ContentProps {
   readonly adminToken: string | null;

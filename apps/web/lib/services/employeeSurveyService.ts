@@ -4,7 +4,11 @@ import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository'
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
-import {QuestionWithAnswer, StepResponse, SurveyQuestion} from '@/lib/types/survey';
+import {
+  QuestionWithAnswer,
+  StepResponse,
+  SurveyQuestion,
+} from '@/lib/types/survey';
 import {AnswerInput} from '@/lib/validation/employeeSurveySchemas';
 
 /**
@@ -95,8 +99,12 @@ class EmployeeSurveyService {
     );
     const questionOptionsPromise =
       singleSelectKeys.length > 0
-        ? this.questionOptionRepository.getOptionsByQuestionKeys(singleSelectKeys)
-        : Promise.resolve(new Map<string, {label: string; value_key: string}[]>());
+        ? this.questionOptionRepository.getOptionsByQuestionKeys(
+            singleSelectKeys,
+          )
+        : Promise.resolve(
+            new Map<string, {label: string; value_key: string}[]>(),
+          );
     const allSelectionOptionsPromise = shouldFetchAllSelectionOptions
       ? this.selectionOptionRepository.getAllOptions()
       : Promise.resolve([]);
