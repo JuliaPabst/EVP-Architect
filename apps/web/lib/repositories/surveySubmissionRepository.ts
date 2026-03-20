@@ -85,6 +85,35 @@ export class SurveySubmissionRepository {
   }
 
   /**
+   * Get or create employee submission for a project using a session token
+   * Each employee gets their own submission row
+   *
+   * @param submissionId - Existing submission UUID (from client localStorage), or null to create new
+   * @param projectId - Project UUID
+   * @returns Employee submission
+   */
+  async getOrCreateEmployeeSubmission(
+    submissionId: string | null,
+    projectId: string,
+  ): Promise<SurveySubmission> {
+    if (submissionId) {
+      const {data, error} = await supabase
+        .from('evp_survey_submissions')
+        .select('*')
+        .eq('id', submissionId)
+        .eq('project_id', projectId)
+        .eq('survey_type', 'employee')
+        .single();
+
+      if (!error && data) {
+        return data;
+      }
+    }
+
+    return this.createSubmission(projectId, 'employee');
+  }
+
+  /**
    * Update submission status to submitted
    *
    * @param submissionId - Submission UUID

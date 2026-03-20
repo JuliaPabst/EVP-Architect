@@ -2,22 +2,22 @@
 
 import React from 'react';
 
-import useStepNavigation from '../../hooks/useStepNavigation';
-import useSurveyStepState from '../../hooks/useSurveyStepState';
-import FocusSelection from '../../step-1/components/FocusSelection';
-import NavigationButtons from '../../step-1/components/NavigationButtons';
-import TextSection from '../../step-1/components/TextSection';
 import {
   buildAnswersPayload,
   findQuestionByType,
   findTextQuestion,
   transformOptionsForSelection,
 } from '../../utils/surveyStepUtils';
-import StepContentLayout from '../StepContentLayout';
 
 import styles from './index.module.scss';
 
+import FocusSelection from '@/app/components/survey/FocusSelection';
+import NavigationButtons from '@/app/components/survey/NavigationButtons';
+import StepContentLayout from '@/app/components/survey/StepContentLayout';
+import TextSection from '@/app/components/survey/TextSection';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 
 interface MultiSelectWithTextStepProps {
   readonly adminToken: string | null;

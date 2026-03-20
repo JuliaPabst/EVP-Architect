@@ -7,12 +7,11 @@ import TextInput from '@kununu/ui/atoms/TextInput';
 import Select from '@kununu/ui/molecules/Select';
 import {ResultItem} from '@kununu/ui/shared/typings/resultItem';
 
-import StepContentLayout from '../../../components/StepContentLayout';
-import useStepNavigation from '../../../hooks/useStepNavigation';
-import NavigationButtons from '../../../step-1/components/NavigationButtons';
-
 import styles from './index.module.scss';
 
+import NavigationButtons from '@/app/components/survey/NavigationButtons';
+import StepContentLayout from '@/app/components/survey/StepContentLayout';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 
 interface Step5ContentProps {

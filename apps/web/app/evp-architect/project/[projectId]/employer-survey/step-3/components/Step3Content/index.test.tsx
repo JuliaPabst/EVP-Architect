@@ -7,17 +7,17 @@ import Step3Content from '.';
 
 jest.mock('@/app/hooks/useEmployerSurveyStep', () => jest.fn());
 
-jest.mock('../../../hooks/useSurveyStepState', () => jest.fn());
+jest.mock('@/app/hooks/useSurveyStepState', () => jest.fn());
 
-jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
+jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
-jest.mock('../../../step-1/components/TextSection', () => {
+jest.mock('@/app/components/survey/TextSection', () => {
   return function MockTextSection({title}: {title: string}) {
     return <div data-testid="text-section">{title}</div>;
   };
 });
 
-jest.mock('../../../step-1/components/NavigationButtons', () => {
+jest.mock('@/app/components/survey/NavigationButtons', () => {
   return function MockNavButtons({
     canContinue,
     onBack,
@@ -42,7 +42,7 @@ jest.mock('../../../step-1/components/NavigationButtons', () => {
   };
 });
 
-jest.mock('../../../components/StepContentLayout', () => {
+jest.mock('@/app/components/survey/StepContentLayout', () => {
   return function MockStepContentLayout({
     children,
     error,
@@ -59,12 +59,6 @@ jest.mock('../../../components/StepContentLayout', () => {
       return <div data-testid="error">Error: {error}</div>;
     }
     return <div>{children}</div>;
-  };
-});
-
-jest.mock('../../../components/SurveyCardHeader', () => {
-  return function MockSurveyCardHeader() {
-    return null;
   };
 });
 
@@ -92,11 +86,9 @@ function setupMocks({
   const useEmployerSurveyStep = jest.requireMock(
     '@/app/hooks/useEmployerSurveyStep',
   );
-  const useSurveyStepState = jest.requireMock(
-    '../../../hooks/useSurveyStepState',
-  );
+  const useSurveyStepState = jest.requireMock('@/app/hooks/useSurveyStepState');
   const useStepNavigation = jest.requireMock(
-    '../../../hooks/useStepNavigation',
+    '@/app/hooks/useEmployerStepNavigation',
   );
 
   useEmployerSurveyStep.mockReturnValue({
