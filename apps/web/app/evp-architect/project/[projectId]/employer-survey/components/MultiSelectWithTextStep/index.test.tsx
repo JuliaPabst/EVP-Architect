@@ -7,9 +7,9 @@ import MultiSelectWithTextStep from '.';
 
 jest.mock('@/app/hooks/useEmployerSurveyStep', () => jest.fn());
 
-jest.mock('../../hooks/useSurveyStepState', () => jest.fn());
+jest.mock('@/app/hooks/useSurveyStepState', () => jest.fn());
 
-jest.mock('../../hooks/useStepNavigation', () => jest.fn());
+jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
 jest.mock('@/app/components/survey/FocusSelection', () => {
   return function MockFocusSelection({title}: {title: string}) {
@@ -123,8 +123,8 @@ function setupMocks({
   const useEmployerSurveyStep = jest.requireMock(
     '@/app/hooks/useEmployerSurveyStep',
   );
-  const useSurveyStepState = jest.requireMock('../../hooks/useSurveyStepState');
-  const useStepNavigation = jest.requireMock('../../hooks/useStepNavigation');
+  const useSurveyStepState = jest.requireMock('@/app/hooks/useSurveyStepState');
+  const useStepNavigation = jest.requireMock('@/app/hooks/useEmployerStepNavigation');
 
   useEmployerSurveyStep.mockReturnValue({
     error,

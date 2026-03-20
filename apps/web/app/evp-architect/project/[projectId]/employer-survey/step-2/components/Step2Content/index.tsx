@@ -1,8 +1,8 @@
 'use client';
 
 import StepContentLayout from '@/app/components/survey/StepContentLayout';
-import useStepNavigation from '../../../hooks/useStepNavigation';
-import useSurveyStepState from '../../../hooks/useSurveyStepState';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 import NavigationButtons from '@/app/components/survey/NavigationButtons';
 import TextSection from '@/app/components/survey/TextSection';
 import {buildTextAnswersPayload} from '../../../utils/surveyStepUtils';

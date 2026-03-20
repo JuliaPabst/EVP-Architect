@@ -1,7 +1,7 @@
 'use client';
 
 import MultiSelectWithTextStep from '../../../components/MultiSelectWithTextStep';
-import useStepNavigation from '../../../hooks/useStepNavigation';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 import SelectedCompany from '@/app/components/survey/SelectedCompany';
 
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';

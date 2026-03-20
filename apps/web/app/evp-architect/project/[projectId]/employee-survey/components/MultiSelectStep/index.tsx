@@ -6,8 +6,8 @@ import StepContentLayout from '@/app/components/survey/StepContentLayout';
 import FocusSelection from '@/app/components/survey/FocusSelection';
 import NavigationButtons from '@/app/components/survey/NavigationButtons';
 import TextSection from '@/app/components/survey/TextSection';
-import useStepNavigation from '../../hooks/useStepNavigation';
-import useSurveyStepState from '../../hooks/useSurveyStepState';
+import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 import {
   buildAnswersPayload,
   findQuestionByType,

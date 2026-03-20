@@ -9,7 +9,7 @@ global.fetch = jest.fn();
 
 jest.mock('@/app/hooks/useEmployerSurveyStep', () => jest.fn());
 
-jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
+jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
 jest.mock('@/app/components/survey/NavigationButtons', () => {
   return function MockNavButtons({
@@ -206,7 +206,7 @@ function setupMocks({
     '@/app/hooks/useEmployerSurveyStep',
   );
   const useStepNavigation = jest.requireMock(
-    '../../../hooks/useStepNavigation',
+    '@/app/hooks/useEmployerStepNavigation',
   );
 
   useEmployerSurveyStep.mockReturnValue({
@@ -272,7 +272,7 @@ describe('Step5Content', () => {
     render(<Step5Content {...DEFAULT_PROPS} />);
 
     const useStepNavigation = jest.requireMock(
-      '../../../hooks/useStepNavigation',
+      '@/app/hooks/useEmployerStepNavigation',
     );
 
     expect(useStepNavigation).toHaveBeenCalledWith(

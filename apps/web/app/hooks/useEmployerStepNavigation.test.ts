@@ -2,14 +2,14 @@ import '@testing-library/jest-dom';
 import {renderHook} from '@testing-library/react';
 import {useRouter} from 'next/navigation';
 
-import useStepNavigation from './useStepNavigation';
+import useEmployerStepNavigation from './useEmployerStepNavigation';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({push: jest.fn()})),
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('../utils/surveyStepUtils', () => ({
+jest.mock('@/app/evp-architect/project/[projectId]/employer-survey/utils/surveyStepUtils', () => ({
   buildProjectUrl: jest.fn(
     (projectId: string) => `/evp-architect/project/${projectId}`,
   ),
@@ -34,7 +34,7 @@ describe('useStepNavigation', () => {
 
   it('navigateToStep(3) calls router.push with the correct URL', () => {
     const {result} = renderHook(() =>
-      useStepNavigation(PROJECT_ID, 1, ADMIN_TOKEN),
+      useEmployerStepNavigation(PROJECT_ID, 1, ADMIN_TOKEN),
     );
 
     result.current.navigateToStep(3);
@@ -46,7 +46,7 @@ describe('useStepNavigation', () => {
 
   it('navigateToNextStep() calls router.push for step + 1', () => {
     const {result} = renderHook(() =>
-      useStepNavigation(PROJECT_ID, 2, ADMIN_TOKEN),
+      useEmployerStepNavigation(PROJECT_ID, 2, ADMIN_TOKEN),
     );
 
     result.current.navigateToNextStep();
@@ -58,7 +58,7 @@ describe('useStepNavigation', () => {
 
   it('navigateToPreviousStep() calls router.push for step - 1 when currentStep > 1', () => {
     const {result} = renderHook(() =>
-      useStepNavigation(PROJECT_ID, 3, ADMIN_TOKEN),
+      useEmployerStepNavigation(PROJECT_ID, 3, ADMIN_TOKEN),
     );
 
     result.current.navigateToPreviousStep();
@@ -70,7 +70,7 @@ describe('useStepNavigation', () => {
 
   it('navigateToPreviousStep() does NOT navigate when currentStep is 1', () => {
     const {result} = renderHook(() =>
-      useStepNavigation(PROJECT_ID, 1, ADMIN_TOKEN),
+      useEmployerStepNavigation(PROJECT_ID, 1, ADMIN_TOKEN),
     );
 
     result.current.navigateToPreviousStep();
@@ -80,7 +80,7 @@ describe('useStepNavigation', () => {
 
   it('navigateToProject() calls router.push with the project URL', () => {
     const {result} = renderHook(() =>
-      useStepNavigation(PROJECT_ID, 2, ADMIN_TOKEN),
+      useEmployerStepNavigation(PROJECT_ID, 2, ADMIN_TOKEN),
     );
 
     result.current.navigateToProject();

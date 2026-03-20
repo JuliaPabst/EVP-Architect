@@ -7,7 +7,7 @@ import Step1Content from '.';
 
 jest.mock('@/app/hooks/useAdminTokenValidation', () => jest.fn());
 
-jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
+jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
 jest.mock('../../../components/MultiSelectWithTextStep', () => {
   return function MockMultiSelectWithTextStep({
@@ -52,7 +52,7 @@ describe('Step1Content', () => {
     jest.clearAllMocks();
 
     const useStepNavigation = jest.requireMock(
-      '../../../hooks/useStepNavigation',
+      '@/app/hooks/useEmployerStepNavigation',
     );
 
     useStepNavigation.mockReturnValue({

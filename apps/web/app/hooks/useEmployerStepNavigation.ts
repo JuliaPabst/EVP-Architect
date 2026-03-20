@@ -2,7 +2,7 @@ import {useCallback} from 'react';
 
 import {useRouter} from 'next/navigation';
 
-import {buildProjectUrl, buildStepUrl} from '../utils/surveyStepUtils';
+import {buildProjectUrl, buildStepUrl} from '@/app/evp-architect/project/[projectId]/employer-survey/utils/surveyStepUtils';
 
 interface UseStepNavigationResult {
   readonly navigateToNextStep: () => void;
@@ -22,7 +22,7 @@ interface UseStepNavigationResult {
  * @param adminToken - Admin token for authentication
  * @returns Navigation functions
  */
-export default function useStepNavigation(
+export default function useEmployerStepNavigation(
   projectId: string,
   currentStep: number,
   adminToken: string | null,

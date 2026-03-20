@@ -2,7 +2,7 @@ import {useCallback} from 'react';
 
 import {useRouter} from 'next/navigation';
 
-import {buildCompleteUrl, buildStepUrl} from '../utils/surveyStepUtils';
+import {buildCompleteUrl, buildStepUrl} from '@/app/evp-architect/project/[projectId]/employee-survey/utils/surveyStepUtils';
 
 interface UseStepNavigationResult {
   readonly navigateToComplete: () => void;
@@ -18,7 +18,7 @@ interface UseStepNavigationResult {
  * @param currentStep - Current step number (1-5)
  * @returns Navigation functions
  */
-export default function useStepNavigation(
+export default function useEmployeeStepNavigation(
   projectId: string,
   currentStep: number,
 ): UseStepNavigationResult {

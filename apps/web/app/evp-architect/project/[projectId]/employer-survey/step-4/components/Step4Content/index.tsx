@@ -1,7 +1,7 @@
 'use client';
 
 import MultiSelectWithTextStep from '../../../components/MultiSelectWithTextStep';
-import useStepNavigation from '../../../hooks/useStepNavigation';
+import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 
 interface Step4ContentProps {
   readonly adminToken: string | null;

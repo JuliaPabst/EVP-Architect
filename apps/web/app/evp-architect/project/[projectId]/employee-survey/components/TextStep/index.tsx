@@ -3,8 +3,8 @@
 import StepContentLayout from '@/app/components/survey/StepContentLayout';
 import NavigationButtons from '@/app/components/survey/NavigationButtons';
 import TextSection from '@/app/components/survey/TextSection';
-import useStepNavigation from '../../hooks/useStepNavigation';
-import useSurveyStepState from '../../hooks/useSurveyStepState';
+import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
+import useSurveyStepState from '@/app/hooks/useSurveyStepState';
 import {findTextQuestion} from '../../utils/surveyStepUtils';
 
 import styles from './index.module.scss';

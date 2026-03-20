@@ -3,7 +3,7 @@ import {render, screen} from '@testing-library/react';
 
 import Step4Content from '.';
 
-jest.mock('../../../hooks/useStepNavigation', () => jest.fn());
+jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
 jest.mock('../../../components/MultiSelectWithTextStep', () => {
   return function MockMultiSelectWithTextStep({
@@ -35,7 +35,7 @@ describe('Step4Content', () => {
     jest.clearAllMocks();
 
     const useStepNavigation = jest.requireMock(
-      '../../../hooks/useStepNavigation',
+      '@/app/hooks/useEmployerStepNavigation',
     );
 
     useStepNavigation.mockReturnValue({
@@ -61,7 +61,7 @@ describe('Step4Content', () => {
     render(<Step4Content {...DEFAULT_PROPS} />);
 
     const useStepNavigation = jest.requireMock(
-      '../../../hooks/useStepNavigation',
+      '@/app/hooks/useEmployerStepNavigation',
     );
 
     expect(useStepNavigation).toHaveBeenCalledWith(

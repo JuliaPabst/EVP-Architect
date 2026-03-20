@@ -2,7 +2,7 @@
 
 import SelectedCompany from '@/app/components/survey/SelectedCompany';
 import MultiSelectStep from '../../../components/MultiSelectStep';
-import useStepNavigation from '../../../hooks/useStepNavigation';
+import useStepNavigation from '@/app/hooks/useEmployeeStepNavigation';
 
 import useProjectInfo from '@/app/hooks/useProjectInfo';
 
