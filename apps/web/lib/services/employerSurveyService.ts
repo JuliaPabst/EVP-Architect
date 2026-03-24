@@ -1,3 +1,10 @@
+import {
+  buildStepData,
+  processAnswer,
+  validateMultiSelectAnswer,
+  validateTextAnswer,
+} from './surveyServiceHelpers';
+
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
 import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
@@ -7,12 +14,6 @@ import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRep
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
 import {StepResponse, SurveyQuestion} from '@/lib/types/survey';
 import {AnswerInput} from '@/lib/validation/surveySchemas';
-import {
-  buildStepData,
-  processAnswer,
-  validateMultiSelectAnswer,
-  validateTextAnswer,
-} from './surveyServiceHelpers';
 
 /**
  * Service for employer survey operations

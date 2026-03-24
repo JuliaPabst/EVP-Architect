@@ -1,4 +1,9 @@
-export type {FocusOption, SurveyQuestion as Question} from '@/lib/utils/surveyStepUtils';
+import type {SurveyQuestion as Question} from '@/lib/utils/surveyStepUtils';
+
+export type {
+  FocusOption,
+  SurveyQuestion as Question,
+} from '@/lib/utils/surveyStepUtils';
 export {
   buildAnswersPayload,
   extractMultiSelectValues,
@@ -7,8 +12,6 @@ export {
   findTextQuestion,
   transformOptionsForSelection,
 } from '@/lib/utils/surveyStepUtils';
-
-import type {SurveyQuestion as Question} from '@/lib/utils/surveyStepUtils';
 
 /**
  * Build text answers payload for steps with multiple text questions

@@ -9,12 +9,7 @@ import {
   transformOptionsForSelection,
 } from '../../utils/surveyStepUtils';
 
-import styles from './index.module.scss';
-
-import FocusSelection from '@/app/components/survey/FocusSelection';
-import NavigationButtons from '@/app/components/survey/NavigationButtons';
-import StepContentLayout from '@/app/components/survey/StepContentLayout';
-import TextSection from '@/app/components/survey/TextSection';
+import MultiSelectStepLayout from '@/app/components/survey/MultiSelectStepLayout';
 import useStepNavigation from '@/app/hooks/useEmployerStepNavigation';
 import useEmployerSurveyStep from '@/app/hooks/useEmployerSurveyStep';
 import useSurveyStepState from '@/app/hooks/useSurveyStepState';
@@ -30,7 +25,7 @@ interface MultiSelectWithTextStepProps {
 }
 
 /**
- * Common component for survey steps that have:
+ * Common component for employer survey steps that have:
  * - Multi-select question with chips (FocusSelection)
  * - Optional text question (TextSection)
  * - Navigation buttons
@@ -68,18 +63,14 @@ export default function MultiSelectWithTextStep({
     adminToken,
   );
 
-  // Find the relevant questions from fetched data
   const multiSelectQuestion = findQuestionByType(
     stepData?.questions,
     'multi_select',
   );
   const textQuestion = findTextQuestion(stepData?.questions);
-
-  // Transform options for FocusSelection component
   const focusOptions = transformOptionsForSelection(
     multiSelectQuestion?.options,
   );
-
   const maxSelections = multiSelectQuestion?.selection_limit || 5;
   const canContinue =
     selectedFactors.length >= 1 && selectedFactors.length <= maxSelections;
@@ -100,59 +91,26 @@ export default function MultiSelectWithTextStep({
     if (saved) navigateToNextStep();
   };
 
-  // Show error if no data loaded
-  if (!isLoading && (!stepData || !multiSelectQuestion)) {
-    return (
-      <StepContentLayout
-        currentStep={stepNumber}
-        error="Failed to load survey questions"
-        isLoading={false}
-        stepTitle={stepTitle}
-      >
-        <div />
-      </StepContentLayout>
-    );
-  }
-
   return (
-    <StepContentLayout
-      currentStep={stepNumber}
+    <MultiSelectStepLayout
+      additionalContext={additionalContext}
+      canContinue={canContinue}
       error={error}
+      focusOptions={focusOptions}
+      headerContent={headerContent}
       isLoading={isLoading}
+      isSaving={isSaving}
+      maxSelections={maxSelections}
+      multiSelectQuestion={multiSelectQuestion}
+      onBack={onBackNavigation}
+      onContinue={handleContinue}
+      selectedFactors={selectedFactors}
+      setAdditionalContext={setAdditionalContext}
+      setSelectedFactors={setSelectedFactors}
+      showBackButton={showBackButton}
+      stepNumber={stepNumber}
       stepTitle={stepTitle}
-    >
-      {stepData && multiSelectQuestion && (
-        <>
-          {headerContent}
-
-          <FocusSelection
-            initialValue={selectedFactors}
-            maxSelections={maxSelections}
-            minSelections={1}
-            onChange={setSelectedFactors}
-            options={focusOptions}
-            title={multiSelectQuestion.prompt}
-          />
-
-          {textQuestion && (
-            <TextSection
-              onChange={setAdditionalContext}
-              placeholder=""
-              title={textQuestion.prompt}
-              value={additionalContext}
-            />
-          )}
-
-          {error && <div className={styles.errorMessage}>{error}</div>}
-
-          <NavigationButtons
-            canContinue={canContinue && !isSaving}
-            onBack={onBackNavigation}
-            onContinue={handleContinue}
-            showBackButton={showBackButton}
-          />
-        </>
-      )}
-    </StepContentLayout>
+      textQuestion={textQuestion}
+    />
   );
 }

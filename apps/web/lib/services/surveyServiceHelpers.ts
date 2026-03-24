@@ -158,9 +158,7 @@ export async function buildStepData(
  */
 export function validateTextAnswer(answer: AnswerInput): void {
   if (answer.answer_text === undefined) {
-    throw new Error(
-      `answer_text required for question ${answer.question_id}`,
-    );
+    throw new Error(`answer_text required for question ${answer.question_id}`);
   }
 
   if ((answer.selected_values?.length ?? 0) > 0) {
