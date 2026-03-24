@@ -189,8 +189,9 @@ export default function useEmployeeSurveyStep(
         // Get or create submission
         let currentSubmissionId = getStoredSubmissionId(projectId);
 
+        const submissionIdParam = currentSubmissionId ? `&submission_id=${currentSubmissionId}` : '';
         const submissionResponse = await fetch(
-          `/api/employee-survey/submission?projectId=${projectId}${currentSubmissionId ? `&submission_id=${currentSubmissionId}` : ''}`,
+          `/api/employee-survey/submission?projectId=${projectId}${submissionIdParam}`,
           {method: 'POST'},
         );
 
@@ -200,15 +201,16 @@ export default function useEmployeeSurveyStep(
 
         const submissionData = await submissionResponse.json();
 
-        currentSubmissionId = submissionData.submission_id;
-        storeSubmissionId(projectId, currentSubmissionId);
+        const fetchedSubmissionId: string = submissionData.submission_id;
+        currentSubmissionId = fetchedSubmissionId;
+        storeSubmissionId(projectId, fetchedSubmissionId);
 
         if (!isDisposed) {
-          setSubmissionId(currentSubmissionId);
+          setSubmissionId(fetchedSubmissionId);
         }
 
         // Check cache
-        const cacheKey = getCacheKey(projectId, currentSubmissionId, step);
+        const cacheKey = getCacheKey(projectId, fetchedSubmissionId, step);
         const cached = getCachedStepData(cacheKey);
 
         if (cached) {
