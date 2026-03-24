@@ -2,20 +2,8 @@ import {NextRequest, NextResponse} from 'next/server';
 
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import EmployeeSurveyService from '@/lib/services/employeeSurveyService';
-import {saveStepAnswersSchema} from '@/lib/validation/employeeSurveySchemas';
-
-/**
- * Validate step parameter and return parsed number
- */
-function validateStep(stepParam: string): number | null {
-  const step = Number.parseInt(stepParam, 10);
-
-  if (Number.isNaN(step) || step < 1 || step > 5) {
-    return null;
-  }
-
-  return step;
-}
+import {handleServiceError, validateStep} from '@/lib/utils/apiStepUtils';
+import {saveStepAnswersSchema} from '@/lib/validation/surveySchemas';
 
 /**
  * Extract and validate projectId and submission_id from request
@@ -85,34 +73,6 @@ export async function GET(
 
     return NextResponse.json(stepData);
   }, 'GET /api/employee-survey/step/[step]');
-}
-
-/**
- * Handle service errors and convert to appropriate HTTP responses
- */
-function handleServiceError(error: unknown): NextResponse | null {
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-  if (errorMessage.includes('does not belong to step')) {
-    return BadRequestError.invalidQuestionForStep();
-  }
-
-  if (
-    errorMessage.includes('Question not found') ||
-    errorMessage.includes('not an employee question')
-  ) {
-    return BadRequestError.validationFailed();
-  }
-
-  if (
-    errorMessage.includes('required') ||
-    errorMessage.includes('must be empty') ||
-    errorMessage.includes('Too many values')
-  ) {
-    return BadRequestError.validationFailed();
-  }
-
-  return null;
 }
 
 /**
