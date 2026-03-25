@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import type {ReactNode} from 'react';
 
-import {render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
 import TextStep from '.';
 
@@ -234,5 +234,152 @@ describe('TextStep', () => {
     render(<TextStep {...DEFAULT_PROPS} stepNumber={2} />);
 
     expect(screen.getByRole('button', {name: 'Back'})).toBeInTheDocument();
+  });
+
+  it('calls navigateToNextStep when Continue is clicked on a non-last step and save succeeds', async () => {
+    const mockNavigateToNextStep = jest.fn();
+    const mockSaveAnswers = jest.fn().mockResolvedValue(true);
+
+    const useStepNavigation = jest.requireMock(
+      '@/app/hooks/useEmployeeStepNavigation',
+    );
+
+    useStepNavigation.mockReturnValue({
+      navigateToComplete: jest.fn(),
+      navigateToNextStep: mockNavigateToNextStep,
+      navigateToPreviousStep: jest.fn(),
+    });
+
+    const useEmployeeSurveyStep = jest.requireMock(
+      '@/app/hooks/useEmployeeSurveyStep',
+    );
+
+    useEmployeeSurveyStep.mockReturnValue({
+      error: null,
+      isLoading: false,
+      isSaving: false,
+      saveAnswers: mockSaveAnswers,
+      stepData: MOCK_STEP_DATA,
+    });
+
+    const useSurveyStepState = jest.requireMock(
+      '@/app/hooks/useSurveyStepState',
+    );
+
+    useSurveyStepState.mockReturnValue({
+      setTextAnswer: jest.fn(),
+      textAnswers: {'txt-q1': 'Some answer'},
+    });
+
+    render(<TextStep {...DEFAULT_PROPS} stepNumber={2} />);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    await waitFor(() => {
+      expect(mockNavigateToNextStep).toHaveBeenCalled();
+    });
+  });
+
+  it('calls navigateToComplete when Continue is clicked on the last step and save succeeds', async () => {
+    const mockNavigateToComplete = jest.fn();
+    const mockSaveAnswers = jest.fn().mockResolvedValue(true);
+
+    const useStepNavigation = jest.requireMock(
+      '@/app/hooks/useEmployeeStepNavigation',
+    );
+
+    useStepNavigation.mockReturnValue({
+      navigateToComplete: mockNavigateToComplete,
+      navigateToNextStep: jest.fn(),
+      navigateToPreviousStep: jest.fn(),
+    });
+
+    const useEmployeeSurveyStep = jest.requireMock(
+      '@/app/hooks/useEmployeeSurveyStep',
+    );
+
+    useEmployeeSurveyStep.mockReturnValue({
+      error: null,
+      isLoading: false,
+      isSaving: false,
+      saveAnswers: mockSaveAnswers,
+      stepData: MOCK_STEP_DATA,
+    });
+
+    const useSurveyStepState = jest.requireMock(
+      '@/app/hooks/useSurveyStepState',
+    );
+
+    useSurveyStepState.mockReturnValue({
+      setTextAnswer: jest.fn(),
+      textAnswers: {'txt-q1': 'Final answer'},
+    });
+
+    render(<TextStep {...DEFAULT_PROPS} stepNumber={5} />);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    await waitFor(() => {
+      expect(mockNavigateToComplete).toHaveBeenCalled();
+    });
+  });
+
+  it('does not navigate when save fails', async () => {
+    const mockNavigateToNextStep = jest.fn();
+    const mockSaveAnswers = jest.fn().mockResolvedValue(false);
+
+    const useStepNavigation = jest.requireMock(
+      '@/app/hooks/useEmployeeStepNavigation',
+    );
+
+    useStepNavigation.mockReturnValue({
+      navigateToComplete: jest.fn(),
+      navigateToNextStep: mockNavigateToNextStep,
+      navigateToPreviousStep: jest.fn(),
+    });
+
+    const useEmployeeSurveyStep = jest.requireMock(
+      '@/app/hooks/useEmployeeSurveyStep',
+    );
+
+    useEmployeeSurveyStep.mockReturnValue({
+      error: null,
+      isLoading: false,
+      isSaving: false,
+      saveAnswers: mockSaveAnswers,
+      stepData: MOCK_STEP_DATA,
+    });
+
+    const useSurveyStepState = jest.requireMock(
+      '@/app/hooks/useSurveyStepState',
+    );
+
+    useSurveyStepState.mockReturnValue({
+      setTextAnswer: jest.fn(),
+      textAnswers: {'txt-q1': 'Some answer'},
+    });
+
+    render(<TextStep {...DEFAULT_PROPS} stepNumber={2} />);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    await waitFor(() => {
+      expect(mockSaveAnswers).toHaveBeenCalled();
+    });
+
+    expect(mockNavigateToNextStep).not.toHaveBeenCalled();
+  });
+
+  it('shows inline error message when error is present alongside step content', () => {
+    setupMocks({
+      error: 'Failed to save your answer',
+      isLoading: false,
+      stepData: MOCK_STEP_DATA,
+      textAnswers: {'txt-q1': 'Some text'},
+    });
+
+    render(<TextStep {...DEFAULT_PROPS} />);
+
+    expect(screen.getByText('Failed to save your answer')).toBeInTheDocument();
   });
 });

@@ -229,6 +229,79 @@ describe('SurveySubmissionRepository', () => {
     });
   });
 
+  describe('getOrCreateEmployeeSubmission', () => {
+    const mockSubmission: SurveySubmission = {
+      id: 'employee-sub-1',
+      project_id: 'project1',
+      respondent_meta: {},
+      started_at: '2024-01-01T00:00:00Z',
+      status: 'in_progress',
+      submitted_at: null,
+      survey_type: 'employee',
+    };
+
+    it('should return existing submission when submissionId is provided and found', async () => {
+      mockSingle.mockResolvedValue({data: mockSubmission, error: null});
+      mockEq.mockReturnValue({eq: mockEq, single: mockSingle});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const result = await repository.getOrCreateEmployeeSubmission(
+        'employee-sub-1',
+        'project1',
+      );
+
+      expect(result).toEqual(mockSubmission);
+      expect(mockInsert).not.toHaveBeenCalled();
+    });
+
+    it('should create a new submission when submissionId is provided but not found', async () => {
+      const newSubmission = {...mockSubmission, id: 'new-employee-sub'};
+
+      mockSingle
+        .mockResolvedValueOnce({
+          data: null,
+          error: {code: 'PGRST116', message: 'Not found'},
+        })
+        .mockResolvedValueOnce({data: newSubmission, error: null});
+
+      mockEq.mockReturnValue({eq: mockEq, single: mockSingle});
+      mockSelect.mockReturnValue({eq: mockEq, single: mockSingle});
+      mockInsert.mockReturnValue({select: mockSelect});
+      mockFrom.mockReturnValue({insert: mockInsert, select: mockSelect});
+
+      const result = await repository.getOrCreateEmployeeSubmission(
+        'employee-sub-1',
+        'project1',
+      );
+
+      expect(result).toEqual(newSubmission);
+      expect(mockInsert).toHaveBeenCalled();
+    });
+
+    it('should create a new submission when submissionId is null', async () => {
+      const newSubmission = {...mockSubmission, id: 'brand-new-sub'};
+
+      mockSingle.mockResolvedValue({data: newSubmission, error: null});
+      mockSelect.mockReturnValue({single: mockSingle});
+      mockInsert.mockReturnValue({select: mockSelect});
+      mockFrom.mockReturnValue({insert: mockInsert});
+
+      const result = await repository.getOrCreateEmployeeSubmission(
+        null,
+        'project1',
+      );
+
+      expect(result).toEqual(newSubmission);
+      expect(mockInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          project_id: 'project1',
+          survey_type: 'employee',
+        }),
+      );
+    });
+  });
+
   describe('markAsSubmitted', () => {
     it('should mark submission as submitted', async () => {
       mockEq.mockResolvedValue({error: null});
