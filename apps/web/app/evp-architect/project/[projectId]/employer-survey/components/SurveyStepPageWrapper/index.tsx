@@ -1,14 +1,8 @@
 'use client';
 
-import {ReactNode, Suspense} from 'react';
+import {ReactNode} from 'react';
 
-import UnunuBackground, {
-  UnunuBackgroundColors,
-} from '@kununu/ui/atoms/UnunuBackground';
-
-import styles from './index.module.scss';
-
-import KununuHeader from '@/app/components/KununuHeader';
+import SharedSurveyStepPageWrapper from '@/app/components/survey/SurveyStepPageWrapper';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 
 interface SurveyStepPageWrapperProps {
@@ -18,8 +12,8 @@ interface SurveyStepPageWrapperProps {
 }
 
 /**
- * Reusable page wrapper for all employer survey steps
- * Handles layout, background, header, and authentication
+ * Employer survey page wrapper.
+ * Validates admin token and delegates layout to the shared SurveyStepPageWrapper.
  */
 export default function SurveyStepPageWrapper({
   adminToken,
@@ -29,20 +23,8 @@ export default function SurveyStepPageWrapper({
   const {isValidating} = useAdminTokenValidation(projectId, adminToken);
 
   return (
-    <div className={styles.pageWrapper}>
-      <div className={styles.backgroundWrapper}>
-        <UnunuBackground color={UnunuBackgroundColors.YELLOW} />
-      </div>
-      <div className={styles.header}>
-        <KununuHeader />
-      </div>
-      <main className={styles.content}>
-        {isValidating ? (
-          <div data-testid="loading">Loading...</div>
-        ) : (
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-        )}
-      </main>
-    </div>
+    <SharedSurveyStepPageWrapper isValidating={isValidating}>
+      {children}
+    </SharedSurveyStepPageWrapper>
   );
 }

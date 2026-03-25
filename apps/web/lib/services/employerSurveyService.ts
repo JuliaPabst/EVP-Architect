@@ -1,3 +1,10 @@
+import {
+  buildStepData,
+  processAnswer,
+  validateMultiSelectAnswer,
+  validateTextAnswer,
+} from './surveyServiceHelpers';
+
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';
 import {SelectionOptionRepository} from '@/lib/repositories/selectionOptionRepository';
@@ -5,14 +12,8 @@ import {SurveyAnswerRepository} from '@/lib/repositories/surveyAnswerRepository'
 import {SurveyQuestionRepository} from '@/lib/repositories/surveyQuestionRepository';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
 import {ValueSelectionRepository} from '@/lib/repositories/valueSelectionRepository';
-import {
-  QuestionWithAnswer,
-  StepResponse,
-  SurveyQuestion,
-} from '@/lib/types/survey';
-import {AnswerInput} from '@/lib/validation/employerSurveySchemas';
-
-// Export as default to satisfy linting rules
+import {StepResponse, SurveyQuestion} from '@/lib/types/survey';
+import {AnswerInput} from '@/lib/validation/surveySchemas';
 
 /**
  * Service for employer survey operations
@@ -55,142 +56,15 @@ class EmployerSurveyService {
       this.submissionRepository.getOrCreateEmployerSubmission(projectId),
     ]);
 
-    const questionIds = questions.map(q => q.id);
-    const singleSelectKeys = questions
-      .filter(q => q.question_type === 'single_select')
-      .map(q => q.key);
-
-    const hasCoreValuesQuestion = questions.some(
-      q => q.question_type === 'multi_select' && q.key === 'core_values',
-    );
-    const hasExcludeValuesQuestion = questions.some(
-      q => q.question_type === 'multi_select' && q.key === 'exclude_values',
-    );
-    const hasFallbackMultiSelectQuestion = questions.some(
-      q =>
-        q.question_type === 'multi_select' &&
-        q.key !== 'core_values' &&
-        q.key !== 'exclude_values',
-    );
-
-    const shouldFetchAllSelectionOptions = hasFallbackMultiSelectQuestion;
-    const shouldFetchValueSelectionOptions =
-      !shouldFetchAllSelectionOptions && hasCoreValuesQuestion;
-    const shouldFetchAreaSelectionOptions =
-      !shouldFetchAllSelectionOptions && hasExcludeValuesQuestion;
-
-    const answersPromise = this.answerRepository.getAnswersByQuestions(
+    return buildStepData(
       submission.id,
-      questionIds,
-    );
-    const questionOptionsPromise =
-      singleSelectKeys.length > 0
-        ? this.questionOptionRepository.getOptionsByQuestionKeys(
-            singleSelectKeys,
-          )
-        : Promise.resolve(
-            new Map<string, {label: string; value_key: string}[]>(),
-          );
-    const allSelectionOptionsPromise = shouldFetchAllSelectionOptions
-      ? this.selectionOptionRepository.getAllOptions()
-      : Promise.resolve([]);
-    const valueSelectionOptionsPromise = shouldFetchValueSelectionOptions
-      ? this.selectionOptionRepository.getOptionsByType('value')
-      : Promise.resolve([]);
-    const areaSelectionOptionsPromise = shouldFetchAreaSelectionOptions
-      ? this.selectionOptionRepository.getOptionsByType('area')
-      : Promise.resolve([]);
-
-    const answersMap = await answersPromise;
-    const answerIds = Array.from(answersMap.values()).map(answer => answer.id);
-    const selectionsPromise =
-      this.valueSelectionRepository.getSelectionsByAnswers(answerIds);
-
-    const [
-      selectionsMap,
-      questionOptionsMap,
-      allSelectionOptions,
-      valueSelectionOptions,
-      areaSelectionOptions,
-    ] = await Promise.all([
-      selectionsPromise,
-      questionOptionsPromise,
-      allSelectionOptionsPromise,
-      valueSelectionOptionsPromise,
-      areaSelectionOptionsPromise,
-    ]);
-
-    const mapSelectionOptions = (
-      selectionOptions: readonly {key: string; label_de: string}[],
-    ) =>
-      selectionOptions.map(option => ({
-        label: option.label_de,
-        value_key: option.key,
-      }));
-
-    // Merge questions with answers and options
-    const questionsWithAnswers: QuestionWithAnswer[] = questions.map(q => {
-      const answer = answersMap.get(q.id);
-
-      // Base question fields
-      const baseQuestion = {
-        id: q.id,
-        key: q.key,
-        prompt: q.prompt,
-        question_type: q.question_type,
-        selection_limit: q.selection_limit,
-      };
-
-      // Add options for select-type questions
-      let options: {label: string; value_key: string}[] | undefined;
-
-      if (q.question_type === 'single_select') {
-        options = questionOptionsMap.get(q.key) || [];
-      } else if (q.question_type === 'multi_select') {
-        if (shouldFetchAllSelectionOptions) {
-          options = mapSelectionOptions(allSelectionOptions);
-        } else if (q.key === 'core_values') {
-          options = mapSelectionOptions(valueSelectionOptions);
-        } else if (q.key === 'exclude_values') {
-          options = mapSelectionOptions(areaSelectionOptions);
-        } else {
-          options = [];
-        }
-      }
-
-      if (!answer) {
-        return {
-          ...baseQuestion,
-          answer: null,
-          ...(options && {options}),
-        };
-      }
-
-      // Build answer object based on question type
-      if (
-        q.question_type === 'single_select' ||
-        q.question_type === 'multi_select'
-      ) {
-        const values = selectionsMap.get(answer.id) || [];
-
-        return {
-          ...baseQuestion,
-          answer: {values},
-          ...(options && {options}),
-        };
-      }
-
-      // text or long_text
-      return {
-        ...baseQuestion,
-        answer: answer.answer_text ? {text: answer.answer_text} : null,
-      };
-    });
-
-    return {
-      questions: questionsWithAnswers,
       step,
-    };
+      questions,
+      this.answerRepository,
+      this.questionOptionRepository,
+      this.selectionOptionRepository,
+      this.valueSelectionRepository,
+    );
   }
 
   /**
@@ -217,23 +91,6 @@ class EmployerSurveyService {
   }
 
   /**
-   * Validate text or long_text answer
-   */
-  private static validateTextAnswer(answer: AnswerInput): void {
-    if (answer.answer_text === undefined) {
-      throw new Error(
-        `answer_text required for question ${answer.question_id}`,
-      );
-    }
-
-    if ((answer.selected_values?.length ?? 0) > 0) {
-      throw new Error(
-        `selected_values must be empty for text question ${answer.question_id}`,
-      );
-    }
-  }
-
-  /**
    * Validate single_select answer
    */
   private static validateSingleSelectAnswer(answer: AnswerInput): void {
@@ -251,32 +108,6 @@ class EmployerSurveyService {
   }
 
   /**
-   * Validate multi_select answer
-   */
-  private static validateMultiSelectAnswer(
-    answer: AnswerInput,
-    selectionLimit: number | null,
-  ): void {
-    if (!answer.selected_values?.length) {
-      throw new Error(
-        `At least 1 value required for multi_select question ${answer.question_id}`,
-      );
-    }
-
-    if (selectionLimit && answer.selected_values.length > selectionLimit) {
-      throw new Error(
-        `Too many values for multi_select question ${answer.question_id} (limit: ${selectionLimit})`,
-      );
-    }
-
-    if (answer.answer_text) {
-      throw new Error(
-        `answer_text must be empty for multi_select question ${answer.question_id}`,
-      );
-    }
-  }
-
-  /**
    * Validate answer based on question type
    */
   private static validateAnswerForQuestionType(
@@ -288,7 +119,7 @@ class EmployerSurveyService {
       question.question_type === 'long_text';
 
     if (isTextType) {
-      EmployerSurveyService.validateTextAnswer(answer);
+      validateTextAnswer(answer);
       return;
     }
 
@@ -298,44 +129,7 @@ class EmployerSurveyService {
     }
 
     if (question.question_type === 'multi_select') {
-      EmployerSurveyService.validateMultiSelectAnswer(
-        answer,
-        question.selection_limit,
-      );
-    }
-  }
-
-  /**
-   * Process a single answer (upsert and handle selections)
-   */
-  private async processAnswer(
-    submissionId: string,
-    answer: AnswerInput,
-    question: SurveyQuestion,
-  ): Promise<void> {
-    // Upsert answer
-    const savedAnswer = await this.answerRepository.upsertAnswer(
-      submissionId,
-      answer.question_id,
-      answer.answer_text || null,
-    );
-
-    // Handle selections for select-type questions
-    const isSelectType =
-      question.question_type === 'single_select' ||
-      question.question_type === 'multi_select';
-
-    if (isSelectType) {
-      await this.valueSelectionRepository.deleteSelectionsByAnswer(
-        savedAnswer.id,
-      );
-
-      if (answer.selected_values && answer.selected_values.length > 0) {
-        await this.valueSelectionRepository.insertSelections(
-          savedAnswer.id,
-          answer.selected_values,
-        );
-      }
+      validateMultiSelectAnswer(answer, question.selection_limit);
     }
   }
 
@@ -352,16 +146,13 @@ class EmployerSurveyService {
     step: number,
     answers: readonly AnswerInput[],
   ): Promise<void> {
-    // Get or create employer submission
     const submission =
       await this.submissionRepository.getOrCreateEmployerSubmission(projectId);
 
-    // Fetch all questions by IDs
     const questionIds = answers.map(a => a.question_id);
     const questionsMap =
       await this.questionRepository.getQuestionsByIds(questionIds);
 
-    // Validate all questions and answers
     for (const answer of answers) {
       EmployerSurveyService.validateQuestionExists(answer, questionsMap, step);
       const question = questionsMap.get(answer.question_id)!;
@@ -369,12 +160,17 @@ class EmployerSurveyService {
       EmployerSurveyService.validateAnswerForQuestionType(answer, question);
     }
 
-    // Process all answers (transaction-like behavior through sequential operations)
     await answers.reduce(async (previousPromise, answer) => {
       await previousPromise;
       const question = questionsMap.get(answer.question_id)!;
 
-      await this.processAnswer(submission.id, answer, question);
+      await processAnswer(
+        submission.id,
+        answer,
+        question,
+        this.answerRepository,
+        this.valueSelectionRepository,
+      );
     }, Promise.resolve());
   }
 
@@ -391,12 +187,10 @@ class EmployerSurveyService {
     projectId: string,
     projectStatus: string,
   ): Promise<void> {
-    // Validate project state
     if (projectStatus !== 'employer_survey_in_progress') {
       throw new Error('invalid_project_state');
     }
 
-    // Fetch employer submission
     const submission = await this.submissionRepository.findSubmission(
       projectId,
       'employer',
@@ -406,20 +200,16 @@ class EmployerSurveyService {
       throw new Error('no_submission_found');
     }
 
-    // Check if already completed
     if (submission.status === 'submitted') {
       throw new Error('already_completed');
     }
 
-    // Fetch all employer question IDs
     const allQuestionIds =
       await this.questionRepository.getAllQuestionIds('employer');
 
-    // Fetch answered question IDs
     const answeredQuestionIds =
       await this.answerRepository.getAnsweredQuestionIds(submission.id);
 
-    // Find missing questions
     const answeredSet = new Set(answeredQuestionIds);
     const missingQuestionIds = allQuestionIds.filter(
       qid => !answeredSet.has(qid),
@@ -435,19 +225,14 @@ class EmployerSurveyService {
       throw error;
     }
 
-    // Atomic updates (note: in production, wrap in PostgreSQL function for true atomicity)
     try {
-      // Update submission status
       await this.submissionRepository.markAsSubmitted(submission.id);
 
-      // Update project status
       await this.projectRepository.updateStatus(
         projectId,
         'employer_survey_completed',
       );
     } catch (error) {
-      // If either operation fails, throw error
-      // In production, this should be wrapped in a database transaction
       throw new Error(`Failed to complete survey: ${(error as Error).message}`);
     }
   }

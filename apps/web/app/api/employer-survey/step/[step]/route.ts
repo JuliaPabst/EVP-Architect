@@ -3,20 +3,8 @@ import {NextRequest, NextResponse} from 'next/server';
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import EmployerSurveyService from '@/lib/services/employerSurveyService';
-import {saveStepAnswersSchema} from '@/lib/validation/employerSurveySchemas';
-
-/**
- * Validate step parameter and return parsed number
- */
-function validateStep(stepParam: string): number | null {
-  const step = Number.parseInt(stepParam, 10);
-
-  if (Number.isNaN(step) || step < 1 || step > 5) {
-    return null;
-  }
-
-  return step;
-}
+import {handleServiceError, validateStep} from '@/lib/utils/apiStepUtils';
+import {saveStepAnswersSchema} from '@/lib/validation/surveySchemas';
 
 /**
  * Validate project access and step parameter
@@ -29,14 +17,12 @@ async function validateStepRequest(
   | {projectId: string; step: number; success: true}
   | {error: NextResponse; success: false}
 > {
-  // Validate project access
   const validation = await validateProjectAccess(request);
 
   if (!validation.success) {
     return {error: validation.error!, success: false};
   }
 
-  // Parse and validate step
   const step = validateStep(stepParam);
 
   if (step === null) {
@@ -89,7 +75,6 @@ export async function GET(
   {params}: {readonly params: {readonly step: string}},
 ): Promise<NextResponse> {
   return handleApiError(async () => {
-    // Validate project access and step
     const validation = await validateStepRequest(request, params.step);
 
     if (!validation.success) {
@@ -98,41 +83,11 @@ export async function GET(
 
     const {projectId, step} = validation;
 
-    // Fetch step data
     const service = new EmployerSurveyService();
     const stepData = await service.getStepData(projectId, step);
 
     return NextResponse.json(stepData);
   }, 'GET /api/employer-survey/step/[step]');
-}
-
-/**
- * Handle service errors and convert to appropriate HTTP responses
- */
-function handleServiceError(error: unknown): NextResponse | null {
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-  if (errorMessage.includes('does not belong to step')) {
-    return BadRequestError.invalidQuestionForStep();
-  }
-
-  if (
-    errorMessage.includes('Question not found') ||
-    errorMessage.includes('not an employer question')
-  ) {
-    return BadRequestError.validationFailed();
-  }
-
-  if (
-    errorMessage.includes('required') ||
-    errorMessage.includes('must be empty') ||
-    errorMessage.includes('Too many values')
-  ) {
-    return BadRequestError.validationFailed();
-  }
-
-  // Return null to indicate the error should be re-thrown
-  return null;
 }
 
 /**
@@ -168,7 +123,6 @@ export async function POST(
   {params}: {readonly params: {readonly step: string}},
 ): Promise<NextResponse> {
   return handleApiError(async () => {
-    // Validate project access and step
     const validation = await validateStepRequest(request, params.step);
 
     if (!validation.success) {
@@ -177,7 +131,6 @@ export async function POST(
 
     const {projectId, step} = validation;
 
-    // Parse and validate request body
     const body = await request.json();
     const parseResult = saveStepAnswersSchema.safeParse(body);
 
@@ -187,7 +140,6 @@ export async function POST(
 
     const {answers} = parseResult.data;
 
-    // Save answers
     const service = new EmployerSurveyService();
 
     try {

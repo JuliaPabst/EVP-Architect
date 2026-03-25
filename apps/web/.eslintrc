@@ -23,6 +23,12 @@
       }
     },
     {
+      "files": ["app/api/**/route.ts"],
+      "rules": {
+        "import/prefer-default-export": "off"
+      }
+    },
+    {
       "files": ["*.test.ts", "*.test.tsx", "*.spec.ts", "*.spec.tsx"],
       "rules": {
         "testing-library/no-container": "warn",
