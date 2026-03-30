@@ -2,21 +2,30 @@
 // Generated: 2026-03-27
 
 export type EvpProjectStatus =
-  | "employer_survey_in_progress"
-  | "employer_survey_completed"
-  | "employee_survey_active"
-  | "evp_generation_available"
-  | "evp_generated";
+  | 'employer_survey_in_progress'
+  | 'employer_survey_completed'
+  | 'employee_survey_active'
+  | 'evp_generation_available'
+  | 'evp_generated';
 
-export type EvpSurveyType = "employer" | "employee";
+export type EvpSurveyType = 'employer' | 'employee';
 
-export type EvpQuestionType = "text" | "long_text" | "single_select" | "multi_select";
+export type EvpQuestionType =
+  | 'text'
+  | 'long_text'
+  | 'single_select'
+  | 'multi_select';
 
-export type EvpSubmissionStatus = "in_progress" | "submitted";
+export type EvpSubmissionStatus = 'in_progress' | 'submitted';
 
-export type EvpSelectionOptionType = "value" | "area";
+export type EvpSelectionOptionType = 'value' | 'area';
 
-export type EvpPipelineStep = "assembly" | "analysis" | "internal" | "external" | "gap_analysis";
+export type EvpPipelineStep =
+  | 'assembly'
+  | 'analysis'
+  | 'internal'
+  | 'external'
+  | 'gap_analysis';
 
 // public.evp_ai_results
 export interface EvpAiResult {

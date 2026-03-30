@@ -114,6 +114,25 @@ export class SurveySubmissionRepository {
   }
 
   /**
+   * Find all submissions for a project across all survey types and statuses
+   *
+   * @param projectId - Project UUID
+   * @returns Array of all submissions for the project
+   */
+  async findAllByProject(projectId: string): Promise<SurveySubmission[]> {
+    const {data, error} = await supabase
+      .from('evp_survey_submissions')
+      .select('*')
+      .eq('project_id', projectId);
+
+    if (error) {
+      throw new Error(`Failed to fetch submissions: ${error.message}`);
+    }
+
+    return data || [];
+  }
+
+  /**
    * Update submission status to submitted
    *
    * @param submissionId - Submission UUID
