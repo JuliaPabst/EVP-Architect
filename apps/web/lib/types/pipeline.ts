@@ -7,6 +7,69 @@ export interface CompanyContext {
   location: string | null;
 }
 
+// ─── Step 1: Analysis & Synthesis ───────────────────────────────────────────
+
+export interface SharedSignal {
+  convergence: 'shared';
+  label: string;
+  mentioned_by: number;
+  out_of: number;
+  representative_quote: string;
+}
+
+export interface IndividualSignal {
+  convergence: 'individual';
+  label: string;
+  mentioned_by: number;
+  out_of: number;
+  quote: string;
+}
+
+export interface PerQuestionSignal {
+  individual_signals: IndividualSignal[];
+  question_key: string;
+  question_prompt: string;
+  shared_signals: SharedSignal[];
+  tensions: string[];
+}
+
+export interface CrossQuestionPattern {
+  description: string;
+  evidence_from_questions: string[];
+  pattern: string;
+}
+
+export interface EvpPillar {
+  confidence: 'high' | 'low' | 'medium';
+  employee_evidence: string;
+  employer_intent_alignment: 'misaligned' | 'partial' | 'strong';
+  label: string;
+  strength: string;
+}
+
+export interface RiskSignal {
+  description: string;
+  evidence: string;
+  severity: string;
+}
+
+export interface ValueTension {
+  description: string;
+  evidence: string;
+  severity: string;
+}
+
+export interface AnalysisResult {
+  cross_question_patterns: CrossQuestionPattern[];
+  data_gaps: string[];
+  evp_pillars: EvpPillar[];
+  per_question_signals: PerQuestionSignal[];
+  risk_signals: RiskSignal[];
+  sample_size_note: string;
+  total_respondents: number;
+  value_tensions: ValueTension[];
+}
+
 export interface EmployerTextAnswer {
   prompt: string;
   question_type: Extract<EvpQuestionType, 'long_text' | 'text'>;
