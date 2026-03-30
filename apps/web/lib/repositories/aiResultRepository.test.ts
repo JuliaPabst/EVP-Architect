@@ -222,4 +222,90 @@ describe('AiResultRepository', () => {
       expect(mockEq).toHaveBeenCalledWith('pipeline_step', step);
     });
   });
+
+  describe('findAllByProject', () => {
+    it('should return all results for a project without step filter', async () => {
+      /* eslint-disable sort-keys */
+      const mockResults = [
+        {
+          id: 'result-1',
+          project_id: 'project-1',
+          pipeline_step: 'assembly' as const,
+        },
+        {
+          id: 'result-2',
+          project_id: 'project-1',
+          pipeline_step: 'analysis' as const,
+        },
+      ];
+      /* eslint-enable sort-keys */
+
+      mockOrder.mockResolvedValue({data: mockResults, error: null});
+      mockEq.mockReturnValue({order: mockOrder});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const results = await repository.findAllByProject('project-1');
+
+      expect(mockFrom).toHaveBeenCalledWith('evp_ai_results');
+      expect(mockEq).toHaveBeenCalledWith('project_id', 'project-1');
+      expect(mockOrder).toHaveBeenCalledWith('generated_at', {
+        ascending: false,
+      });
+      expect(results).toEqual(mockResults);
+    });
+
+    it('should return filtered results when pipeline_step is provided', async () => {
+      /* eslint-disable sort-keys */
+      const mockResult = {
+        id: 'result-1',
+        project_id: 'project-1',
+        pipeline_step: 'assembly' as const,
+      };
+      /* eslint-enable sort-keys */
+
+      const secondEqFinal = jest.fn();
+
+      secondEqFinal.mockResolvedValue({data: [mockResult], error: null});
+
+      mockOrder.mockReturnValue({eq: secondEqFinal});
+      mockEq.mockReturnValue({order: mockOrder});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const results = await repository.findAllByProject(
+        'project-1',
+        'assembly',
+      );
+
+      expect(mockEq).toHaveBeenCalledWith('project_id', 'project-1');
+      expect(secondEqFinal).toHaveBeenCalledWith('pipeline_step', 'assembly');
+      expect(results).toEqual([mockResult]);
+    });
+
+    it('should return empty array when no results found', async () => {
+      mockOrder.mockResolvedValue({data: null, error: null});
+      mockEq.mockReturnValue({order: mockOrder});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const results = await repository.findAllByProject('project-1');
+
+      expect(results).toEqual([]);
+    });
+
+    it('should throw when query fails', async () => {
+      mockOrder.mockResolvedValue({
+        data: null,
+        error: {message: 'Query failed'},
+      });
+      mockEq.mockReturnValue({order: mockOrder});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      await expect(repository.findAllByProject('project-1')).rejects.toThrow(
+        'Failed to fetch AI results: Query failed',
+      );
+    });
+  });
 });

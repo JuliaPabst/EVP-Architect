@@ -69,4 +69,34 @@ export class AiResultRepository {
 
     return data;
   }
+
+  /**
+   * Find all results for a project, optionally filtered by pipeline step
+   *
+   * @param projectId - Project UUID
+   * @param pipelineStep - Pipeline step identifier (optional)
+   * @returns Array of results ordered by generated_at descending
+   */
+  async findAllByProject(
+    projectId: string,
+    pipelineStep?: EvpPipelineStep,
+  ): Promise<EvpAiResult[]> {
+    let query = supabase
+      .from('evp_ai_results')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('generated_at', {ascending: false});
+
+    if (pipelineStep) {
+      query = query.eq('pipeline_step', pipelineStep);
+    }
+
+    const {data, error} = await query;
+
+    if (error) {
+      throw new Error(`Failed to fetch AI results: ${error.message}`);
+    }
+
+    return data ?? [];
+  }
 }
