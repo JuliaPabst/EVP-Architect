@@ -15,6 +15,7 @@
     "validate": "pnpm run lint && pnpm run test:coverage"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@kununu/common": "^21.1.1",
     "@kununu/ui": "^32.10.0",
     "@supabase/supabase-js": "^2.98.0",

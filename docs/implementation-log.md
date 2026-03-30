@@ -1,5 +1,175 @@
 # Implementation Log
 
+## Phase 4 – Step 2: EVP Output Generation
+
+**Date:** March 30, 2026
+**Status:** ✅ Completed
+
+### Summary
+
+Implemented Step 2 of the EVP AI pipeline: Claude Sonnet-powered generation of three types of EVP narratives from Step 1 analysis. Outputs are tone-parameterized (external EVP only) and audience-aware (external EVP with optional target audience specification). Results are persisted as narrative text (not JSON) to the `evp_ai_results` table.
+
+### Implementation Details
+
+#### 1. New Dependency
+
+Added `@anthropic-ai/sdk@0.80.0` to `package.json`.
+
+**Justification:** Claude Sonnet is the model specified in the pipeline design for Step 2 output generation due to its superior nuance and tone sensitivity compared to gpt-4o-mini. The Anthropic SDK is the canonical client for accessing Claude.
+
+#### 2. LLM Integration Layer
+
+**File:** `/lib/llm.ts` (new)
+
+Per guidelines ("All LLM calls in `/lib/llm.ts`"), created a centralized Anthropic client factory and call function:
+
+- `createAnthropicClient()` — Factory that reads `ANTHROPIC_API_KEY` from environment
+- `callClaude(client, systemPrompt, userPrompt)` — Core API call that returns text response
+- Error codes: `claude_empty_response`, `claude_content_filtered` (max_tokens exceeded)
+
+**File:** `/lib/llm.test.ts` (new)
+
+Full coverage of client creation (including missing key error) and callClaude (success, empty response, max_tokens, and API error propagation).
+
+#### 3. EVP Output Service
+
+**File:** `/lib/services/evpOutputService.ts` (new)
+
+Core service following the established pattern from `analysisService.ts`:
+
+**Class:** `EvpOutputService`
+
+**Method:** `async generate(projectId, outputType, targetAudience?): Promise<string>`
+
+**Workflow:**
+1. Load Step 1 `analysis` record from `evp_ai_results` → throw `'analysis_not_found'` if missing
+2. Load Step 0 `assembly` record from `evp_ai_results` → throw `'assembly_not_found'` if missing
+3. Extract `tone_of_voice` from employer survey answers (external EVP only)
+4. Build system + user prompt based on output type
+5. Call Claude Sonnet via `callClaude()`
+6. Save result to `evp_ai_results` with `result_text` field and correct `pipeline_step`
+7. Return generated text
+
+**Tone Injection (External EVP Only):**
+- Extracts `employer_survey.answers['tone_of_voice'].selected_options[0].key`
+- Maps to writing style instructions via `TONE_STYLE_MAP`
+- Fallback: `DEFAULT_TONE_STYLE` (neutral/professional) if tone is missing or unknown
+- Supports both test fixtures (`formal`, `casual`) and production keys (`professional_factual`, `friendly_casual`, `innovative_future`, `traditional_trustworthy`)
+
+**Three Output Types:**
+1. **Internal EVP** — Employee-facing, authentic insider tone, first-person plural, no tensions/risks
+2. **External EVP** — Candidate-facing, tone-injected, optional target audience framing
+3. **Gap Analysis** — Analytical, surfaces tensions/risks/blind spots/recommendations for HR/leadership
+
+Each prompt is built independently by dedicated functions:
+- `buildInternalEvpSystemPrompt()` + `buildInternalEvpUserPrompt()`
+- `buildExternalEvpSystemPrompt()` + `buildExternalEvpUserPrompt()`
+- `buildGapAnalysisSystemPrompt()` + `buildGapAnalysisUserPrompt()`
+
+All prompts follow the detailed specifications from `/docs/evp-ai-pipeline.md`.
+
+**File:** `/lib/services/evpOutputService.test.ts` (new)
+
+**Coverage:** 100% (23 test cases)
+
+Tests:
+- Successful generation for all 3 output types
+- Tone extraction (found, missing, unknown key) and style mapping
+- Target audience injection for external EVP
+- Error handling: `analysis_not_found`, `assembly_not_found`, Claude API errors
+- Correct fields saved to repository: `pipeline_step`, `result_text`, `target_audience`
+- Tone style fallback to default
+- All 4 production tone keys map correctly
+
+#### 4. API Endpoint
+
+**File:** `/app/api/evp-pipeline/generate/route.ts` (new)
+
+**Endpoint:** `POST /api/evp-pipeline/generate`
+
+**Query Parameters:**
+- `projectId` (required, UUID)
+- `outputType` (required, enum: `internal` | `external` | `gap_analysis`)
+- `targetAudience` (optional string, external EVP only)
+- Auth: `admin_token` (query param or header)
+
+**Response (200):**
+```json
+{ "text": "Generated EVP content..." }
+```
+
+**Error Responses:**
+- `400 invalid_output_type` — outputType not one of the three valid values
+- `400 analysis_not_found` — Step 1 analysis not found
+- `400 assembly_not_found` — Step 0 assembly not found
+- `401` — Authentication failed
+- `500 generation_failed` — Claude output truncated at max_tokens
+- `500 internal_error` — Other errors (API timeout, rate limit, etc.)
+
+**File:** `/app/api/evp-pipeline/generate/route.test.ts` (new)
+
+**Coverage:** 100% (14 test cases)
+
+Tests:
+- All 3 output types succeed (200)
+- Invalid/missing outputType returns 400
+- Target audience passed to service correctly
+- All error codes return correct HTTP status
+- Auth failure returns 401
+
+#### 5. Type Definitions
+
+**File:** `/lib/types/pipeline.ts` (modified)
+
+Added:
+```typescript
+export type EvpOutputType = 'external' | 'gap_analysis' | 'internal';
+```
+
+#### 6. Environment Configuration
+
+**File:** `.env.local` (modified)
+
+Added:
+```
+ANTHROPIC_API_KEY=sk-ant-<to be filled>
+```
+
+### Database Changes
+
+No schema changes. Uses existing `evp_ai_results` table with `result_text` column (Step 1 used `result_json`).
+
+New rows:
+- `pipeline_step = 'internal'` → `result_text = generated EVP`
+- `pipeline_step = 'external'` → `result_text = generated EVP`, `target_audience = <optional>`
+- `pipeline_step = 'gap_analysis'` → `result_text = generated analysis`
+
+### Assumptions Made
+
+1. **Tone option keys:** The database contains tone_of_voice options with keys that may differ from test fixtures. Code maps both test keys (`formal`, `casual`) and inferred production keys (`professional_factual`, `friendly_casual`, `innovative_future`, `traditional_trustworthy`). Unknown keys fall back to neutral professional style.
+
+2. **Max tokens:** Set to 4096, sufficient for all three output types (internal EVP ~1000 tokens, external EVP ~1200 tokens, gap analysis ~1500 tokens).
+
+3. **Reuse of Step 1 input:** Step 2 does not re-run Steps 0–1. The `input_snapshot` saved to DB for each Step 2 result is a copy of the Step 1 analysis for debugging/replay purposes (not the original assembly payload).
+
+### Open Questions
+
+None at implementation time. The tone mapping and target audience framing are working as specified in the pipeline design.
+
+### Test Coverage
+
+All files meet >80% threshold:
+- `lib/llm.ts` — 100% (4 functions, 5 test cases)
+- `lib/llm.test.ts` — 100%
+- `lib/services/evpOutputService.ts` — 100% (1 class, 18 test cases covering all branches)
+- `lib/services/evpOutputService.test.ts` — 100%
+- `app/api/evp-pipeline/generate/route.ts` — 100% (all error paths tested)
+- `app/api/evp-pipeline/generate/route.test.ts` — 100%
+
+---
+
+# Implementation Log
+
 ## Company Profile Scraping & Persistence – Backend
 
 **Date:** March 3, 2026  

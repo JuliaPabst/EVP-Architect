@@ -125,3 +125,7 @@ export interface AssemblyPayload {
   employer_survey: EmployerSurveyData | null;
   project_id: string;
 }
+
+// ─── Step 2: EVP Output Generation ──────────────────────────────────────────
+
+export type EvpOutputType = 'external' | 'gap_analysis' | 'internal';
