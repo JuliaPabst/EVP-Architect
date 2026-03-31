@@ -70,7 +70,20 @@ function formatComments(comments: string[]): string {
 
 // ─── Prompt builders ────────────────────────────────────────────────────────
 
-function buildInternalEvpSystemPrompt(): string {
+function formatLanguageInstruction(language?: string): string {
+  if (!language) return '';
+
+  const languageNames: Record<string, string> = {
+    de: 'German',
+    en: 'English',
+  };
+
+  const languageName = languageNames[language] ?? language;
+
+  return `\n\nLanguage: Write the entire output in ${languageName}.`;
+}
+
+function buildInternalEvpSystemPrompt(language?: string): string {
   return `You are an expert EVP (Employer Value Proposition) content strategist specializing in authentic employee communication.
 
 Your task is to synthesize the Step 1 analysis into an authentic, insider-facing EVP statement for current employees. This is NOT marketing copy — it is the honest truth about what working here is like, written for people who already work there.
@@ -83,7 +96,7 @@ Key principles:
 - Respect confidence levels from the analysis — if a pillar has low confidence, be tentative
 - Do not include tensions, risks, or uncomfortable gaps — those belong in the Gap Analysis
 
-Output ONLY the EVP text, no commentary or explanation.`;
+Output ONLY the EVP text, no commentary or explanation.${formatLanguageInstruction(language)}`;
 }
 
 function buildInternalEvpUserPrompt(
@@ -105,7 +118,10 @@ The Internal EVP should have these sections:
 Write as though speaking to current employees who already know the company. Be honest and grounded in the evidence.${formatComments(comments)}`;
 }
 
-function buildExternalEvpSystemPrompt(toneStyle: string): string {
+function buildExternalEvpSystemPrompt(
+  toneStyle: string,
+  language?: string,
+): string {
   return `You are an expert EVP (Employer Value Proposition) content strategist specializing in candidate-facing communication.
 
 Your task is to synthesize the Step 1 analysis into an aspirational but authentic External EVP for job seekers and candidates. This EVP should attract talent while staying grounded in real employee experience.
@@ -121,7 +137,7 @@ Key principles:
 - Do not include tensions, risks, or uncomfortable realities — those belong in the Gap Analysis
 - Avoid buzzwords: "dynamic environment", "flat hierarchies", "innovation culture", "disruptive"
 
-Output ONLY the EVP text, no commentary or explanation.`;
+Output ONLY the EVP text, no commentary or explanation.${formatLanguageInstruction(language)}`;
 }
 
 function buildExternalEvpUserPrompt(
@@ -150,7 +166,7 @@ The External EVP should have these sections:
 If a pillar has low confidence or does not align with the evidence, note this explicitly rather than inventing claims.${formatComments(comments)}`;
 }
 
-function buildGapAnalysisSystemPrompt(): string {
+function buildGapAnalysisSystemPrompt(language?: string): string {
   return `You are an expert EVP analyst and HR strategist. Your task is to produce a Gap Analysis report comparing employer intent against employee reality.
 
 This report is for the HR team and leadership — it is analytical and direct. This is the ONLY output where tensions, blind spots, and uncomfortable truths are surfaced.
@@ -163,7 +179,7 @@ Key principles:
 - Provide actionable recommendations for closing the most significant gaps
 - Stay grounded in the data — never extrapolate beyond the evidence
 
-Output ONLY the Gap Analysis text, no commentary or explanation.`;
+Output ONLY the Gap Analysis text, no commentary or explanation.${formatLanguageInstruction(language)}`;
 }
 
 function buildGapAnalysisUserPrompt(
@@ -215,6 +231,8 @@ class EvpOutputService {
    * @param outputType - One of 'internal', 'external', 'gap_analysis'
    * @param targetAudience - Optional audience for external EVP (e.g. "software engineers")
    * @param comments - Optional array of reviewer comments to incorporate into the generation
+   * @param toneOfVoice - Optional tone override (e.g. 'friendly_casual'). Bypasses DB assembly value.
+   * @param language - Optional language override (e.g. 'de', 'en'). Applied to all output types.
    * @returns The generated EVP text
    * @throws Error with code 'analysis_not_found' if no Step 1 result exists
    * @throws Error with code 'assembly_not_found' if no Step 0 result exists
@@ -226,6 +244,8 @@ class EvpOutputService {
     outputType: EvpOutputType,
     targetAudience?: string,
     comments?: string[],
+    toneOfVoice?: string,
+    language?: string,
   ): Promise<string> {
     // Load Step 1 analysis
     const analysisRecord = await this.aiResultRepository.findLatestByStep(
@@ -259,13 +279,17 @@ class EvpOutputService {
     let userPrompt: string;
 
     if (outputType === 'internal') {
-      systemPrompt = buildInternalEvpSystemPrompt();
-      userPrompt = buildInternalEvpUserPrompt(analysis, actualCompanyName, commentArray);
+      systemPrompt = buildInternalEvpSystemPrompt(language);
+      userPrompt = buildInternalEvpUserPrompt(
+        analysis,
+        actualCompanyName,
+        commentArray,
+      );
     } else if (outputType === 'external') {
-      const toneKey = extractTone(assemblyPayload);
+      const toneKey = toneOfVoice ?? extractTone(assemblyPayload);
       const toneStyle = getToneStyle(toneKey);
 
-      systemPrompt = buildExternalEvpSystemPrompt(toneStyle);
+      systemPrompt = buildExternalEvpSystemPrompt(toneStyle, language);
       userPrompt = buildExternalEvpUserPrompt(
         analysis,
         actualCompanyName,
@@ -274,8 +298,12 @@ class EvpOutputService {
       );
     } else {
       // gap_analysis
-      systemPrompt = buildGapAnalysisSystemPrompt();
-      userPrompt = buildGapAnalysisUserPrompt(analysis, actualCompanyName, commentArray);
+      systemPrompt = buildGapAnalysisSystemPrompt(language);
+      userPrompt = buildGapAnalysisUserPrompt(
+        analysis,
+        actualCompanyName,
+        commentArray,
+      );
     }
 
     const client = this.anthropicClientFactory();

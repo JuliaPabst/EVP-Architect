@@ -44,6 +44,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const outputType = searchParams.get('outputType');
     const targetAudience = searchParams.get('targetAudience') ?? undefined;
+    const toneOfVoice = searchParams.get('toneOfVoice') ?? undefined;
+    const language = searchParams.get('language') ?? undefined;
 
     // Validate outputType
     const validOutputTypes: EvpOutputType[] = [
@@ -73,6 +75,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         projectId,
         outputType as EvpOutputType,
         targetAudience,
+        undefined,
+        toneOfVoice,
+        language,
       );
 
       return NextResponse.json({text});

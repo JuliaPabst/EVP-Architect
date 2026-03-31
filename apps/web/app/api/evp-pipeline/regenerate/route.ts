@@ -120,6 +120,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (scope === 'output') {
       const outputType = searchParams.get('outputType');
       const targetAudience = searchParams.get('targetAudience') ?? undefined;
+      const toneOfVoice = searchParams.get('toneOfVoice') ?? undefined;
+      const language = searchParams.get('language') ?? undefined;
 
       // Validate outputType
       const validOutputTypes: EvpOutputType[] = [
@@ -144,8 +146,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       // Parse optional request body for new comment
       let commentText: string | undefined;
+
       try {
         const body = await request.json().catch(() => ({}));
+
         commentText = (body as Record<string, unknown>).commentText
           ? String((body as Record<string, unknown>).commentText)
           : undefined;
@@ -170,7 +174,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         outputType as EvpOutputType,
       );
 
-      const commentTexts = allComments.map((c) => c.comment_text);
+      const commentTexts = allComments.map(c => c.comment_text);
 
       const service = new EvpOutputService();
 
@@ -180,6 +184,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           outputType as EvpOutputType,
           targetAudience,
           commentTexts,
+          toneOfVoice,
+          language,
         );
 
         return NextResponse.json({text});
