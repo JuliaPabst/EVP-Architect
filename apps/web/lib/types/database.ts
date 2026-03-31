@@ -129,12 +129,22 @@ export interface EvpSelectionOption {
   option_type: EvpSelectionOptionType;
 }
 
+// public.evp_generation_comments
+export interface EvpGenerationComment {
+  comment_text: string;
+  created_at: string;
+  id: string;
+  output_type: 'external' | 'gap_analysis' | 'internal';
+  project_id: string;
+}
+
 // Database schema map
 export interface Database {
   public: {
     Tables: {
       evp_ai_results: EvpAiResult;
       evp_answer_selections: EvpAnswerSelection;
+      evp_generation_comments: EvpGenerationComment;
       evp_projects: EvpProject;
       evp_question_options: EvpQuestionOption;
       evp_selection_options: EvpSelectionOption;

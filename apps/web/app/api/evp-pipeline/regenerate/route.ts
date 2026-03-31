@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from 'next/server';
 
 import {handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
+import {EvpCommentRepository} from '@/lib/repositories/evpCommentRepository';
 import AnalysisService from '@/lib/services/analysisService';
 import DataAssemblyService from '@/lib/services/dataAssemblyService';
 import EvpOutputService from '@/lib/services/evpOutputService';
@@ -21,6 +22,10 @@ import {EvpOutputType} from '@/lib/types/pipeline';
  *   - Query parameter: outputType (required when scope='output') - 'internal', 'external', or 'gap_analysis'
  *   - Query parameter: targetAudience (optional, only for scope='output')
  *   - Auth: admin_token (query param or header)
+ *   - Request body (optional, JSON):
+ *     {
+ *       "commentText": "optional reviewer feedback to save and incorporate"
+ *     }
  *
  * Output:
  *   Success (200):
@@ -137,6 +142,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
       }
 
+      // Parse optional request body for new comment
+      let commentText: string | undefined;
+      try {
+        const body = await request.json().catch(() => ({}));
+        commentText = (body as Record<string, unknown>).commentText
+          ? String((body as Record<string, unknown>).commentText)
+          : undefined;
+      } catch {
+        // If body parsing fails, continue without comment
+      }
+
+      const commentRepository = new EvpCommentRepository();
+
+      // Save new comment if provided
+      if (commentText) {
+        await commentRepository.save({
+          comment_text: commentText,
+          output_type: outputType as EvpOutputType,
+          project_id: projectId,
+        });
+      }
+
+      // Load all accumulated comments for this project/outputType
+      const allComments = await commentRepository.findAllByProjectAndOutputType(
+        projectId,
+        outputType as EvpOutputType,
+      );
+
+      const commentTexts = allComments.map((c) => c.comment_text);
+
       const service = new EvpOutputService();
 
       try {
@@ -144,6 +179,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           projectId,
           outputType as EvpOutputType,
           targetAudience,
+          commentTexts,
         );
 
         return NextResponse.json({text});

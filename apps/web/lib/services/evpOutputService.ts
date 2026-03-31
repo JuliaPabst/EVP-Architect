@@ -58,6 +58,16 @@ function getToneStyle(toneKey: string | null): string {
   return TONE_STYLE_MAP[toneKey] ?? DEFAULT_TONE_STYLE;
 }
 
+// ─── Comment formatting ─────────────────────────────────────────────────────
+
+function formatComments(comments: string[]): string {
+  if (comments.length === 0) return '';
+
+  const numbered = comments.map((c, i) => `${i + 1}. ${c}`).join('\n');
+
+  return `\n\n## Revision instructions from previous reviews:\n${numbered}\n\nIf any feedback contradicts earlier comments, prioritize the latest feedback. Apply all feedback that doesn't conflict with newer instructions.`;
+}
+
 // ─── Prompt builders ────────────────────────────────────────────────────────
 
 function buildInternalEvpSystemPrompt(): string {
@@ -79,6 +89,7 @@ Output ONLY the EVP text, no commentary or explanation.`;
 function buildInternalEvpUserPrompt(
   analysis: AnalysisResult,
   companyName: string,
+  comments: string[] = [],
 ): string {
   return `Generate an Internal EVP for ${companyName} based on this Step 1 analysis:
 
@@ -91,7 +102,7 @@ The Internal EVP should have these sections:
 3. **Pillar descriptions** — One paragraph per EVP pillar, emphasizing what is genuinely strong
 4. **Confidence disclaimer** — A note acknowledging the sample size
 
-Write as though speaking to current employees who already know the company. Be honest and grounded in the evidence.`;
+Write as though speaking to current employees who already know the company. Be honest and grounded in the evidence.${formatComments(comments)}`;
 }
 
 function buildExternalEvpSystemPrompt(toneStyle: string): string {
@@ -117,6 +128,7 @@ function buildExternalEvpUserPrompt(
   analysis: AnalysisResult,
   companyName: string,
   targetAudience?: string,
+  comments: string[] = [],
 ): string {
   const audienceContext = targetAudience
     ? `Target audience: ${targetAudience}. Prioritise pillars and evidence most relevant to this group.`
@@ -135,7 +147,7 @@ The External EVP should have these sections:
 3. **Pillar descriptions** — One paragraph per EVP pillar${targetAudience ? ', prioritizing relevance to the target audience' : ''}
 4. ${targetAudience ? '**Audience fit note** — A brief note on how well the available evidence maps to the stated audience, flagging any data gaps\n5. ' : ''}**Confidence disclaimer** — A light touch note that the EVP is based on employee input
 
-If a pillar has low confidence or does not align with the evidence, note this explicitly rather than inventing claims.`;
+If a pillar has low confidence or does not align with the evidence, note this explicitly rather than inventing claims.${formatComments(comments)}`;
 }
 
 function buildGapAnalysisSystemPrompt(): string {
@@ -157,6 +169,7 @@ Output ONLY the Gap Analysis text, no commentary or explanation.`;
 function buildGapAnalysisUserPrompt(
   analysis: AnalysisResult,
   companyName: string,
+  comments: string[] = [],
 ): string {
   return `Generate a Gap Analysis report for ${companyName} based on this Step 1 analysis:
 
@@ -170,7 +183,7 @@ The Gap Analysis should have these sections:
 4. **Aspirational gaps** — Values the employer emphasized that employees did not mention or contradicted
 5. **Recommendations** — 3–5 brief, actionable suggestions for closing significant gaps
 
-Be direct. This report is for leaders, not candidates.`;
+Be direct. This report is for leaders, not candidates.${formatComments(comments)}`;
 }
 
 // ─── Service class ──────────────────────────────────────────────────────────
@@ -201,6 +214,7 @@ class EvpOutputService {
    * @param projectId - Project UUID
    * @param outputType - One of 'internal', 'external', 'gap_analysis'
    * @param targetAudience - Optional audience for external EVP (e.g. "software engineers")
+   * @param comments - Optional array of reviewer comments to incorporate into the generation
    * @returns The generated EVP text
    * @throws Error with code 'analysis_not_found' if no Step 1 result exists
    * @throws Error with code 'assembly_not_found' if no Step 0 result exists
@@ -211,6 +225,7 @@ class EvpOutputService {
     projectId: string,
     outputType: EvpOutputType,
     targetAudience?: string,
+    comments?: string[],
   ): Promise<string> {
     // Load Step 1 analysis
     const analysisRecord = await this.aiResultRepository.findLatestByStep(
@@ -239,12 +254,13 @@ class EvpOutputService {
     const actualCompanyName = assemblyPayload.company_context.company_name;
 
     // Build and call Claude
+    const commentArray = comments ?? [];
     let systemPrompt: string;
     let userPrompt: string;
 
     if (outputType === 'internal') {
       systemPrompt = buildInternalEvpSystemPrompt();
-      userPrompt = buildInternalEvpUserPrompt(analysis, actualCompanyName);
+      userPrompt = buildInternalEvpUserPrompt(analysis, actualCompanyName, commentArray);
     } else if (outputType === 'external') {
       const toneKey = extractTone(assemblyPayload);
       const toneStyle = getToneStyle(toneKey);
@@ -254,11 +270,12 @@ class EvpOutputService {
         analysis,
         actualCompanyName,
         targetAudience,
+        commentArray,
       );
     } else {
       // gap_analysis
       systemPrompt = buildGapAnalysisSystemPrompt();
-      userPrompt = buildGapAnalysisUserPrompt(analysis, actualCompanyName);
+      userPrompt = buildGapAnalysisUserPrompt(analysis, actualCompanyName, commentArray);
     }
 
     const client = this.anthropicClientFactory();
