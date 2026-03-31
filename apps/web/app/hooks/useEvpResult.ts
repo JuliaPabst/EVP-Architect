@@ -1,5 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
 
+import {EvpGenerationSettings} from './useEvpSettings';
+
 interface EvpResultState {
   readonly error: string | null;
   readonly evpText: string | null;
@@ -8,7 +10,10 @@ interface EvpResultState {
 }
 
 interface UseEvpResultReturn extends EvpResultState {
-  readonly regenerate: (commentText: string) => Promise<void>;
+  readonly regenerate: (
+    commentText: string,
+    settings?: EvpGenerationSettings,
+  ) => Promise<void>;
 }
 
 /**
@@ -48,6 +53,7 @@ export default function useEvpResult(
 
         if (!resultsResponse.ok) {
           const errorData = await resultsResponse.json();
+
           throw new Error(errorData.message || 'Failed to fetch EVP results');
         }
 
@@ -71,6 +77,7 @@ export default function useEvpResult(
 
         if (!triggerResponse.ok) {
           const errorData = await triggerResponse.json();
+
           throw new Error(errorData.message || 'Failed to run EVP pipeline');
         }
 
@@ -82,10 +89,12 @@ export default function useEvpResult(
 
         if (!generateResponse.ok) {
           const errorData = await generateResponse.json();
+
           throw new Error(errorData.message || 'Failed to generate EVP');
         }
 
         const generateData = await generateResponse.json();
+
         if (!isDisposed) {
           setEvpText(generateData.text || null);
           setIsLoading(false);
@@ -93,9 +102,7 @@ export default function useEvpResult(
       } catch (err) {
         if (!isDisposed) {
           setError(
-            err instanceof Error
-              ? err.message
-              : 'Unknown error occurred',
+            err instanceof Error ? err.message : 'Unknown error occurred',
           );
           setIsLoading(false);
         }
@@ -113,13 +120,30 @@ export default function useEvpResult(
   }, [adminToken, projectId]);
 
   const regenerate = useCallback(
-    async (commentText: string) => {
+    async (commentText: string, settings?: EvpGenerationSettings) => {
       try {
         setIsRegenerating(true);
         setError(null);
 
+        const queryParams = new URLSearchParams({
+          admin_token: adminToken,
+          outputType: 'internal',
+          projectId,
+          scope: 'output',
+        });
+
+        if (settings?.targetAudience) {
+          queryParams.append('targetAudience', settings.targetAudience);
+        }
+        if (settings?.toneOfVoice) {
+          queryParams.append('toneOfVoice', settings.toneOfVoice);
+        }
+        if (settings?.language) {
+          queryParams.append('language', settings.language);
+        }
+
         const response = await fetch(
-          `/api/evp-pipeline/regenerate?projectId=${encodeURIComponent(projectId)}&scope=output&outputType=internal&admin_token=${encodeURIComponent(adminToken)}`,
+          `/api/evp-pipeline/regenerate?${queryParams.toString()}`,
           {
             body: JSON.stringify({commentText}),
             headers: {'Content-Type': 'application/json'},
@@ -129,10 +153,12 @@ export default function useEvpResult(
 
         if (!response.ok) {
           const errorData = await response.json();
+
           throw new Error(errorData.message || 'Failed to regenerate EVP');
         }
 
         const data = await response.json();
+
         setEvpText(data.text || null);
         setIsRegenerating(false);
       } catch (err) {

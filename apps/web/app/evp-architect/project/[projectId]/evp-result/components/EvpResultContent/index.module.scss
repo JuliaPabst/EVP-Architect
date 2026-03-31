@@ -51,6 +51,17 @@
   word-break: break-word;
 }
 
+.settingsForm {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+}
+
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .textarea {
   padding: spacings.$kun-spacing-m;
   border: 1px solid colors.$kun-color-border-soft;

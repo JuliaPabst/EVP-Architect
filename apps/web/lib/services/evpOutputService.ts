@@ -96,6 +96,8 @@ Key principles:
 - Respect confidence levels from the analysis — if a pillar has low confidence, be tentative
 - Do not include tensions, risks, or uncomfortable gaps — those belong in the Gap Analysis
 
+Do not use em dashes (—) anywhere in the output.
+
 Output ONLY the EVP text, no commentary or explanation.${formatLanguageInstruction(language)}`;
 }
 
@@ -136,6 +138,7 @@ Key principles:
 - Respect confidence levels — if a pillar has low confidence, be tentative or omit it
 - Do not include tensions, risks, or uncomfortable realities — those belong in the Gap Analysis
 - Avoid buzzwords: "dynamic environment", "flat hierarchies", "innovation culture", "disruptive"
+- Do not use em dashes (—) anywhere in the output.
 
 Output ONLY the EVP text, no commentary or explanation.${formatLanguageInstruction(language)}`;
 }
@@ -178,6 +181,7 @@ Key principles:
 - Flag aspirational gaps: values the employer emphasized that employees did not mention or contradicted
 - Provide actionable recommendations for closing the most significant gaps
 - Stay grounded in the data — never extrapolate beyond the evidence
+- Do not use em dashes (—) anywhere in the output.
 
 Output ONLY the Gap Analysis text, no commentary or explanation.${formatLanguageInstruction(language)}`;
 }
