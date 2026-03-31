@@ -63,7 +63,18 @@ export default function useEvpResult(
           return;
         }
 
-        // Generate new EVP if none exists
+        // Run full pipeline: assemble + analyze (Step 0 & 1)
+        const triggerResponse = await fetch(
+          `/api/evp-pipeline/trigger?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
+          {method: 'POST'},
+        );
+
+        if (!triggerResponse.ok) {
+          const errorData = await triggerResponse.json();
+          throw new Error(errorData.message || 'Failed to run EVP pipeline');
+        }
+
+        // Generate EVP output (Step 2)
         const generateResponse = await fetch(
           `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=internal&admin_token=${encodeURIComponent(adminToken)}`,
           {method: 'POST'},
