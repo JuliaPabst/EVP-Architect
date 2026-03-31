@@ -1,0 +1,145 @@
+import {useCallback, useEffect, useState} from 'react';
+
+interface EvpResultState {
+  readonly error: string | null;
+  readonly evpText: string | null;
+  readonly isLoading: boolean;
+  readonly isRegenerating: boolean;
+}
+
+interface UseEvpResultReturn extends EvpResultState {
+  readonly regenerate: (commentText: string) => Promise<void>;
+}
+
+/**
+ * Custom hook to fetch, generate, and regenerate EVP results.
+ *
+ * Purpose:
+ *   Manages the EVP generation workflow:
+ *   1. Fetches existing EVP output if available
+ *   2. Auto-generates if no output exists
+ *   3. Provides a regenerate function for adjustments
+ *
+ * @param projectId - UUID of the project
+ * @param adminToken - Admin token for authentication
+ * @returns Object with evpText, loading/regenerating states, error, and regenerate function
+ */
+export default function useEvpResult(
+  projectId: string,
+  adminToken: string,
+): UseEvpResultReturn {
+  const [evpText, setEvpText] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isDisposed = false;
+
+    async function loadEvpResult() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch existing EVP result
+        const resultsResponse = await fetch(
+          `/api/evp-pipeline/results?projectId=${encodeURIComponent(projectId)}&pipeline_step=internal&admin_token=${encodeURIComponent(adminToken)}`,
+        );
+
+        if (!resultsResponse.ok) {
+          const errorData = await resultsResponse.json();
+          throw new Error(errorData.message || 'Failed to fetch EVP results');
+        }
+
+        const resultsData = await resultsResponse.json();
+        const existingResult = resultsData.results?.[0];
+
+        // If result exists, use it
+        if (existingResult?.result_text) {
+          if (!isDisposed) {
+            setEvpText(existingResult.result_text);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        // Generate new EVP if none exists
+        const generateResponse = await fetch(
+          `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=internal&admin_token=${encodeURIComponent(adminToken)}`,
+          {method: 'POST'},
+        );
+
+        if (!generateResponse.ok) {
+          const errorData = await generateResponse.json();
+          throw new Error(errorData.message || 'Failed to generate EVP');
+        }
+
+        const generateData = await generateResponse.json();
+        if (!isDisposed) {
+          setEvpText(generateData.text || null);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (!isDisposed) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Unknown error occurred',
+          );
+          setIsLoading(false);
+        }
+
+        // eslint-disable-next-line no-console
+        console.error('Error loading EVP result:', err);
+      }
+    }
+
+    loadEvpResult().catch(() => undefined);
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [adminToken, projectId]);
+
+  const regenerate = useCallback(
+    async (commentText: string) => {
+      try {
+        setIsRegenerating(true);
+        setError(null);
+
+        const response = await fetch(
+          `/api/evp-pipeline/regenerate?projectId=${encodeURIComponent(projectId)}&scope=output&outputType=internal&admin_token=${encodeURIComponent(adminToken)}`,
+          {
+            body: JSON.stringify({commentText}),
+            headers: {'Content-Type': 'application/json'},
+            method: 'POST',
+          },
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to regenerate EVP');
+        }
+
+        const data = await response.json();
+        setEvpText(data.text || null);
+        setIsRegenerating(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error occurred');
+        setIsRegenerating(false);
+
+        // eslint-disable-next-line no-console
+        console.error('Error regenerating EVP:', err);
+      }
+    },
+    [adminToken, projectId],
+  );
+
+  return {
+    error,
+    evpText,
+    isLoading,
+    isRegenerating,
+    regenerate,
+  };
+}
