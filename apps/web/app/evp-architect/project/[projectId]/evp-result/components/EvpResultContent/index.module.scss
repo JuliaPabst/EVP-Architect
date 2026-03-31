@@ -5,8 +5,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-xl;
   min-height: 0;
+  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-xl;
 }
 
 .container {
@@ -53,7 +53,7 @@
 
 .textarea {
   padding: spacings.$kun-spacing-m;
-  border: 1px solid colors.$kun-color-border-secondary;
+  border: 1px solid colors.$kun-color-border-soft;
   border-radius: 4px;
   font-family: inherit;
   font-size: 14px;
@@ -61,15 +61,15 @@
   min-height: 120px;
 
   &:focus {
+    border-color: colors.$kun-color-base-green-100;
     outline: none;
-    border-color: colors.$kun-color-brand-primary;
   }
 }
 
 .button {
   align-self: flex-start;
   padding: spacings.$kun-spacing-m spacings.$kun-spacing-l;
-  background: colors.$kun-color-brand-primary;
+  background: colors.$kun-color-base-green-100;
   color: colors.$kun-color-base-white-100;
   border: none;
   border-radius: 4px;
@@ -79,18 +79,18 @@
   transition: background 0.2s;
 
   &:hover:not(:disabled) {
-    background: colors.$kun-color-brand-primary-hover;
+    background: colors.$kun-color-base-green-110;
   }
 
   &:disabled {
-    background: colors.$kun-color-border-secondary;
+    background: colors.$kun-color-border-soft;
     cursor: not-allowed;
   }
 }
 
 .errorMessage {
   padding: spacings.$kun-spacing-m;
-  background: colors.$kun-color-background-error;
+  background: colors.$kun-color-bg-error;
   color: colors.$kun-color-text-error;
   border-radius: 4px;
 }
