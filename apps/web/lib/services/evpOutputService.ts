@@ -11,28 +11,22 @@ import {
 // ─── Tone style map ─────────────────────────────────────────────────────────
 
 const TONE_STYLE_MAP: Record<string, string> = {
-  casual:
-    'Warm, conversational, approachable. Contractions and direct address acceptable.',
-  formal:
-    'Formal, precise, structured sentences. No colloquialisms. Evidence-forward.',
-  friendly_casual:
-    'Warm, conversational, approachable. Contractions and direct address acceptable.',
+  casual: 'Warm, conversational, approachable. Contractions allowed.',
+  formal: 'Formal, precise, structured. No colloquialisms.',
+  friendly_casual: 'Warm, conversational, approachable. Contractions allowed.',
   innovative_future:
-    'Dynamic, possibility-forward language. Emphasises change, vision, and momentum.',
-  professional_factual:
-    'Formal, precise, structured sentences. No colloquialisms. Evidence-forward.',
+    'Forward-looking, dynamic, focused on growth and momentum.',
+  professional_factual: 'Clear, structured, evidence-focused.',
   traditional_trustworthy:
-    'Stable, measured, heritage-focused. Emphasises reliability and continuity.',
+    'Stable, measured, focused on reliability and continuity.',
 };
 
-const DEFAULT_TONE_STYLE = 'Clear, direct, and professional.';
+const DEFAULT_TONE_STYLE = 'Clear, direct, professional.';
 
 // ─── Tone extraction ────────────────────────────────────────────────────────
 
 function extractTone(assemblyPayload: AssemblyPayload): string | null {
-  if (!assemblyPayload.employer_survey) {
-    return null;
-  }
+  if (!assemblyPayload.employer_survey) return null;
 
   const toneAnswer = assemblyPayload.employer_survey.answers.tone_of_voice;
 
@@ -51,10 +45,7 @@ function extractTone(assemblyPayload: AssemblyPayload): string | null {
 }
 
 function getToneStyle(toneKey: string | null): string {
-  if (!toneKey) {
-    return DEFAULT_TONE_STYLE;
-  }
-
+  if (!toneKey) return DEFAULT_TONE_STYLE;
   return TONE_STYLE_MAP[toneKey] ?? DEFAULT_TONE_STYLE;
 }
 
@@ -65,10 +56,10 @@ function formatComments(comments: string[]): string {
 
   const numbered = comments.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-  return `\n\n## Revision instructions from previous reviews:\n${numbered}\n\nIf any feedback contradicts earlier comments, prioritize the latest feedback. Apply all feedback that doesn't conflict with newer instructions.`;
+  return `\n\n## Revision instructions:\n${numbered}\nApply all non-conflicting feedback.`;
 }
 
-// ─── Prompt builders ────────────────────────────────────────────────────────
+// ─── Prompt helpers ─────────────────────────────────────────────────────────
 
 function formatLanguageInstruction(language?: string): string {
   if (!language) return '';
@@ -80,39 +71,36 @@ function formatLanguageInstruction(language?: string): string {
 
   const languageName = languageNames[language] ?? language;
 
-  return `\n\nLanguage: Write the entire output in ${languageName}.`;
+  return `\n\nWrite the entire output in ${languageName}.`;
 }
 
+// ─── INTERNAL EVP ───────────────────────────────────────────────────────────
+
 function buildInternalEvpSystemPrompt(language?: string): string {
-  return `You are an expert EVP (Employer Value Proposition) content strategist specializing in authentic employee communication.
+  return `You are an expert EVP strategist writing for employees.
 
-Your task is to synthesize the Step 1 analysis into an authentic, insider-facing EVP for current employees. This is NOT marketing copy — it is the honest truth about what working here is like, written for people who already work there.
+Create an internal EVP that feels recognisable, grounded, and affirming.
 
-An effective internal EVP serves two purposes: it helps current employees articulate what makes this employer unique (their Alleinstellungsmerkmal as an employer), and it reinforces why they chose to stay. It acts as a strategic umbrella — the defining message that ties together all the real experiences, benefits, and values that make this workplace distinct.
+Rules:
+- Base everything strictly on the provided evidence
+- Do not invent claims
+- Do not surface tensions or criticism
+- Focus on what is genuinely strong and experienced
+- Avoid generic employer branding language
+- Use "we" where appropriate
+- Do not repeat ideas across sections
+- Do not use em dashes
 
-The EVP opens with a Claim — a short, memorable phrase that captures the core identity of working here. The Claim is followed by a brief rationale line that cites the evidence behind it, so readers can see it is earned, not invented. The Claim should feel like recognition ("This is who we are"), not a recruitment pitch.
+Length constraints:
+- Total max 220 words
+- Claim: max 6 words
+- Core statement: max 45 words
+- Pillars: 2 to 4 only, each max 60 words
+- Confidence note: 1 short sentence (max 20 words)
 
-Cover the following EVP dimensions where the evidence supports it:
-- Culture and values (how people actually behave and what the organisation stands for)
-- Development and growth (learning opportunities, career paths, meaningful challenges)
-- Work environment (day-to-day experience, team dynamics, ways of working)
-- Compensation and benefits (what employees tangibly receive)
-- Purpose and meaning (why the work matters, the company's broader impact)
+Each pillar must introduce a new idea not already mentioned.
 
-Key principles:
-- Write in first-person plural ("we", "us") where appropriate
-- Avoid buzzwords, jargon, and generic employer branding language
-- Be grounded in the evidence from employee responses — never invent claims
-- Reflect lived reality, not aspirations — an EVP only builds trust if it matches actual experience
-- Celebrate what is genuinely strong, but don't hide reality
-- Highlight what makes this employer distinct from others in the same market where evidence supports it
-- Respect confidence levels from the analysis — if a pillar has low confidence, be tentative
-- Do not include tensions, risks, or uncomfortable gaps — those belong in the Gap Analysis
-- If office dogs, pets, or animals are mentioned in the evidence, refer to them explicitly by name (e.g. "our office dogs", "the dogs in the office") — never use animal behaviour as a metaphor or indirect reference, as this creates unintended ambiguity
-
-Do not use em dashes (—) anywhere in the output.
-
-Output ONLY the EVP text, no commentary or explanation.${formatLanguageInstruction(language)}`;
+Output only the EVP text.${formatLanguageInstruction(language)}`;
 }
 
 function buildInternalEvpUserPrompt(
@@ -120,57 +108,54 @@ function buildInternalEvpUserPrompt(
   companyName: string,
   comments: string[] = [],
 ): string {
-  return `Generate an Internal EVP for ${companyName} based on this Step 1 analysis:
+  return `Create an Internal EVP for ${companyName} based on this analysis:
 
 ${JSON.stringify(analysis, null, 2)}
 
-The Internal EVP must follow this structure exactly:
+Structure:
 
-1. **Claim** — A short, memorable phrase (ideally under 8 words) that captures the core identity of working at ${companyName}. It should feel like recognition — "This is who we are" — not a recruitment pitch. It must be grounded in the strongest evidence from the analysis, not invented.
-2. **Claim rationale** — One sentence citing the specific evidence that earns the Claim (e.g. which pillar or theme backs it up).
-3. **EVP Core Statement** (2–3 sentences) — The defining employer promise in a way current employees would recognise as true. Honest and grounded.
-4. **What makes us us** — A narrative paragraph describing the lived culture from an insider perspective, grounded in actual evidence from the analysis.
-5. **Pillar descriptions** — One paragraph per EVP pillar, emphasizing what is genuinely strong. Cover all five dimensions (culture/values, development, work environment, compensation/benefits, purpose) only where supported by evidence — omit or be tentative about any dimension with insufficient data.
-6. **Confidence disclaimer** — A note acknowledging the sample size.
+1. Claim  
+2. Core Statement  
+3. Pillars (2–4 strongest only)  
+4. Confidence note  
 
-Write as though speaking to current employees who already know the company. Be honest and grounded in the evidence. The output should make employees feel seen, help them articulate why they work here, and reinforce their sense of belonging.${formatComments(comments)}`;
+Select only the strongest evidence-backed themes. Omit weak or unsupported areas.
+
+Avoid repeating themes across sections.${formatComments(comments)}`;
 }
+
+// ─── EXTERNAL EVP ───────────────────────────────────────────────────────────
 
 function buildExternalEvpSystemPrompt(
   toneStyle: string,
   language?: string,
 ): string {
-  return `You are an expert EVP (Employer Value Proposition) content strategist specializing in candidate-facing communication.
+  return `You are an expert EVP strategist writing for candidates.
 
-Your task is to synthesize the Step 1 analysis into an aspirational but authentic External EVP for job seekers and candidates. This EVP should attract the right talent while staying grounded in real employee experience.
-
-An effective external EVP serves two goals simultaneously: it attracts candidates who are a strong cultural fit (Kulturelle Passung), and it helps unsuitable candidates self-select out. Candidates who read this should be able to honestly assess whether this employer's values, culture, and ways of working match their own — before they apply. This means the EVP must be specific and differentiated, not generic.
-
-The EVP opens with a Claim — a short, memorable phrase that captures the employer's core identity and promise. The Claim is followed by a brief rationale line that cites the evidence behind it. Unlike the internal EVP, the external Claim is an invitation: it should make the right candidate lean in and want to know more.
+Your goal: attract the right candidates while staying grounded in reality.
 
 Communication style: ${toneStyle}
 
-Cover the following EVP dimensions where the evidence supports it:
-- Culture and values (what the organisation genuinely stands for, how people actually work together)
-- Development and growth (what candidates can expect to learn, grow into, or be challenged by)
-- Work environment (what day-to-day life looks and feels like)
-- Compensation and benefits (concrete offer to candidates)
-- Purpose and meaning (why the work matters beyond the day-to-day)
+Rules:
+- Base everything strictly on employee evidence
+- Do not invent claims
+- Allow light realism: do not overpromise, but do not state criticism explicitly
+- If evidence is weak, omit the theme rather than generalising
+- Help candidates self-select through specificity
+- Avoid generic phrases (e.g. "dynamic environment", "flat hierarchies")
+- Do not repeat ideas across sections
+- Do not use em dashes
 
-Key principles:
-- Write for candidates, not employees or HR
-- Stay grounded in the evidence from employee responses — never invent claims
-- The EVP must reflect lived reality — an EVP that overpromises destroys trust and increases churn
-- Surface what is genuinely distinctive about this employer compared to others in the same space
-- Emphasize strengths backed by data, but do not hide genuine gaps
-- Match the tone and register to your target audience if specified
-- Respect confidence levels — if a pillar has low confidence, be tentative or omit it
-- Do not include tensions, risks, or uncomfortable realities — those belong in the Gap Analysis
-- Avoid buzzwords: "dynamic environment", "flat hierarchies", "innovation culture", "disruptive"
-- If office dogs, pets, or animals are mentioned in the evidence, refer to them explicitly by name (e.g. "our office dogs", "the dogs in the office") — never use animal behaviour as a metaphor or indirect reference, as this creates unintended ambiguity
-- Do not use em dashes (—) anywhere in the output.
+Length constraints:
+- Total max 220 words
+- Claim: max 6 words
+- Core statement: max 45 words
+- Pillars: 2 to 4 only, each max 60 words
+- Confidence note: 1 short sentence (max 20 words)
 
-Output ONLY the EVP text, no commentary or explanation.${formatLanguageInstruction(language)}`;
+Each pillar must introduce a new idea not already used earlier.
+
+Output only the EVP text.${formatLanguageInstruction(language)}`;
 }
 
 function buildExternalEvpUserPrompt(
@@ -180,52 +165,48 @@ function buildExternalEvpUserPrompt(
   comments: string[] = [],
 ): string {
   const audienceContext = targetAudience
-    ? `Target audience: ${targetAudience}. Prioritise pillars and evidence most relevant to this group. Candidates in this group should be able to use this EVP to decide whether ${companyName} is a good cultural and professional fit for them — make the output specific enough to allow that self-assessment.`
-    : 'Target audience: General candidates';
+    ? `Target audience: ${targetAudience}. Prioritise what matters most to them.`
+    : `No specific audience. Focus on the most distinctive strengths.`;
 
-  return `Generate an External EVP for ${companyName} based on this Step 1 analysis:
+  return `Create an External EVP for ${companyName}:
 
 ${JSON.stringify(analysis, null, 2)}
 
 ${audienceContext}
 
-The External EVP must follow this structure exactly:
+Structure:
 
-1. **Claim** — A short, memorable phrase (ideally under 8 words) that captures what makes ${companyName} a distinct employer. It should feel like an invitation — making the right candidate lean in and want to know more. It must be grounded in the strongest evidence from the analysis, not invented.
-2. **Claim rationale** — One sentence citing the specific evidence that earns the Claim.
-3. **EVP Core Statement** (2–3 sentences) — The employer brand promise: specific enough that candidates can assess whether it matches their own values and expectations.
-4. **What it feels like to work here** — A narrative paragraph written from an employee perspective (should feel like a real person wrote it, not a press release).
-5. **Pillar descriptions** — One paragraph per EVP pillar${targetAudience ? ', prioritizing relevance to the target audience' : ''}. Cover all five dimensions (culture/values, development, work environment, compensation/benefits, purpose) only where supported by evidence.
-6. ${targetAudience ? '**Audience fit note** — A brief note on how well the available evidence maps to the stated audience, flagging any data gaps\n7. ' : ''}**Confidence disclaimer** — A light touch note that the EVP is based on employee input.
+1. Claim  
+2. Core Statement  
+3. Pillars (2–4 strongest only)  
+4. Confidence note  
 
-If a pillar has low confidence or does not align with the evidence, note this explicitly rather than inventing claims. Specificity beats completeness — a shorter EVP grounded in real evidence is better than a full one with invented claims.${formatComments(comments)}`;
+Select only strong, evidence-backed themes. Omit weak areas instead of generalising.
+
+Avoid repeating ideas across sections.${formatComments(comments)}`;
 }
 
+// ─── GAP ANALYSIS ───────────────────────────────────────────────────────────
+
 function buildGapAnalysisSystemPrompt(language?: string): string {
-  return `You are an expert EVP analyst and HR strategist. Your task is to produce a Gap Analysis report comparing employer intent against employee reality.
+  return `You are an EVP analyst writing for leadership.
 
-This report is for the HR team and leadership — it is analytical and direct. This is the ONLY output where tensions, blind spots, and uncomfortable truths are surfaced.
+Surface gaps between employer intent and employee reality.
 
-A well-developed EVP requires both an internal perspective (what leadership believes the company stands for) and an external/employee perspective (what people actually experience). The gap between these two views is where EVP credibility is won or lost. An EVP that overpromises relative to lived reality damages trust, increases churn, and attracts candidates who will quickly disengage. This report maps that gap so leadership can act on it.
+Rules:
+- Be direct and analytical
+- Base everything strictly on evidence
+- Compare employer vs employee perspectives
+- Identify misalignment, blind spots, and risks
+- Provide actionable recommendations
+- Do not use em dashes
 
-Analyse across the five core EVP dimensions where evidence is available:
-- Culture and values
-- Development and growth
-- Work environment
-- Compensation and benefits
-- Purpose and meaning
+Length guidance:
+- Summary: max 80 words
+- Analyse up to 4 most relevant dimensions (not all 5 if unnecessary)
+- Recommendations: exactly 3 concise actions
 
-Key principles:
-- Be analytical and comparative, not narrative
-- Surface contradictions between what the employer stated and what employees reported
-- Identify blind spots: themes in employee answers that were absent from employer responses
-- Flag aspirational gaps: values the employer emphasized that employees did not mention or contradicted
-- Note which gaps represent the highest risk to EVP credibility if left unaddressed
-- Provide actionable recommendations for closing the most significant gaps
-- Stay grounded in the data — never extrapolate beyond the evidence
-- Do not use em dashes (—) anywhere in the output.
-
-Output ONLY the Gap Analysis text, no commentary or explanation.${formatLanguageInstruction(language)}`;
+Output only the analysis.${formatLanguageInstruction(language)}`;
 }
 
 function buildGapAnalysisUserPrompt(
@@ -233,33 +214,23 @@ function buildGapAnalysisUserPrompt(
   companyName: string,
   comments: string[] = [],
 ): string {
-  return `Generate a Gap Analysis report for ${companyName} based on this Step 1 analysis:
+  return `Create a Gap Analysis for ${companyName}:
 
 ${JSON.stringify(analysis, null, 2)}
 
-The Gap Analysis should have these sections:
+Structure:
 
-1. **Summary** (2–3 sentences) — Overall alignment between employer intent and employee reality, and what this means for EVP credibility
-2. **Per-pillar comparison** — For each of the five EVP dimensions (culture/values, development, work environment, compensation/benefits, purpose): employer intent → employee reality → alignment rating (strong / partial / misaligned) → specific evidence from both sides. Only include dimensions where evidence exists.
-3. **Blind spots** — Themes that appear clearly in employee answers but were absent or underweighted in employer responses. These often reveal what employees actually value most.
-4. **Aspirational gaps** — Claims or values the employer emphasized that employees did not confirm or actively contradicted. These are the highest-risk items for EVP credibility.
-5. **Recommendations** — 3–5 brief, actionable suggestions for closing the most significant gaps. Prioritize gaps that most undermine EVP authenticity or candidate trust.
+1. Summary  
+2. Per-pillar comparison (top 4 only)  
+3. Blind spots  
+4. Aspirational gaps  
+5. Recommendations (exactly 3)  
 
-Be direct. This report is for leaders, not candidates. Prioritize clarity over diplomacy.${formatComments(comments)}`;
+Be precise and evidence-based.${formatComments(comments)}`;
 }
 
-// ─── Service class ──────────────────────────────────────────────────────────
+// ─── SERVICE ────────────────────────────────────────────────────────────────
 
-/**
- * Service for Step 2 of the EVP AI pipeline: EVP Output Generation.
- *
- * Loads the Step 1 analysis result and generates one of three output types:
- * - Internal EVP (employee-facing, honest, insider tone)
- * - External EVP (candidate-facing, aspirational but grounded, tone-injected)
- * - Gap Analysis (analytical, for HR/leadership, surfaces tensions)
- *
- * Results are saved to evp_ai_results with pipeline_step matching the output_type.
- */
 class EvpOutputService {
   private readonly aiResultRepository: AiResultRepository;
 
@@ -270,21 +241,6 @@ class EvpOutputService {
     this.anthropicClientFactory = anthropicClientFactory;
   }
 
-  /**
-   * Generate an EVP output (internal, external, or gap analysis).
-   *
-   * @param projectId - Project UUID
-   * @param outputType - One of 'internal', 'external', 'gap_analysis'
-   * @param targetAudience - Optional audience for external EVP (e.g. "software engineers")
-   * @param comments - Optional array of reviewer comments to incorporate into the generation
-   * @param toneOfVoice - Optional tone override (e.g. 'friendly_casual'). Bypasses DB assembly value.
-   * @param language - Optional language override (e.g. 'de', 'en'). Applied to all output types.
-   * @returns The generated EVP text
-   * @throws Error with code 'analysis_not_found' if no Step 1 result exists
-   * @throws Error with code 'assembly_not_found' if no Step 0 result exists
-   * @throws Error with code 'claude_content_filtered' if Claude output was truncated
-   * @throws Other errors for Claude API failures (timeout, rate limit, etc.)
-   */
   async generate(
     projectId: string,
     outputType: EvpOutputType,
@@ -293,34 +249,27 @@ class EvpOutputService {
     toneOfVoice?: string,
     language?: string,
   ): Promise<string> {
-    // Load Step 1 analysis
     const analysisRecord = await this.aiResultRepository.findLatestByStep(
       projectId,
       'analysis',
     );
 
-    if (!analysisRecord) {
-      throw new Error('analysis_not_found');
-    }
+    if (!analysisRecord) throw new Error('analysis_not_found');
 
-    const analysis = analysisRecord.result_json as unknown as AnalysisResult;
+    const analysis = analysisRecord.result_json as AnalysisResult;
 
-    // Load Step 0 assembly (needed for tone extraction, company context)
     const assemblyRecord = await this.aiResultRepository.findLatestByStep(
       projectId,
       'assembly',
     );
 
-    if (!assemblyRecord) {
-      throw new Error('assembly_not_found');
-    }
+    if (!assemblyRecord) throw new Error('assembly_not_found');
 
-    const assemblyPayload =
-      assemblyRecord.result_json as unknown as AssemblyPayload;
-    const actualCompanyName = assemblyPayload.company_context.company_name;
+    const assemblyPayload = assemblyRecord.result_json as AssemblyPayload;
+    const companyName = assemblyPayload.company_context.company_name;
 
-    // Build and call Claude
     const commentArray = comments ?? [];
+
     let systemPrompt: string;
     let userPrompt: string;
 
@@ -328,7 +277,7 @@ class EvpOutputService {
       systemPrompt = buildInternalEvpSystemPrompt(language);
       userPrompt = buildInternalEvpUserPrompt(
         analysis,
-        actualCompanyName,
+        companyName,
         commentArray,
       );
     } else if (outputType === 'external') {
@@ -338,16 +287,15 @@ class EvpOutputService {
       systemPrompt = buildExternalEvpSystemPrompt(toneStyle, language);
       userPrompt = buildExternalEvpUserPrompt(
         analysis,
-        actualCompanyName,
+        companyName,
         targetAudience,
         commentArray,
       );
     } else {
-      // gap_analysis
       systemPrompt = buildGapAnalysisSystemPrompt(language);
       userPrompt = buildGapAnalysisUserPrompt(
         analysis,
-        actualCompanyName,
+        companyName,
         commentArray,
       );
     }
@@ -355,7 +303,6 @@ class EvpOutputService {
     const client = this.anthropicClientFactory();
     const outputText = await callClaude(client, systemPrompt, userPrompt);
 
-    // Save result
     await this.aiResultRepository.save({
       input_snapshot: analysisRecord.result_json as Record<string, unknown>,
       model_used: 'claude-sonnet-4-5',
