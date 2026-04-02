@@ -159,22 +159,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       const commentRepository = new EvpCommentRepository();
 
-      // Save new comment if provided
-      if (commentText) {
-        await commentRepository.save({
-          comment_text: commentText,
-          output_type: outputType as EvpOutputType,
-          project_id: projectId,
-        });
-      }
+      // Load existing comments (do not save new comment yet — save only on success)
+      const existingComments =
+        await commentRepository.findAllByProjectAndOutputType(
+          projectId,
+          outputType as EvpOutputType,
+        );
 
-      // Load all accumulated comments for this project/outputType
-      const allComments = await commentRepository.findAllByProjectAndOutputType(
-        projectId,
-        outputType as EvpOutputType,
-      );
-
-      const commentTexts = allComments.map(c => c.comment_text);
+      const commentTexts = [
+        ...existingComments.map(c => c.comment_text),
+        ...(commentText ? [commentText] : []),
+      ];
 
       const service = new EvpOutputService();
 
@@ -187,6 +182,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           toneOfVoice,
           language,
         );
+
+        // Persist comment only after successful generation
+        if (commentText) {
+          await commentRepository.save({
+            comment_text: commentText,
+            output_type: outputType as EvpOutputType,
+            project_id: projectId,
+          });
+        }
 
         return NextResponse.json({text});
       } catch (error) {

@@ -9,12 +9,14 @@ import {
   ProjectContext,
   validateProjectAccess,
 } from '@/lib/middleware/validateProjectAccess';
+import {EvpCommentRepository} from '@/lib/repositories/evpCommentRepository';
 import AnalysisService from '@/lib/services/analysisService';
 import DataAssemblyService from '@/lib/services/dataAssemblyService';
 import EvpOutputService from '@/lib/services/evpOutputService';
 import {AnalysisResult} from '@/lib/types/pipeline';
 
 jest.mock('@/lib/middleware/validateProjectAccess');
+jest.mock('@/lib/repositories/evpCommentRepository');
 jest.mock('@/lib/services/analysisService');
 jest.mock('@/lib/services/dataAssemblyService');
 jest.mock('@/lib/services/evpOutputService');
@@ -24,7 +26,9 @@ describe('POST /api/evp-pipeline/regenerate', () => {
     validateProjectAccess as jest.MockedFunction<typeof validateProjectAccess>;
   const mockAssemble = jest.fn();
   const mockAnalyze = jest.fn();
+  const mockFindAllComments = jest.fn();
   const mockGenerate = jest.fn();
+  const mockSaveComment = jest.fn();
 
   /* eslint-disable sort-keys */
   const mockProject: ProjectContext = {
@@ -77,6 +81,8 @@ describe('POST /api/evp-pipeline/regenerate', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    mockFindAllComments.mockResolvedValue([]);
+
     (
       DataAssemblyService as jest.MockedClass<typeof DataAssemblyService>
     ).mockImplementation(
@@ -87,6 +93,16 @@ describe('POST /api/evp-pipeline/regenerate', () => {
       AnalysisService as jest.MockedClass<typeof AnalysisService>
     ).mockImplementation(
       () => ({analyze: mockAnalyze}) as unknown as AnalysisService,
+    );
+
+    (
+      EvpCommentRepository as jest.MockedClass<typeof EvpCommentRepository>
+    ).mockImplementation(
+      () =>
+        ({
+          findAllByProjectAndOutputType: mockFindAllComments,
+          save: mockSaveComment,
+        }) as unknown as EvpCommentRepository,
     );
 
     (
@@ -228,6 +244,9 @@ describe('POST /api/evp-pipeline/regenerate', () => {
       'project-123',
       'internal',
       undefined,
+      [],
+      undefined,
+      undefined,
     );
     expect(mockAssemble).not.toHaveBeenCalled();
   });
@@ -249,6 +268,9 @@ describe('POST /api/evp-pipeline/regenerate', () => {
       'project-123',
       'external',
       'engineering',
+      [],
+      undefined,
+      undefined,
     );
   });
 
@@ -347,6 +369,9 @@ describe('POST /api/evp-pipeline/regenerate', () => {
       expect(mockGenerate).toHaveBeenCalledWith(
         'project-123',
         outputType,
+        undefined,
+        [],
+        undefined,
         undefined,
       );
     },

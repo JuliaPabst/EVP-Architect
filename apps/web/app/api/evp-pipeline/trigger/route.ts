@@ -42,7 +42,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return validation.error!;
     }
 
-    const {id: projectId} = validation.project!;
+    const {id: projectId, status} = validation.project!;
+
+    if (status !== 'evp_generation_available') {
+      return NextResponse.json(
+        {
+          error: 'project_not_in_correct_state',
+          message:
+            'Project is not in the correct state to run the pipeline. Required status: evp_generation_available.',
+        },
+        {status: 400},
+      );
+    }
 
     const assemblyService = new DataAssemblyService();
     const analysisService = new AnalysisService();

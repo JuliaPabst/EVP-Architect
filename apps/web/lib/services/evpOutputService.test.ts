@@ -151,7 +151,7 @@ describe('EvpOutputService', () => {
         .calls[0][0];
 
       expect(callArgs.system).toContain(
-        'Formal, precise, structured sentences',
+        'Formal, precise, structured.',
       );
     });
 
@@ -248,7 +248,7 @@ describe('EvpOutputService', () => {
       const callArgs = (mockClient.messages.create as jest.Mock).mock
         .calls[0][0];
 
-      expect(callArgs.system).toContain('Clear, direct, and professional');
+      expect(callArgs.system).toContain('Clear, direct, professional.');
     });
 
     it('uses default tone style when tone_of_voice has unknown key', async () => {
@@ -287,7 +287,7 @@ describe('EvpOutputService', () => {
       const callArgs = (mockClient.messages.create as jest.Mock).mock
         .calls[0][0];
 
-      expect(callArgs.system).toContain('Clear, direct, and professional');
+      expect(callArgs.system).toContain('Clear, direct, professional.');
     });
 
     it('propagates Claude API errors', async () => {
@@ -401,7 +401,7 @@ describe('EvpOutputService', () => {
         .calls[0][0];
 
       expect(callArgs.system).toContain(
-        'Dynamic, possibility-forward language',
+        'Forward-looking, dynamic, growth-oriented.',
       );
     });
 
@@ -441,7 +441,7 @@ describe('EvpOutputService', () => {
       const callArgs = (mockClient.messages.create as jest.Mock).mock
         .calls[0][0];
 
-      expect(callArgs.system).toContain('Stable, measured, heritage-focused');
+      expect(callArgs.system).toContain('Stable, measured, reliability-focused.');
     });
 
     it('does not apply tone to internal EVP', async () => {
@@ -460,7 +460,7 @@ describe('EvpOutputService', () => {
 
       // Internal prompt should not mention the specific tone style
       expect(callArgs.system).not.toContain('Formal, precise');
-      expect(callArgs.system).toContain('insider');
+      expect(callArgs.system).toContain('writing for employees');
     });
 
     it('does not apply tone to gap analysis', async () => {
