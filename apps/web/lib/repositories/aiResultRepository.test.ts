@@ -41,15 +41,15 @@ describe('AiResultRepository', () => {
   describe('save', () => {
     /* eslint-disable sort-keys */
     const mockResult = {
+      generated_at: '2026-01-01T00:00:00Z',
       id: 'result-1',
-      project_id: 'project-1',
-      pipeline_step: 'assembly' as const,
-      model_used: 'data_assembly',
       input_snapshot: {},
+      model_used: 'data_assembly',
+      pipeline_step: 'assembly' as const,
+      project_id: 'project-1',
       result_json: {key: 'value'},
       result_text: null,
       target_audience: null,
-      generated_at: '2026-01-01T00:00:00Z',
     };
     /* eslint-enable sort-keys */
 
@@ -147,8 +147,8 @@ describe('AiResultRepository', () => {
       /* eslint-disable sort-keys */
       const mockResult = {
         id: 'result-1',
-        project_id: 'project-1',
         pipeline_step: 'assembly' as const,
+        project_id: 'project-1',
       };
       /* eslint-enable sort-keys */
 
@@ -229,13 +229,13 @@ describe('AiResultRepository', () => {
       const mockResults = [
         {
           id: 'result-1',
-          project_id: 'project-1',
           pipeline_step: 'assembly' as const,
+          project_id: 'project-1',
         },
         {
           id: 'result-2',
-          project_id: 'project-1',
           pipeline_step: 'analysis' as const,
+          project_id: 'project-1',
         },
       ];
       /* eslint-enable sort-keys */
@@ -259,8 +259,8 @@ describe('AiResultRepository', () => {
       /* eslint-disable sort-keys */
       const mockResult = {
         id: 'result-1',
-        project_id: 'project-1',
         pipeline_step: 'assembly' as const,
+        project_id: 'project-1',
       };
       /* eslint-enable sort-keys */
 

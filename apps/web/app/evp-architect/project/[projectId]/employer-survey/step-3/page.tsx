@@ -1,10 +1,10 @@
 'use client';
 
-import useAdminToken from '@/app/hooks/useAdminToken';
-
 import SurveyStepPageWrapper from '../components/SurveyStepPageWrapper';
 
 import Step3Content from './components/Step3Content';
+
+import useAdminToken from '@/app/hooks/useAdminToken';
 
 interface StepPageProps {
   readonly params: {
@@ -17,7 +17,10 @@ export default function EmployerSurveyStep3({params}: StepPageProps) {
 
   return (
     <SurveyStepPageWrapper adminToken={adminToken} projectId={params.projectId}>
-      <Step3Content adminToken={adminToken ?? null} projectId={params.projectId} />
+      <Step3Content
+        adminToken={adminToken ?? null}
+        projectId={params.projectId}
+      />
     </SurveyStepPageWrapper>
   );
 }

@@ -67,7 +67,6 @@ describe('POST /api/evp-pipeline/assemble', () => {
   it('should call assemble with the project ID from validated context', async () => {
     /* eslint-disable sort-keys */
     const mockPayload = {
-      project_id: 'project-123',
       company_context: {
         company_name: 'Test',
         employee_count: null,
@@ -81,6 +80,7 @@ describe('POST /api/evp-pipeline/assemble', () => {
       },
       employee_survey: {},
       employer_survey: null,
+      project_id: 'project-123',
     };
     /* eslint-enable sort-keys */
 

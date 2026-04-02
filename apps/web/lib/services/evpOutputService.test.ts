@@ -150,9 +150,7 @@ describe('EvpOutputService', () => {
       const callArgs = (mockClient.messages.create as jest.Mock).mock
         .calls[0][0];
 
-      expect(callArgs.system).toContain(
-        'Formal, precise, structured.',
-      );
+      expect(callArgs.system).toContain('Formal, precise, structured.');
     });
 
     it('generates external EVP with target audience parameter', async () => {
@@ -441,7 +439,9 @@ describe('EvpOutputService', () => {
       const callArgs = (mockClient.messages.create as jest.Mock).mock
         .calls[0][0];
 
-      expect(callArgs.system).toContain('Stable, measured, reliability-focused.');
+      expect(callArgs.system).toContain(
+        'Stable, measured, reliability-focused.',
+      );
     });
 
     it('does not apply tone to internal EVP', async () => {

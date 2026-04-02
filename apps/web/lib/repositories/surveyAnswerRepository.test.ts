@@ -282,18 +282,18 @@ describe('SurveyAnswerRepository', () => {
     it('should fetch and map answers with their question context', async () => {
       /* eslint-disable sort-keys */
       const rawRow = {
-        id: 'a1',
-        submission_id: 'sub-1',
-        question_id: 'q1',
-        answer_text: 'Great culture',
         answer_json: null,
+        answer_text: 'Great culture',
         created_at: '2026-01-01',
-        updated_at: '2026-01-01',
         evp_survey_questions: {
           key: 'culture',
           prompt: 'How is the culture?',
           question_type: 'text',
         },
+        id: 'a1',
+        question_id: 'q1',
+        submission_id: 'sub-1',
+        updated_at: '2026-01-01',
       };
       /* eslint-enable sort-keys */
 
@@ -335,18 +335,18 @@ describe('SurveyAnswerRepository', () => {
     it('should default null timestamps to empty string', async () => {
       /* eslint-disable sort-keys */
       const rawRow = {
-        id: 'a2',
-        submission_id: 'sub-2',
-        question_id: 'q2',
-        answer_text: null,
         answer_json: null,
+        answer_text: null,
         created_at: null,
-        updated_at: null,
         evp_survey_questions: {
           key: 'q_key',
           prompt: 'prompt',
           question_type: 'long_text',
         },
+        id: 'a2',
+        question_id: 'q2',
+        submission_id: 'sub-2',
+        updated_at: null,
       };
       /* eslint-enable sort-keys */
 
@@ -363,14 +363,14 @@ describe('SurveyAnswerRepository', () => {
     it('should throw when evp_survey_questions is null', async () => {
       /* eslint-disable sort-keys */
       const rawRow = {
-        id: 'a3',
-        submission_id: 'sub-3',
-        question_id: 'q3',
-        answer_text: null,
         answer_json: null,
+        answer_text: null,
         created_at: '2026-01-01',
-        updated_at: '2026-01-01',
         evp_survey_questions: null,
+        id: 'a3',
+        question_id: 'q3',
+        submission_id: 'sub-3',
+        updated_at: '2026-01-01',
       };
       /* eslint-enable sort-keys */
 

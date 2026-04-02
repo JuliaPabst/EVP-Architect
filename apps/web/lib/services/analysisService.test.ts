@@ -34,10 +34,10 @@ const PROJECT_ID = 'proj-0000-0000-0000-000000000001';
 const mockAnalysisResult: AnalysisResult = {
   cross_question_patterns: [
     {
-      pattern: 'Flexibility valued company-wide',
-      evidence_from_questions: ['why_do_you_stay', 'what_would_you_change'],
       description:
         '3 respondents cite flexibility as key in multiple questions.',
+      evidence_from_questions: ['why_do_you_stay', 'what_would_you_change'],
+      pattern: 'Flexibility valued company-wide',
     },
   ],
   data_gaps: ['Only 2 respondents answered the compensation question'],

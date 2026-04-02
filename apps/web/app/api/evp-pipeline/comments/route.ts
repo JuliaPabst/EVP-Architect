@@ -44,6 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Parse request body
     let body: Record<string, unknown>;
+
     try {
       body = await request.json();
     } catch {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const {outputType, commentText} = body;
+    const {commentText, outputType} = body;
 
     // Validate required fields
     if (!outputType || !commentText) {

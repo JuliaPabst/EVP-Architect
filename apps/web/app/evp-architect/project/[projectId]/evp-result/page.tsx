@@ -1,10 +1,10 @@
 'use client';
 
+import EvpResultContent from './components/EvpResultContent';
+
+import KununuHeader from '@/app/components/KununuHeader';
 import useAdminToken from '@/app/hooks/useAdminToken';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
-import KununuHeader from '@/app/components/KununuHeader';
-
-import EvpResultContent from './components/EvpResultContent';
 
 interface EvpResultPageProps {
   readonly params: {

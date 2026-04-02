@@ -84,18 +84,18 @@ function makeAnswerRow(
   answerText: string | null = null,
 ): AnswerRow {
   return {
-    id,
-    submission_id: submissionId,
-    question_id: `q-${questionKey}`,
-    answer_text: answerText,
     answer_json: null,
+    answer_text: answerText,
     created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
+    id,
     question: {
       key: questionKey,
       prompt: `Prompt for ${questionKey}`,
       question_type: questionType,
     },
+    question_id: `q-${questionKey}`,
+    submission_id: submissionId,
+    updated_at: '2026-01-01T00:00:00Z',
   };
 }
 
@@ -319,16 +319,16 @@ describe('DataAssemblyService', () => {
       );
       mockSelectionOptionRepo.getOptionsByKeys.mockResolvedValue([
         {
+          created_at: null,
           key: 'innovation',
           label_de: 'Innovation',
           option_type: 'value' as const,
-          created_at: null,
         },
         {
+          created_at: null,
           key: 'teamwork',
           label_de: 'Teamarbeit',
           option_type: 'value' as const,
-          created_at: null,
         },
       ]);
 
