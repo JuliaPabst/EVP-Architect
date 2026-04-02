@@ -82,6 +82,20 @@ async function fetchValidationResult(
   };
 }
 
+function getOrFetchValidation(
+  cacheKey: string,
+  projectId: string,
+  adminToken: string,
+): Promise<CachedValidation | null> {
+  const existing = inFlightValidationRequests.get(cacheKey);
+
+  if (existing) return existing;
+  const request = fetchValidationResult(projectId, adminToken);
+
+  inFlightValidationRequests.set(cacheKey, request);
+  return request;
+}
+
 export function clearAdminValidationCacheForTests(): void {
   if (process.env.NODE_ENV === 'test') {
     validationCache.clear();
@@ -146,14 +160,11 @@ export default function useAdminTokenValidation(
       }
 
       try {
-        let inFlightRequest = inFlightValidationRequests.get(cacheKey);
-
-        if (!inFlightRequest) {
-          inFlightRequest = fetchValidationResult(projectId, adminToken);
-          inFlightValidationRequests.set(cacheKey, inFlightRequest);
-        }
-
-        const validationResult = await inFlightRequest;
+        const validationResult = await getOrFetchValidation(
+          cacheKey,
+          projectId,
+          adminToken,
+        );
 
         if (!validationResult) {
           if (!isDisposed) {
