@@ -4,9 +4,18 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 
 import {ResultItem} from '@kununu/ui/shared/typings/resultItem';
 
+import {StepQuestion} from './surveyStepCache';
 import useEmployerSurveyStep from './useEmployerSurveyStep';
 
 import {EvpOutputType} from '@/lib/types/pipeline';
+
+function toResultItems(options: StepQuestion['options']): ResultItem[] {
+  return (options ?? []).map(opt => ({
+    id: opt.value_key,
+    text: opt.label,
+    value: opt.value_key,
+  }));
+}
 
 export interface EvpGenerationSettings {
   readonly language: string;
@@ -117,44 +126,33 @@ export default function useEvpSettings(
     TARGET_AUDIENCE_TO_OUTPUT_TYPE[selectedTargetAudience] ?? 'internal';
 
   const targetAudienceOptions: ResultItem[] = useMemo(
-    () =>
-      (targetAudienceQuestion?.options ?? []).map(opt => ({
-        id: opt.value_key,
-        text: opt.label,
-        value: opt.value_key,
-      })),
+    () => toResultItems(targetAudienceQuestion?.options),
     [targetAudienceQuestion?.options],
   );
 
   const styleOptions: ResultItem[] = useMemo(
-    () =>
-      (styleQuestion?.options ?? []).map(opt => ({
-        id: opt.value_key,
-        text: opt.label,
-        value: opt.value_key,
-      })),
+    () => toResultItems(styleQuestion?.options),
     [styleQuestion?.options],
   );
 
   const languageOptions: ResultItem[] = useMemo(
-    () =>
-      (languageQuestion?.options ?? []).map(opt => ({
-        id: opt.value_key,
-        text: opt.label,
-        value: opt.value_key,
-      })),
+    () => toResultItems(languageQuestion?.options),
     [languageQuestion?.options],
   );
 
   const saveSettings = useCallback(async (): Promise<boolean> => {
     const answers = [];
 
-    if (targetAudienceQuestion && selectedTargetAudience) {
-      answers.push({
-        question_id: targetAudienceQuestion.id,
-        selected_values: [selectedTargetAudience],
-      });
-    }
+    const pushSelectedValue = (
+      question: StepQuestion | undefined,
+      value: string,
+    ) => {
+      if (question && value) {
+        answers.push({question_id: question.id, selected_values: [value]});
+      }
+    };
+
+    pushSelectedValue(targetAudienceQuestion, selectedTargetAudience);
 
     if (targetAudienceDetailQuestion) {
       answers.push({
@@ -163,19 +161,8 @@ export default function useEvpSettings(
       });
     }
 
-    if (styleQuestion && selectedStyle) {
-      answers.push({
-        question_id: styleQuestion.id,
-        selected_values: [selectedStyle],
-      });
-    }
-
-    if (languageQuestion && selectedLanguage) {
-      answers.push({
-        question_id: languageQuestion.id,
-        selected_values: [selectedLanguage],
-      });
-    }
+    pushSelectedValue(styleQuestion, selectedStyle);
+    pushSelectedValue(languageQuestion, selectedLanguage);
 
     return saveAnswers(answers);
   }, [
