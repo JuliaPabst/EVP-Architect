@@ -1,7 +1,6 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable sort-keys */
 import EmployerSurveyService from './employerSurveyService';
 
 import {ProjectRepository} from '@/lib/repositories/projectRepository';

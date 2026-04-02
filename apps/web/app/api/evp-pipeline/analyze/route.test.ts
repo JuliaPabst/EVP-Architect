@@ -20,7 +20,6 @@ describe('POST /api/evp-pipeline/analyze', () => {
     validateProjectAccess as jest.MockedFunction<typeof validateProjectAccess>;
   const mockAnalyze = jest.fn();
 
-  /* eslint-disable sort-keys */
   const mockProject: ProjectContext = {
     admin_token: 'valid-token',
     company_name: 'Test Corp',
@@ -41,7 +40,6 @@ describe('POST /api/evp-pipeline/analyze', () => {
     total_respondents: 3,
     value_tensions: [],
   };
-  /* eslint-enable sort-keys */
 
   function makeRequest() {
     return new NextRequest(

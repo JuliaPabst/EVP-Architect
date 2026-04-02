@@ -39,7 +39,6 @@ describe('AiResultRepository', () => {
   });
 
   describe('save', () => {
-    /* eslint-disable sort-keys */
     const mockResult = {
       generated_at: '2026-01-01T00:00:00Z',
       id: 'result-1',
@@ -51,7 +50,6 @@ describe('AiResultRepository', () => {
       result_text: null,
       target_audience: null,
     };
-    /* eslint-enable sort-keys */
 
     it('should insert and return the saved record', async () => {
       mockSingle.mockResolvedValue({data: mockResult, error: null});
@@ -144,13 +142,11 @@ describe('AiResultRepository', () => {
 
   describe('findLatestByStep', () => {
     it('should return the latest result for a project and step', async () => {
-      /* eslint-disable sort-keys */
       const mockResult = {
         id: 'result-1',
         pipeline_step: 'assembly' as const,
         project_id: 'project-1',
       };
-      /* eslint-enable sort-keys */
 
       mockMaybeSingle.mockResolvedValue({data: mockResult, error: null});
       mockLimit.mockReturnValue({maybeSingle: mockMaybeSingle});
@@ -225,7 +221,6 @@ describe('AiResultRepository', () => {
 
   describe('findAllByProject', () => {
     it('should return all results for a project without step filter', async () => {
-      /* eslint-disable sort-keys */
       const mockResults = [
         {
           id: 'result-1',
@@ -238,7 +233,6 @@ describe('AiResultRepository', () => {
           project_id: 'project-1',
         },
       ];
-      /* eslint-enable sort-keys */
 
       mockOrder.mockResolvedValue({data: mockResults, error: null});
       mockEq.mockReturnValue({order: mockOrder});
@@ -256,13 +250,11 @@ describe('AiResultRepository', () => {
     });
 
     it('should return filtered results when pipeline_step is provided', async () => {
-      /* eslint-disable sort-keys */
       const mockResult = {
         id: 'result-1',
         pipeline_step: 'assembly' as const,
         project_id: 'project-1',
       };
-      /* eslint-enable sort-keys */
 
       const secondEqFinal = jest.fn();
 

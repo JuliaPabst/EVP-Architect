@@ -1,7 +1,6 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable sort-keys */
 
 // Mock the OpenAI module first
 import AnalysisService, {
@@ -17,6 +16,7 @@ const mockCreate = jest.fn();
 
 jest.mock('openai', () => {
   return {
+    __esModule: true,
     default: jest.fn().mockImplementation(() => ({
       chat: {
         completions: {
@@ -131,6 +131,15 @@ describe('createOpenAiClient', () => {
     expect(() => createOpenAiClient()).toThrow(
       'OPENAI_API_KEY environment variable is not set',
     );
+  });
+
+  it('should return an OpenAI client when OPENAI_API_KEY is set', () => {
+    process.env.OPENAI_API_KEY = 'test-api-key';
+
+    const client = createOpenAiClient();
+
+    expect(client).toBeDefined();
+    expect(typeof client).toBe('object');
   });
 });
 

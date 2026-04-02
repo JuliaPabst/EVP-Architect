@@ -280,7 +280,6 @@ describe('SurveyAnswerRepository', () => {
     });
 
     it('should fetch and map answers with their question context', async () => {
-      /* eslint-disable sort-keys */
       const rawRow = {
         answer_json: null,
         answer_text: 'Great culture',
@@ -295,7 +294,6 @@ describe('SurveyAnswerRepository', () => {
         submission_id: 'sub-1',
         updated_at: '2026-01-01',
       };
-      /* eslint-enable sort-keys */
 
       mockIn.mockResolvedValue({data: [rawRow], error: null});
       mockSelect.mockReturnValue({in: mockIn});
@@ -333,7 +331,6 @@ describe('SurveyAnswerRepository', () => {
     });
 
     it('should default null timestamps to empty string', async () => {
-      /* eslint-disable sort-keys */
       const rawRow = {
         answer_json: null,
         answer_text: null,
@@ -348,7 +345,6 @@ describe('SurveyAnswerRepository', () => {
         submission_id: 'sub-2',
         updated_at: null,
       };
-      /* eslint-enable sort-keys */
 
       mockIn.mockResolvedValue({data: [rawRow], error: null});
       mockSelect.mockReturnValue({in: mockIn});
@@ -361,7 +357,6 @@ describe('SurveyAnswerRepository', () => {
     });
 
     it('should throw when evp_survey_questions is null', async () => {
-      /* eslint-disable sort-keys */
       const rawRow = {
         answer_json: null,
         answer_text: null,
@@ -372,7 +367,6 @@ describe('SurveyAnswerRepository', () => {
         submission_id: 'sub-3',
         updated_at: '2026-01-01',
       };
-      /* eslint-enable sort-keys */
 
       mockIn.mockResolvedValue({data: [rawRow], error: null});
       mockSelect.mockReturnValue({in: mockIn});

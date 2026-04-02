@@ -13,7 +13,6 @@ jest.mock('@/app/components/KununuHeader', () => {
 
 jest.mock('@kununu/ui/atoms/UnunuBackground', () => ({
   __esModule: true,
-  /* eslint-disable sort-keys */
   default: function MockBg() {
     return null;
   },

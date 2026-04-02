@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable sort-keys */
+
 import DataAssemblyService, {
   MINIMUM_EMPLOYEE_SUBMISSIONS,
 } from './dataAssemblyService';
@@ -677,6 +677,168 @@ describe('DataAssemblyService', () => {
       expect(payload.company_context).toBeDefined();
       expect(payload.data_quality).toBeDefined();
       expect(payload.employee_survey).toBeDefined();
+    });
+
+    it('builds employer multi_select answer with selected_options', async () => {
+      const answerRows = [
+        makeAnswerRow('a-emp', 'emp-sub-1', 'core_values', 'multi_select'),
+      ];
+
+      mockProjectRepo.findById.mockResolvedValue(
+        makeProject() as ReturnType<typeof makeProject>,
+      );
+      mockSubmissionRepo.findAllByProject.mockResolvedValue([
+        makeSubmission('emp-sub-1', 'employer'),
+        makeSubmission('e-sub-1', 'employee'),
+        makeSubmission('e-sub-2', 'employee'),
+        makeSubmission('e-sub-3', 'employee'),
+      ]);
+      mockAnswerRepo.getAnswersWithQuestions.mockResolvedValue(
+        answerRows as Awaited<
+          ReturnType<SurveyAnswerRepository['getAnswersWithQuestions']>
+        >,
+      );
+      mockValueSelectionRepo.getSelectionsByAnswers.mockResolvedValue(
+        new Map([['a-emp', ['teamwork']]]),
+      );
+      mockQuestionOptionRepo.getOptionsByQuestionKeys.mockResolvedValue(
+        new Map(),
+      );
+      mockSelectionOptionRepo.getOptionsByKeys.mockResolvedValue([
+        {
+          key: 'teamwork',
+          label_de: 'Teamarbeit',
+          option_type: 'value' as const,
+        },
+      ]);
+
+      const payload = await service.assemble(PROJECT_ID);
+
+      expect(payload.employer_survey!.answers.core_values).toEqual({
+        prompt: 'Prompt for core_values',
+        question_type: 'multi_select',
+        selected_options: [{key: 'teamwork', label_de: 'Teamarbeit'}],
+      });
+    });
+
+    it('falls back to option key as label for single_select when label not found in question options', async () => {
+      const answerRows = [
+        makeAnswerRow('a1', 'e-sub-1', 'work_style', 'single_select'),
+        makeAnswerRow('a2', 'e-sub-2', 'work_style', 'single_select'),
+        makeAnswerRow('a3', 'e-sub-3', 'work_style', 'single_select'),
+      ];
+
+      setupHappyPath(3, answerRows);
+
+      mockValueSelectionRepo.getSelectionsByAnswers.mockResolvedValue(
+        new Map([
+          ['a1', ['unknown_option']],
+          ['a2', ['unknown_option']],
+          ['a3', ['unknown_option']],
+        ]),
+      );
+      // questionOptionsMap has work_style but NOT the 'unknown_option' key
+      mockQuestionOptionRepo.getOptionsByQuestionKeys.mockResolvedValue(
+        new Map([['work_style', [{label: 'Remote', value_key: 'remote'}]]]),
+      );
+
+      const payload = await service.assemble(PROJECT_ID);
+
+      const {options} = payload.employee_survey.work_style as {
+        options: {key: string; label_de: string}[];
+      };
+
+      expect(options[0].label_de).toBe('unknown_option');
+    });
+
+    it('handles the case where all employee submissions are in_progress (completion rate calculation)', async () => {
+      mockProjectRepo.findById.mockResolvedValue(
+        makeProject() as ReturnType<typeof makeProject>,
+      );
+      // 3 submitted + 0 in_progress = rate 1.0
+      mockSubmissionRepo.findAllByProject.mockResolvedValue([
+        makeSubmission('e-sub-1', 'employee', 'submitted'),
+        makeSubmission('e-sub-2', 'employee', 'submitted'),
+        makeSubmission('e-sub-3', 'employee', 'submitted'),
+      ]);
+      mockAnswerRepo.getAnswersWithQuestions.mockResolvedValue([]);
+      mockValueSelectionRepo.getSelectionsByAnswers.mockResolvedValue(
+        new Map(),
+      );
+      mockQuestionOptionRepo.getOptionsByQuestionKeys.mockResolvedValue(
+        new Map(),
+      );
+      mockSelectionOptionRepo.getOptionsByKeys.mockResolvedValue([]);
+
+      const payload = await service.assemble(PROJECT_ID);
+
+      expect(payload.data_quality.completion_rate).toBe(1);
+    });
+
+    it('handles employer submission without submitted_at (null submitted_at)', async () => {
+      const employerSubmission = {
+        ...makeSubmission('emp-sub-1', 'employer'),
+        submitted_at: null,
+      };
+
+      mockProjectRepo.findById.mockResolvedValue(
+        makeProject() as ReturnType<typeof makeProject>,
+      );
+      mockSubmissionRepo.findAllByProject.mockResolvedValue([
+        employerSubmission,
+        makeSubmission('e-sub-1', 'employee'),
+        makeSubmission('e-sub-2', 'employee'),
+        makeSubmission('e-sub-3', 'employee'),
+      ]);
+      mockAnswerRepo.getAnswersWithQuestions.mockResolvedValue([]);
+      mockValueSelectionRepo.getSelectionsByAnswers.mockResolvedValue(
+        new Map(),
+      );
+      mockQuestionOptionRepo.getOptionsByQuestionKeys.mockResolvedValue(
+        new Map(),
+      );
+      mockSelectionOptionRepo.getOptionsByKeys.mockResolvedValue([]);
+
+      const payload = await service.assemble(PROJECT_ID);
+
+      expect(payload.employer_survey!.submitted_at).toBeNull();
+    });
+
+    it('skips multi_select employer answers with no selected keys', async () => {
+      const answerRows = [
+        makeAnswerRow('a-emp', 'emp-sub-1', 'values', 'multi_select'),
+      ];
+
+      mockProjectRepo.findById.mockResolvedValue(
+        makeProject() as ReturnType<typeof makeProject>,
+      );
+      mockSubmissionRepo.findAllByProject.mockResolvedValue([
+        makeSubmission('emp-sub-1', 'employer'),
+        makeSubmission('e-sub-1', 'employee'),
+        makeSubmission('e-sub-2', 'employee'),
+        makeSubmission('e-sub-3', 'employee'),
+      ]);
+      mockAnswerRepo.getAnswersWithQuestions.mockResolvedValue(
+        answerRows as Awaited<
+          ReturnType<SurveyAnswerRepository['getAnswersWithQuestions']>
+        >,
+      );
+      // No selections for this answer
+      mockValueSelectionRepo.getSelectionsByAnswers.mockResolvedValue(
+        new Map(),
+      );
+      mockQuestionOptionRepo.getOptionsByQuestionKeys.mockResolvedValue(
+        new Map(),
+      );
+      mockSelectionOptionRepo.getOptionsByKeys.mockResolvedValue([]);
+
+      const payload = await service.assemble(PROJECT_ID);
+
+      expect(payload.employer_survey!.answers.values).toEqual({
+        prompt: 'Prompt for values',
+        question_type: 'multi_select',
+        selected_options: [],
+      });
     });
   });
 });

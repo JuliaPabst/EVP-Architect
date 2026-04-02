@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable sort-keys */
+
 import EmployeeSurveyService from './employeeSurveyService';
 
 import {QuestionOptionRepository} from '@/lib/repositories/questionOptionRepository';

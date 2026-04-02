@@ -480,5 +480,231 @@ describe('EvpOutputService', () => {
       // Gap analysis prompt should be analytical
       expect(callArgs.system).toContain('analytical');
     });
+
+    it('overrides tone with toneOfVoice parameter instead of extracting from assembly', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(
+        mockProjectId,
+        'external',
+        undefined,
+        [],
+        'casual',
+      );
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Warm, conversational, approachable.');
+    });
+
+    it('uses null employer_survey assembly for internal EVP', async () => {
+      const assemblyWithNullEmployer = {
+        ...mockAssemblyRecord,
+        result_json: {
+          ...mockAssemblyRecord.result_json,
+          employer_survey: null,
+        },
+      };
+
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(assemblyWithNullEmployer);
+
+      const service = new EvpOutputService(mockClientFactory);
+      const result = await service.generate(mockProjectId, 'internal');
+
+      expect(result).toBe('Generated EVP content');
+    });
+
+    it('uses null employer_survey assembly for external EVP (falls back to default tone)', async () => {
+      const assemblyWithNullEmployer = {
+        ...mockAssemblyRecord,
+        result_json: {
+          ...mockAssemblyRecord.result_json,
+          employer_survey: null,
+        },
+      };
+
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(assemblyWithNullEmployer);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(mockProjectId, 'external');
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Clear, direct, professional.');
+    });
+
+    it('includes review comments in internal EVP user prompt', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(mockProjectId, 'internal', undefined, [
+        'Make it shorter',
+        'Focus on teamwork',
+      ]);
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.messages[0].content).toContain('Revision instructions');
+      expect(callArgs.messages[0].content).toContain('Make it shorter');
+      expect(callArgs.messages[0].content).toContain('Focus on teamwork');
+    });
+
+    it('includes review comments in gap analysis user prompt', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(mockProjectId, 'gap_analysis', undefined, [
+        'Add more risks',
+      ]);
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.messages[0].content).toContain('Add more risks');
+    });
+
+    it('adds German language instruction to internal EVP system prompt', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(
+        mockProjectId,
+        'internal',
+        undefined,
+        [],
+        undefined,
+        'de',
+      );
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Write the entire output in German.');
+    });
+
+    it('adds English language instruction to external EVP system prompt', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(
+        mockProjectId,
+        'external',
+        undefined,
+        [],
+        undefined,
+        'en',
+      );
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Write the entire output in English.');
+    });
+
+    it('uses raw language code in instruction for unknown language code', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(
+        mockProjectId,
+        'internal',
+        undefined,
+        [],
+        undefined,
+        'fr',
+      );
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Write the entire output in fr.');
+    });
+
+    it('adds language instruction to gap analysis system prompt', async () => {
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(mockAssemblyRecord);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(
+        mockProjectId,
+        'gap_analysis',
+        undefined,
+        [],
+        undefined,
+        'de',
+      );
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Write the entire output in German.');
+    });
+
+    it('professional_factual tone style maps correctly', async () => {
+      const assemblyWithProfessionalTone = {
+        ...mockAssemblyRecord,
+        result_json: {
+          ...mockAssemblyRecord.result_json,
+          employer_survey: {
+            answers: {
+              tone_of_voice: {
+                prompt: 'Tone?',
+                question_type: 'single_select',
+                selected_options: [
+                  {
+                    key: 'professional_factual',
+                    label_de: 'Professionell & sachlich',
+                  },
+                ],
+              },
+            },
+            submission_id: 'sub-1',
+            submitted_at: '2026-03-30T08:00:00Z',
+          },
+        },
+      };
+
+      mockRepository.findLatestByStep
+        .mockResolvedValueOnce(mockAnalysisRecord)
+        .mockResolvedValueOnce(assemblyWithProfessionalTone);
+
+      const service = new EvpOutputService(mockClientFactory);
+
+      await service.generate(mockProjectId, 'external');
+
+      const callArgs = (mockClient.messages.create as jest.Mock).mock
+        .calls[0][0];
+
+      expect(callArgs.system).toContain('Clear, structured, evidence-focused.');
+    });
   });
 });

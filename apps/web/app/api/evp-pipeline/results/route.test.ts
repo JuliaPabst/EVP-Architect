@@ -20,7 +20,6 @@ describe('GET /api/evp-pipeline/results', () => {
     validateProjectAccess as jest.MockedFunction<typeof validateProjectAccess>;
   const mockFindAllByProject = jest.fn();
 
-  /* eslint-disable sort-keys */
   const mockProject: ProjectContext = {
     admin_token: 'valid-token',
     company_name: 'Test Corp',
@@ -54,7 +53,6 @@ describe('GET /api/evp-pipeline/results', () => {
     result_text: null,
     target_audience: null,
   };
-  /* eslint-enable sort-keys */
 
   function makeRequest(pipelineStep?: string) {
     const params = new URLSearchParams({

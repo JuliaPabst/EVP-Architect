@@ -30,7 +30,6 @@ describe('POST /api/evp-pipeline/regenerate', () => {
   const mockGenerate = jest.fn();
   const mockSaveComment = jest.fn();
 
-  /* eslint-disable sort-keys */
   const mockProject: ProjectContext = {
     admin_token: 'valid-token',
     company_name: 'Test Corp',
@@ -51,7 +50,6 @@ describe('POST /api/evp-pipeline/regenerate', () => {
     total_respondents: 3,
     value_tensions: [],
   };
-  /* eslint-enable sort-keys */
 
   function makeRequest(
     scope: string,
@@ -433,5 +431,146 @@ describe('POST /api/evp-pipeline/regenerate', () => {
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('internal_error');
+  });
+
+  it('should forward toneOfVoice and language params to generate()', async () => {
+    mockValidateProjectAccess.mockResolvedValue({
+      project: mockProject,
+      success: true,
+    });
+    mockGenerate.mockResolvedValue('Generated text');
+
+    const params = new URLSearchParams({
+      admin_token: 'valid-token',
+      language: 'de',
+      outputType: 'external',
+      projectId: 'project-123',
+      scope: 'output',
+      toneOfVoice: 'casual',
+    });
+    const request = new NextRequest(
+      `http://localhost:3001/api/evp-pipeline/regenerate?${params.toString()}`,
+      {method: 'POST'},
+    );
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(mockGenerate).toHaveBeenCalledWith(
+      'project-123',
+      'external',
+      undefined,
+      [],
+      'casual',
+      'de',
+    );
+  });
+
+  it('should pass commentText from request body to generate and save it', async () => {
+    mockValidateProjectAccess.mockResolvedValue({
+      project: mockProject,
+      success: true,
+    });
+    mockGenerate.mockResolvedValue('Generated text');
+    mockSaveComment.mockResolvedValue({id: 'comment-1'});
+
+    const params = new URLSearchParams({
+      admin_token: 'valid-token',
+      outputType: 'internal',
+      projectId: 'project-123',
+      scope: 'output',
+    });
+    const request = new NextRequest(
+      `http://localhost:3001/api/evp-pipeline/regenerate?${params.toString()}`,
+      {
+        body: JSON.stringify({commentText: 'Please make it more concise'}),
+        headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+      },
+    );
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(mockGenerate).toHaveBeenCalledWith(
+      'project-123',
+      'internal',
+      undefined,
+      ['Please make it more concise'],
+      undefined,
+      undefined,
+    );
+    expect(mockSaveComment).toHaveBeenCalledWith({
+      comment_text: 'Please make it more concise',
+      output_type: 'internal',
+      project_id: 'project-123',
+    });
+  });
+
+  it('should not save comment when commentText is not a string', async () => {
+    mockValidateProjectAccess.mockResolvedValue({
+      project: mockProject,
+      success: true,
+    });
+    mockGenerate.mockResolvedValue('Generated text');
+
+    const params = new URLSearchParams({
+      admin_token: 'valid-token',
+      outputType: 'internal',
+      projectId: 'project-123',
+      scope: 'output',
+    });
+    const request = new NextRequest(
+      `http://localhost:3001/api/evp-pipeline/regenerate?${params.toString()}`,
+      {
+        body: JSON.stringify({commentText: 42}),
+        headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+      },
+    );
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(mockSaveComment).not.toHaveBeenCalled();
+  });
+
+  it('should combine existing comments with new commentText', async () => {
+    mockValidateProjectAccess.mockResolvedValue({
+      project: mockProject,
+      success: true,
+    });
+    mockFindAllComments.mockResolvedValue([
+      {comment_text: 'First comment', id: 'c-1'},
+      {comment_text: 'Second comment', id: 'c-2'},
+    ]);
+    mockGenerate.mockResolvedValue('Generated text');
+    mockSaveComment.mockResolvedValue({id: 'c-3'});
+
+    const params = new URLSearchParams({
+      admin_token: 'valid-token',
+      outputType: 'internal',
+      projectId: 'project-123',
+      scope: 'output',
+    });
+    const request = new NextRequest(
+      `http://localhost:3001/api/evp-pipeline/regenerate?${params.toString()}`,
+      {
+        body: JSON.stringify({commentText: 'New comment'}),
+        headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+      },
+    );
+
+    await POST(request);
+
+    expect(mockGenerate).toHaveBeenCalledWith(
+      'project-123',
+      'internal',
+      undefined,
+      ['First comment', 'Second comment', 'New comment'],
+      undefined,
+      undefined,
+    );
   });
 });
