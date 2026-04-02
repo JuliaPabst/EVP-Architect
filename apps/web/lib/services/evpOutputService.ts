@@ -11,14 +11,12 @@ import {
 // ─── Tone style map ─────────────────────────────────────────────────────────
 
 const TONE_STYLE_MAP: Record<string, string> = {
-  casual: 'Warm, conversational, approachable. Contractions allowed.',
-  formal: 'Formal, precise, structured. No colloquialisms.',
-  friendly_casual: 'Warm, conversational, approachable. Contractions allowed.',
-  innovative_future:
-    'Forward-looking, dynamic, focused on growth and momentum.',
+  casual: 'Warm, conversational, approachable.',
+  formal: 'Formal, precise, structured.',
+  friendly_casual: 'Warm, conversational, approachable.',
+  innovative_future: 'Forward-looking, dynamic, growth-oriented.',
   professional_factual: 'Clear, structured, evidence-focused.',
-  traditional_trustworthy:
-    'Stable, measured, focused on reliability and continuity.',
+  traditional_trustworthy: 'Stable, measured, reliability-focused.',
 };
 
 const DEFAULT_TONE_STYLE = 'Clear, direct, professional.';
@@ -69,9 +67,9 @@ function formatLanguageInstruction(language?: string): string {
     en: 'English',
   };
 
-  const languageName = languageNames[language] ?? language;
-
-  return `\n\nWrite the entire output in ${languageName}.`;
+  return `\n\nWrite the entire output in ${
+    languageNames[language] ?? language
+  }.`;
 }
 
 // ─── INTERNAL EVP ───────────────────────────────────────────────────────────
@@ -79,28 +77,32 @@ function formatLanguageInstruction(language?: string): string {
 function buildInternalEvpSystemPrompt(language?: string): string {
   return `You are an expert EVP strategist writing for employees.
 
-Create an internal EVP that feels recognisable, grounded, and affirming.
+Create a clear, authentic internal EVP that feels recognisable and grounded.
 
 Rules:
-- Base everything strictly on the provided evidence
+- Base everything strictly on evidence
 - Do not invent claims
-- Do not surface tensions or criticism
+- Do not include criticism or tensions
 - Focus on what is genuinely strong and experienced
 - Avoid generic employer branding language
 - Use "we" where appropriate
-- Do not repeat ideas across sections
+- Do not repeat ideas
 - Do not use em dashes
 
 Length constraints:
-- Total max 220 words
+- Total max 180 words
 - Claim: max 6 words
-- Core statement: max 45 words
-- Pillars: 2 to 4 only, each max 60 words
-- Confidence note: 1 short sentence (max 20 words)
+- Main text: max 120 words
+- Supporting points: optional (2–3 max, very short)
+- Confidence note: 1 short sentence
 
-Each pillar must introduce a new idea not already mentioned.
+Output format:
+- Claim
+- Main EVP text (one coherent paragraph)
+- Optional supporting points (bullet-style, no labels)
+- Confidence note
 
-Output only the EVP text.${formatLanguageInstruction(language)}`;
+Output only the EVP.${formatLanguageInstruction(language)}`;
 }
 
 function buildInternalEvpUserPrompt(
@@ -108,20 +110,13 @@ function buildInternalEvpUserPrompt(
   companyName: string,
   comments: string[] = [],
 ): string {
-  return `Create an Internal EVP for ${companyName} based on this analysis:
+  return `Create an Internal EVP for ${companyName}:
 
 ${JSON.stringify(analysis, null, 2)}
 
-Structure:
+Focus on the strongest evidence-backed themes only.
 
-1. Claim  
-2. Core Statement  
-3. Pillars (2–4 strongest only)  
-4. Confidence note  
-
-Select only the strongest evidence-backed themes. Omit weak or unsupported areas.
-
-Avoid repeating themes across sections.${formatComments(comments)}`;
+Avoid repetition and unnecessary structure.${formatComments(comments)}`;
 }
 
 // ─── EXTERNAL EVP ───────────────────────────────────────────────────────────
@@ -140,22 +135,26 @@ Rules:
 - Base everything strictly on employee evidence
 - Do not invent claims
 - Allow light realism: do not overpromise, but do not state criticism explicitly
-- If evidence is weak, omit the theme rather than generalising
+- Omit weak or unsupported themes instead of generalising
 - Help candidates self-select through specificity
 - Avoid generic phrases (e.g. "dynamic environment", "flat hierarchies")
-- Do not repeat ideas across sections
+- Do not repeat ideas
 - Do not use em dashes
 
 Length constraints:
-- Total max 220 words
+- Total max 180 words
 - Claim: max 6 words
-- Core statement: max 45 words
-- Pillars: 2 to 4 only, each max 60 words
-- Confidence note: 1 short sentence (max 20 words)
+- Main text: max 120 words
+- Supporting points: optional (2–3 max, very short)
+- Confidence note: 1 short sentence
 
-Each pillar must introduce a new idea not already used earlier.
+Output format:
+- Claim
+- Main EVP text (one compelling paragraph)
+- Optional supporting points (bullet-style, no labels)
+- Confidence note
 
-Output only the EVP text.${formatLanguageInstruction(language)}`;
+Output only the EVP.${formatLanguageInstruction(language)}`;
 }
 
 function buildExternalEvpUserPrompt(
@@ -174,16 +173,9 @@ ${JSON.stringify(analysis, null, 2)}
 
 ${audienceContext}
 
-Structure:
+Focus on clarity, specificity, and differentiation.
 
-1. Claim  
-2. Core Statement  
-3. Pillars (2–4 strongest only)  
-4. Confidence note  
-
-Select only strong, evidence-backed themes. Omit weak areas instead of generalising.
-
-Avoid repeating ideas across sections.${formatComments(comments)}`;
+Avoid repetition and unnecessary structure.${formatComments(comments)}`;
 }
 
 // ─── GAP ANALYSIS ───────────────────────────────────────────────────────────
@@ -203,7 +195,7 @@ Rules:
 
 Length guidance:
 - Summary: max 80 words
-- Analyse up to 4 most relevant dimensions (not all 5 if unnecessary)
+- Analyse up to 4 key dimensions
 - Recommendations: exactly 3 concise actions
 
 Output only the analysis.${formatLanguageInstruction(language)}`;
@@ -219,12 +211,11 @@ function buildGapAnalysisUserPrompt(
 ${JSON.stringify(analysis, null, 2)}
 
 Structure:
-
 1. Summary  
-2. Per-pillar comparison (top 4 only)  
+2. Key misalignments  
 3. Blind spots  
 4. Aspirational gaps  
-5. Recommendations (exactly 3)  
+5. Recommendations (3)
 
 Be precise and evidence-based.${formatComments(comments)}`;
 }

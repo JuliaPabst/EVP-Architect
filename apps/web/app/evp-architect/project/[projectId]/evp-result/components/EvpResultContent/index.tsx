@@ -21,13 +21,10 @@ export default function EvpResultContent({
   adminToken,
   projectId,
 }: EvpResultContentProps) {
-  const {error, evpText, isLoading, isRegenerating, regenerate} = useEvpResult(
-    projectId,
-    adminToken,
-  );
   const {
     isExternalCommunication,
     languageOptions,
+    outputType,
     saveSettings,
     selectedLanguage,
     selectedStyle,
@@ -42,6 +39,12 @@ export default function EvpResultContent({
     targetAudienceDetailPrompt,
     targetAudienceOptions,
   } = useEvpSettings(projectId, adminToken);
+
+  const {error, evpText, isLoading, isRegenerating, regenerate} = useEvpResult(
+    projectId,
+    adminToken,
+    outputType,
+  );
 
   const [commentText, setCommentText] = useState('');
 

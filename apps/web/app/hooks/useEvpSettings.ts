@@ -6,6 +6,8 @@ import {ResultItem} from '@kununu/ui/shared/typings/resultItem';
 
 import useEmployerSurveyStep from './useEmployerSurveyStep';
 
+import {EvpOutputType} from '@/lib/types/pipeline';
+
 export interface EvpGenerationSettings {
   readonly language: string;
   readonly targetAudience: string;
@@ -18,6 +20,7 @@ interface UseEvpSettingsReturn {
   readonly isLoading: boolean;
   readonly isSaving: boolean;
   readonly languageOptions: ResultItem[];
+  readonly outputType: EvpOutputType;
   readonly saveSettings: () => Promise<boolean>;
   readonly selectedLanguage: string;
   readonly selectedStyle: string;
@@ -103,6 +106,15 @@ export default function useEvpSettings(
 
   const isExternalCommunication =
     selectedTargetAudience === 'externe_kommunikation';
+
+  const TARGET_AUDIENCE_TO_OUTPUT_TYPE: Record<string, EvpOutputType> = {
+    externe_kommunikation: 'external',
+    interne_analyse: 'gap_analysis',
+    interne_kommunikation: 'internal',
+  };
+
+  const outputType: EvpOutputType =
+    TARGET_AUDIENCE_TO_OUTPUT_TYPE[selectedTargetAudience] ?? 'internal';
 
   const targetAudienceOptions: ResultItem[] = useMemo(
     () =>
@@ -200,6 +212,7 @@ export default function useEvpSettings(
     isLoading,
     isSaving,
     languageOptions,
+    outputType,
     saveSettings,
     selectedLanguage,
     selectedStyle,

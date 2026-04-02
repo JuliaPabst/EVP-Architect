@@ -154,7 +154,7 @@ describe('EmployeeSurveyService', () => {
 
       mockQuestionRepository.getQuestionsByStep.mockResolvedValue([question]);
       mockAnswerRepository.getAnswersByQuestions.mockResolvedValue(
-        new Map([[questionId, {id: answerId, answer_text: 'My answer'}]]),
+        new Map([[questionId, {answer_text: 'My answer', id: answerId}]]),
       );
       mockValueSelectionRepository.getSelectionsByAnswers.mockResolvedValue(
         new Map(),
@@ -181,7 +181,7 @@ describe('EmployeeSurveyService', () => {
 
       mockQuestionRepository.getQuestionsByStep.mockResolvedValue([question]);
       mockAnswerRepository.getAnswersByQuestions.mockResolvedValue(
-        new Map([[questionId, {id: answerId, answer_text: null}]]),
+        new Map([[questionId, {answer_text: null, id: answerId}]]),
       );
       mockValueSelectionRepository.getSelectionsByAnswers.mockResolvedValue(
         new Map([[answerId, ['value_a', 'value_b']]]),

@@ -2,6 +2,8 @@ import {useCallback, useEffect, useState} from 'react';
 
 import {EvpGenerationSettings} from './useEvpSettings';
 
+import {EvpOutputType} from '@/lib/types/pipeline';
+
 interface EvpResultState {
   readonly error: string | null;
   readonly evpText: string | null;
@@ -32,6 +34,7 @@ interface UseEvpResultReturn extends EvpResultState {
 export default function useEvpResult(
   projectId: string,
   adminToken: string,
+  outputType: EvpOutputType = 'internal',
 ): UseEvpResultReturn {
   const [evpText, setEvpText] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +51,7 @@ export default function useEvpResult(
 
         // Fetch existing EVP result
         const resultsResponse = await fetch(
-          `/api/evp-pipeline/results?projectId=${encodeURIComponent(projectId)}&pipeline_step=internal&admin_token=${encodeURIComponent(adminToken)}`,
+          `/api/evp-pipeline/results?projectId=${encodeURIComponent(projectId)}&pipeline_step=${encodeURIComponent(outputType)}&admin_token=${encodeURIComponent(adminToken)}`,
         );
 
         if (!resultsResponse.ok) {
@@ -83,7 +86,7 @@ export default function useEvpResult(
 
         // Generate EVP output (Step 2)
         const generateResponse = await fetch(
-          `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=internal&admin_token=${encodeURIComponent(adminToken)}`,
+          `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=${encodeURIComponent(outputType)}&admin_token=${encodeURIComponent(adminToken)}`,
           {method: 'POST'},
         );
 
@@ -117,7 +120,7 @@ export default function useEvpResult(
     return () => {
       isDisposed = true;
     };
-  }, [adminToken, projectId]);
+  }, [adminToken, outputType, projectId]);
 
   const regenerate = useCallback(
     async (commentText: string, settings?: EvpGenerationSettings) => {
@@ -127,7 +130,7 @@ export default function useEvpResult(
 
         const queryParams = new URLSearchParams({
           admin_token: adminToken,
-          outputType: 'internal',
+          outputType,
           projectId,
           scope: 'output',
         });
@@ -169,7 +172,7 @@ export default function useEvpResult(
         console.error('Error regenerating EVP:', err);
       }
     },
-    [adminToken, projectId],
+    [adminToken, outputType, projectId],
   );
 
   return {
