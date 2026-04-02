@@ -1,5 +1,10 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {
+  handleAssembleAnalyzeError,
+  handleOutputGenerationError,
+  validateOutputType,
+} from '@/app/api/evp-pipeline/_shared/pipelineHandlers';
 import {handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import {EvpCommentRepository} from '@/lib/repositories/evpCommentRepository';
@@ -53,41 +58,7 @@ async function handleFullScope(projectId: string): Promise<NextResponse> {
 
     return NextResponse.json({analysis});
   } catch (error) {
-    const {message} = error as Error;
-
-    if (message === 'insufficient_submissions') {
-      return NextResponse.json(
-        {
-          error: 'insufficient_submissions',
-          message: `At least 3 submitted employee surveys are required to run the pipeline`,
-        },
-        {status: 400},
-      );
-    }
-
-    if (message === 'analysis_validation_failed') {
-      return NextResponse.json(
-        {
-          error: 'analysis_validation_failed',
-          message:
-            'The AI response did not match the expected schema after retry. Please try again.',
-        },
-        {status: 400},
-      );
-    }
-
-    if (message === 'assembly_not_found') {
-      return NextResponse.json(
-        {
-          error: 'assembly_not_found',
-          message:
-            'No assembly result found. This should not happen. Please try again.',
-        },
-        {status: 400},
-      );
-    }
-
-    throw error;
+    return handleAssembleAnalyzeError(error);
   }
 }
 
@@ -101,21 +72,9 @@ async function handleOutputScope(
   const toneOfVoice = searchParams.get('toneOfVoice') ?? undefined;
   const language = searchParams.get('language') ?? undefined;
 
-  const validOutputTypes: EvpOutputType[] = [
-    'external',
-    'gap_analysis',
-    'internal',
-  ];
+  const outputTypeError = validateOutputType(outputType);
 
-  if (!outputType || !validOutputTypes.includes(outputType as EvpOutputType)) {
-    return NextResponse.json(
-      {
-        error: 'invalid_output_type',
-        message: 'outputType must be one of: internal, external, gap_analysis',
-      },
-      {status: 400},
-    );
-  }
+  if (outputTypeError) return outputTypeError;
 
   const body = await request.json().catch(() => ({}));
   const rawComment = (body as Record<string, unknown>).commentText;
@@ -156,42 +115,7 @@ async function handleOutputScope(
 
     return NextResponse.json({text});
   } catch (error) {
-    const {message} = error as Error;
-
-    if (message === 'analysis_not_found') {
-      return NextResponse.json(
-        {
-          error: 'analysis_not_found',
-          message:
-            'No analysis result found for this project. Run /api/evp-pipeline/analyze first.',
-        },
-        {status: 400},
-      );
-    }
-
-    if (message === 'assembly_not_found') {
-      return NextResponse.json(
-        {
-          error: 'assembly_not_found',
-          message:
-            'No assembly result found for this project. Run /api/evp-pipeline/assemble first.',
-        },
-        {status: 400},
-      );
-    }
-
-    if (message === 'claude_content_filtered') {
-      return NextResponse.json(
-        {
-          error: 'generation_failed',
-          message:
-            'The generated output exceeded the token limit. Please try again or contact support.',
-        },
-        {status: 500},
-      );
-    }
-
-    throw error;
+    return handleOutputGenerationError(error);
   }
 }
 

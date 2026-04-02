@@ -1,5 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {
+  handleOutputGenerationError,
+  validateOutputType,
+} from '@/app/api/evp-pipeline/_shared/pipelineHandlers';
 import {handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import EvpOutputService from '@/lib/services/evpOutputService';
@@ -47,26 +51,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const toneOfVoice = searchParams.get('toneOfVoice') ?? undefined;
     const language = searchParams.get('language') ?? undefined;
 
-    // Validate outputType
-    const validOutputTypes: EvpOutputType[] = [
-      'external',
-      'gap_analysis',
-      'internal',
-    ];
+    const outputTypeError = validateOutputType(outputType);
 
-    if (
-      !outputType ||
-      !validOutputTypes.includes(outputType as EvpOutputType)
-    ) {
-      return NextResponse.json(
-        {
-          error: 'invalid_output_type',
-          message:
-            'outputType must be one of: internal, external, gap_analysis',
-        },
-        {status: 400},
-      );
-    }
+    if (outputTypeError) return outputTypeError;
 
     const service = new EvpOutputService();
 
@@ -82,42 +69,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       return NextResponse.json({text});
     } catch (error) {
-      const {message} = error as Error;
-
-      if (message === 'analysis_not_found') {
-        return NextResponse.json(
-          {
-            error: 'analysis_not_found',
-            message:
-              'No analysis result found for this project. Run /api/evp-pipeline/analyze first.',
-          },
-          {status: 400},
-        );
-      }
-
-      if (message === 'assembly_not_found') {
-        return NextResponse.json(
-          {
-            error: 'assembly_not_found',
-            message:
-              'No assembly result found for this project. Run /api/evp-pipeline/assemble first.',
-          },
-          {status: 400},
-        );
-      }
-
-      if (message === 'claude_content_filtered') {
-        return NextResponse.json(
-          {
-            error: 'generation_failed',
-            message:
-              'The generated output exceeded the token limit. Please try again or contact support.',
-          },
-          {status: 500},
-        );
-      }
-
-      throw error;
+      return handleOutputGenerationError(error);
     }
   }, 'POST /api/evp-pipeline/generate');
 }

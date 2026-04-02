@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+import {handleAssembleAnalyzeError} from '@/app/api/evp-pipeline/_shared/pipelineHandlers';
 import {handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
@@ -83,39 +84,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
       }
 
-      if (message === 'insufficient_submissions') {
-        return NextResponse.json(
-          {
-            error: 'insufficient_submissions',
-            message: `At least 3 submitted employee surveys are required to run the pipeline`,
-          },
-          {status: 400},
-        );
-      }
-
-      if (message === 'assembly_not_found') {
-        return NextResponse.json(
-          {
-            error: 'assembly_not_found',
-            message:
-              'No assembly result found. This should not happen. Please try again.',
-          },
-          {status: 400},
-        );
-      }
-
-      if (message === 'analysis_validation_failed') {
-        return NextResponse.json(
-          {
-            error: 'analysis_validation_failed',
-            message:
-              'The AI response did not match the expected schema after retry. Please try again.',
-          },
-          {status: 400},
-        );
-      }
-
-      throw error;
+      return handleAssembleAnalyzeError(error);
     }
   }, 'POST /api/evp-pipeline/trigger');
 }
