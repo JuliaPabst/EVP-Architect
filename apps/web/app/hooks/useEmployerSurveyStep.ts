@@ -4,11 +4,9 @@ import {
   SaveAnswerPayload,
   StepData,
   fetchStepFromApi,
-  getCachedStepData,
   getErrorMessage,
   inFlightStepRequests,
   mergeSavedAnswers,
-  setCachedStepData,
 } from './surveyStepCache';
 
 interface UseEmployerSurveyStepResult {
@@ -58,24 +56,12 @@ export default function useEmployerSurveyStep(
       }
 
       try {
-        const cacheKey = getCacheKey(projectId, step);
-        const cached = getCachedStepData(cacheKey);
-
-        if (cached) {
-          if (!isDisposed) {
-            setError(null);
-            setIsLoading(false);
-            setStepData(cached);
-          }
-
-          return;
-        }
-
         if (!isDisposed) {
           setIsLoading(true);
           setError(null);
         }
 
+        const cacheKey = getCacheKey(projectId, step);
         const url = `/api/employer-survey/step/${step}?projectId=${projectId}`;
         let inFlightRequest = inFlightStepRequests.get(cacheKey);
 
@@ -86,8 +72,6 @@ export default function useEmployerSurveyStep(
         }
 
         const data = await inFlightRequest;
-
-        setCachedStepData(cacheKey, data);
 
         if (!isDisposed) {
           setStepData(data);
@@ -142,25 +126,13 @@ export default function useEmployerSurveyStep(
         throw new Error(errorData.message || 'Failed to save survey data');
       }
 
-      const cacheKey = getCacheKey(projectId, step);
-
       setStepData(currentStepData => {
         if (!currentStepData) {
           return currentStepData;
         }
 
-        const updatedStepData = mergeSavedAnswers(currentStepData, answers);
-
-        setCachedStepData(cacheKey, updatedStepData);
-
-        return updatedStepData;
+        return mergeSavedAnswers(currentStepData, answers);
       });
-
-      const cachedStepData = getCachedStepData(cacheKey);
-
-      if (cachedStepData) {
-        setCachedStepData(cacheKey, mergeSavedAnswers(cachedStepData, answers));
-      }
 
       return true;
     } catch (error_) {

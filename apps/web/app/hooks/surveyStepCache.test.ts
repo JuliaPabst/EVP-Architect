@@ -1,11 +1,7 @@
 import {
-  STEP_CACHE_TTL_MS,
   fetchStepFromApi,
-  getCachedStepData,
   getErrorMessage,
   mergeSavedAnswers,
-  setCachedStepData,
-  stepDataCache,
 } from './surveyStepCache';
 import type {StepData} from './surveyStepCache';
 
@@ -28,7 +24,6 @@ const MOCK_STEP_DATA: StepData = {
 describe('surveyStepCache', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    stepDataCache.clear();
   });
 
   describe('fetchStepFromApi', () => {
@@ -65,30 +60,6 @@ describe('surveyStepCache', () => {
       await expect(
         fetchStepFromApi('/api/employee-survey/step/1?submission_id=sub-1'),
       ).rejects.toThrow('Failed to fetch survey data');
-    });
-  });
-
-  describe('getCachedStepData', () => {
-    it('returns null when cache key is not present', () => {
-      expect(getCachedStepData('missing-key')).toBeNull();
-    });
-
-    it('returns cached data when entry is still fresh', () => {
-      setCachedStepData('fresh-key', MOCK_STEP_DATA);
-
-      expect(getCachedStepData('fresh-key')).toEqual(MOCK_STEP_DATA);
-    });
-
-    it('returns null and removes entry when cache is expired', () => {
-      jest
-        .spyOn(Date, 'now')
-        .mockReturnValueOnce(0)
-        .mockReturnValue(STEP_CACHE_TTL_MS + 1);
-
-      setCachedStepData('expired-key', MOCK_STEP_DATA);
-
-      expect(getCachedStepData('expired-key')).toBeNull();
-      expect(stepDataCache.has('expired-key')).toBe(false);
     });
   });
 

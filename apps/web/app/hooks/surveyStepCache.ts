@@ -27,14 +27,6 @@ export interface SaveAnswerPayload {
   readonly selected_values?: readonly string[];
 }
 
-export const STEP_CACHE_TTL_MS = 30_000;
-
-interface CachedStepData {
-  readonly data: StepData;
-  readonly fetchedAt: number;
-}
-
-export const stepDataCache = new Map<string, CachedStepData>();
 export const inFlightStepRequests = new Map<string, Promise<StepData>>();
 
 export async function fetchStepFromApi(
@@ -47,7 +39,7 @@ export async function fetchStepFromApi(
     headers['x-admin-token'] = adminToken;
   }
 
-  const response = await fetch(url, {headers});
+  const response = await fetch(url, {cache: 'no-store', headers});
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -58,30 +50,8 @@ export async function fetchStepFromApi(
   return (await response.json()) as StepData;
 }
 
-export function getCachedStepData(cacheKey: string): StepData | null {
-  const cached = stepDataCache.get(cacheKey);
-
-  if (!cached) {
-    return null;
-  }
-
-  if (Date.now() - cached.fetchedAt > STEP_CACHE_TTL_MS) {
-    stepDataCache.delete(cacheKey);
-    return null;
-  }
-
-  return cached.data;
-}
-
 export function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'An error occurred';
-}
-
-export function setCachedStepData(cacheKey: string, data: StepData): void {
-  stepDataCache.set(cacheKey, {
-    data,
-    fetchedAt: Date.now(),
-  });
 }
 
 export function mergeSavedAnswers(
