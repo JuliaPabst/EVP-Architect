@@ -49,12 +49,17 @@ describe('EmployerSurveyStep2', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    window.location.hash = '#admin=test-admin-token';
     (useSearchParams as jest.Mock).mockReturnValue({
       get: jest.fn((param: string) => {
         if (param === 'admin') return 'test-admin-token';
         return null;
       }),
     });
+  });
+
+  afterEach(() => {
+    window.location.hash = '';
   });
 
   describe('Loading State', () => {

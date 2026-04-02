@@ -141,6 +141,9 @@ describe('POST /api/evp-pipeline/generate', () => {
       mockProjectId,
       'external',
       'software engineers',
+      undefined,
+      undefined,
+      undefined,
     );
   });
 
@@ -153,6 +156,9 @@ describe('POST /api/evp-pipeline/generate', () => {
       mockProjectId,
       'internal',
       'software engineers',
+      undefined,
+      undefined,
+      undefined,
     );
   });
 
@@ -227,6 +233,9 @@ describe('POST /api/evp-pipeline/generate', () => {
       mockProjectId,
       'external',
       undefined,
+      undefined,
+      undefined,
+      undefined,
     );
   });
 
@@ -242,6 +251,9 @@ describe('POST /api/evp-pipeline/generate', () => {
     expect(mockServiceInstance.generate).toHaveBeenCalledWith(
       mockProjectId,
       'gap_analysis',
+      undefined,
+      undefined,
+      undefined,
       undefined,
     );
   });

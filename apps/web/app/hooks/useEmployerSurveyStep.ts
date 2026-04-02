@@ -4,9 +4,11 @@ import {
   SaveAnswerPayload,
   StepData,
   fetchStepFromApi,
+  getCachedStepData,
   getErrorMessage,
   inFlightStepRequests,
   mergeSavedAnswers,
+  setCachedStepData,
 } from './surveyStepCache';
 
 interface UseEmployerSurveyStepResult {
@@ -62,6 +64,17 @@ export default function useEmployerSurveyStep(
         }
 
         const cacheKey = getCacheKey(projectId, step);
+        const cached = getCachedStepData(cacheKey);
+
+        if (cached) {
+          if (!isDisposed) {
+            setStepData(cached);
+            setIsLoading(false);
+          }
+
+          return;
+        }
+
         const url = `/api/employer-survey/step/${step}?projectId=${projectId}`;
         let inFlightRequest = inFlightStepRequests.get(cacheKey);
 
@@ -72,6 +85,8 @@ export default function useEmployerSurveyStep(
         }
 
         const data = await inFlightRequest;
+
+        setCachedStepData(cacheKey, data);
 
         if (!isDisposed) {
           setStepData(data);
