@@ -141,12 +141,18 @@ export default function useEmployerSurveyStep(
         throw new Error(errorData.message || 'Failed to save survey data');
       }
 
+      const cacheKey = getCacheKey(projectId, step);
+
       setStepData(currentStepData => {
         if (!currentStepData) {
           return currentStepData;
         }
 
-        return mergeSavedAnswers(currentStepData, answers);
+        const merged = mergeSavedAnswers(currentStepData, answers);
+
+        setCachedStepData(cacheKey, merged);
+
+        return merged;
       });
 
       return true;
