@@ -29,6 +29,16 @@ export interface SaveAnswerPayload {
 
 export const inFlightStepRequests = new Map<string, Promise<StepData>>();
 
+export const stepDataCache = new Map<string, StepData>();
+
+export function getCachedStepData(key: string): StepData | undefined {
+  return stepDataCache.get(key);
+}
+
+export function setCachedStepData(key: string, data: StepData): void {
+  stepDataCache.set(key, data);
+}
+
 export async function fetchStepFromApi(
   url: string,
   adminToken?: string | null,
