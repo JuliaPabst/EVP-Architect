@@ -34,3 +34,5 @@ Available gstack skills:
 - `/unfreeze` — unfreeze the codebase
 - `/gstack-upgrade` — upgrade gstack
 - `/learn` — learn about a topic
+
+If gstack skills aren't working, run `cd .claude/skills/gstack && ./setup` to build the binary and register skills.
