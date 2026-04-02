@@ -39,16 +39,16 @@
 }
 
 .evpContent {
-  padding: spacings.$kun-spacing-l;
-  background: colors.$kun-color-base-white-100;
-  border-radius: 4px;
   min-height: 200px;
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.6;
+  padding: spacings.$kun-spacing-l;
   color: colors.$kun-color-text-primary;
+  font-size: 14px;
+  font-family: monospace;
+  line-height: 1.6;
   white-space: pre-wrap;
-  word-break: break-word;
+  word-break: word-break;
+  border-radius: 4px;
+  background: colors.$kun-color-base-white-100;
 }
 
 .settingsForm {
@@ -63,13 +63,13 @@
 }
 
 .textarea {
+  min-height: 120px;
   padding: spacings.$kun-spacing-m;
+  font-size: 14px;
+  font-family: inherit;
   border: 1px solid colors.$kun-color-border-soft;
   border-radius: 4px;
-  font-family: inherit;
-  font-size: 14px;
   resize: vertical;
-  min-height: 120px;
 
   &:focus {
     border-color: colors.$kun-color-base-green-100;
@@ -80,12 +80,12 @@
 .button {
   align-self: flex-start;
   padding: spacings.$kun-spacing-m spacings.$kun-spacing-l;
-  background: colors.$kun-color-base-green-100;
   color: colors.$kun-color-base-white-100;
-  border: none;
-  border-radius: 4px;
   font-weight: 600;
   font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  background: colors.$kun-color-base-green-100;
   cursor: pointer;
   transition: background 0.2s;
 
@@ -101,9 +101,9 @@
 
 .errorMessage {
   padding: spacings.$kun-spacing-m;
-  background: colors.$kun-color-bg-error;
   color: colors.$kun-color-text-error;
   border-radius: 4px;
+  background: colors.$kun-color-bg-error;
 }
 
 .loadingMessage {
