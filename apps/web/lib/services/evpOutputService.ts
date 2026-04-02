@@ -28,7 +28,7 @@ function extractTone(assemblyPayload: AssemblyPayload): string | null {
 
   const toneAnswer = assemblyPayload.employer_survey.answers.tone_of_voice;
 
-  if (!toneAnswer || toneAnswer.question_type !== 'single_select') {
+  if (toneAnswer?.question_type !== 'single_select') {
     return null;
   }
 
@@ -247,7 +247,7 @@ class EvpOutputService {
 
     if (!analysisRecord) throw new Error('analysis_not_found');
 
-    const analysis = analysisRecord.result_json as AnalysisResult;
+    const analysis = analysisRecord.result_json as unknown as AnalysisResult;
 
     const assemblyRecord = await this.aiResultRepository.findLatestByStep(
       projectId,
@@ -256,7 +256,8 @@ class EvpOutputService {
 
     if (!assemblyRecord) throw new Error('assembly_not_found');
 
-    const assemblyPayload = assemblyRecord.result_json as AssemblyPayload;
+    const assemblyPayload =
+      assemblyRecord.result_json as unknown as AssemblyPayload;
     const companyName = assemblyPayload.company_context.company_name;
 
     const commentArray = comments ?? [];

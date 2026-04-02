@@ -43,6 +43,158 @@ import {EvpOutputType} from '@/lib/types/pipeline';
  *     500: Internal error
  */
 
+async function handleFullScope(projectId: string): Promise<NextResponse> {
+  const assemblyService = new DataAssemblyService();
+  const analysisService = new AnalysisService();
+
+  try {
+    await assemblyService.assemble(projectId);
+    const analysis = await analysisService.analyze(projectId);
+
+    return NextResponse.json({analysis});
+  } catch (error) {
+    const {message} = error as Error;
+
+    if (message === 'insufficient_submissions') {
+      return NextResponse.json(
+        {
+          error: 'insufficient_submissions',
+          message: `At least 3 submitted employee surveys are required to run the pipeline`,
+        },
+        {status: 400},
+      );
+    }
+
+    if (message === 'analysis_validation_failed') {
+      return NextResponse.json(
+        {
+          error: 'analysis_validation_failed',
+          message:
+            'The AI response did not match the expected schema after retry. Please try again.',
+        },
+        {status: 400},
+      );
+    }
+
+    if (message === 'assembly_not_found') {
+      return NextResponse.json(
+        {
+          error: 'assembly_not_found',
+          message:
+            'No assembly result found. This should not happen. Please try again.',
+        },
+        {status: 400},
+      );
+    }
+
+    throw error;
+  }
+}
+
+async function handleOutputScope(
+  projectId: string,
+  searchParams: URLSearchParams,
+  request: NextRequest,
+): Promise<NextResponse> {
+  const outputType = searchParams.get('outputType');
+  const targetAudience = searchParams.get('targetAudience') ?? undefined;
+  const toneOfVoice = searchParams.get('toneOfVoice') ?? undefined;
+  const language = searchParams.get('language') ?? undefined;
+
+  const validOutputTypes: EvpOutputType[] = [
+    'external',
+    'gap_analysis',
+    'internal',
+  ];
+
+  if (!outputType || !validOutputTypes.includes(outputType as EvpOutputType)) {
+    return NextResponse.json(
+      {
+        error: 'invalid_output_type',
+        message: 'outputType must be one of: internal, external, gap_analysis',
+      },
+      {status: 400},
+    );
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const rawComment = (body as Record<string, unknown>).commentText;
+  const commentText = typeof rawComment === 'string' ? rawComment : undefined;
+
+  const commentRepository = new EvpCommentRepository();
+  const existingComments =
+    await commentRepository.findAllByProjectAndOutputType(
+      projectId,
+      outputType as EvpOutputType,
+    );
+
+  const commentTexts = [
+    ...existingComments.map(c => c.comment_text),
+    ...(commentText ? [commentText] : []),
+  ];
+
+  const service = new EvpOutputService();
+
+  try {
+    const text = await service.generate(
+      projectId,
+      outputType as EvpOutputType,
+      targetAudience,
+      commentTexts,
+      toneOfVoice,
+      language,
+    );
+
+    // Persist comment only after successful generation
+    if (commentText) {
+      await commentRepository.save({
+        comment_text: commentText,
+        output_type: outputType as EvpOutputType,
+        project_id: projectId,
+      });
+    }
+
+    return NextResponse.json({text});
+  } catch (error) {
+    const {message} = error as Error;
+
+    if (message === 'analysis_not_found') {
+      return NextResponse.json(
+        {
+          error: 'analysis_not_found',
+          message:
+            'No analysis result found for this project. Run /api/evp-pipeline/analyze first.',
+        },
+        {status: 400},
+      );
+    }
+
+    if (message === 'assembly_not_found') {
+      return NextResponse.json(
+        {
+          error: 'assembly_not_found',
+          message:
+            'No assembly result found for this project. Run /api/evp-pipeline/assemble first.',
+        },
+        {status: 400},
+      );
+    }
+
+    if (message === 'claude_content_filtered') {
+      return NextResponse.json(
+        {
+          error: 'generation_failed',
+          message:
+            'The generated output exceeded the token limit. Please try again or contact support.',
+        },
+        {status: 500},
+      );
+    }
+
+    throw error;
+  }
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   return handleApiError(async () => {
     const validation = await validateProjectAccess(request);
@@ -53,10 +205,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const {id: projectId} = validation.project!;
     const {searchParams} = new URL(request.url);
-
     const scope = searchParams.get('scope');
 
-    // Validate scope
     if (!scope || !['full', 'output'].includes(scope)) {
       return NextResponse.json(
         {
@@ -67,176 +217,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Handle "full" scope: re-run assemble + analyze
     if (scope === 'full') {
-      const assemblyService = new DataAssemblyService();
-      const analysisService = new AnalysisService();
-
-      try {
-        await assemblyService.assemble(projectId);
-        const analysis = await analysisService.analyze(projectId);
-
-        return NextResponse.json({analysis});
-      } catch (error) {
-        const {message} = error as Error;
-
-        if (message === 'insufficient_submissions') {
-          return NextResponse.json(
-            {
-              error: 'insufficient_submissions',
-              message: `At least 3 submitted employee surveys are required to run the pipeline`,
-            },
-            {status: 400},
-          );
-        }
-
-        if (message === 'analysis_validation_failed') {
-          return NextResponse.json(
-            {
-              error: 'analysis_validation_failed',
-              message:
-                'The AI response did not match the expected schema after retry. Please try again.',
-            },
-            {status: 400},
-          );
-        }
-
-        if (message === 'assembly_not_found') {
-          return NextResponse.json(
-            {
-              error: 'assembly_not_found',
-              message:
-                'No assembly result found. This should not happen. Please try again.',
-            },
-            {status: 400},
-          );
-        }
-
-        throw error;
-      }
+      return handleFullScope(projectId);
     }
 
-    // Handle "output" scope: re-run generate for a specific output type
-    if (scope === 'output') {
-      const outputType = searchParams.get('outputType');
-      const targetAudience = searchParams.get('targetAudience') ?? undefined;
-      const toneOfVoice = searchParams.get('toneOfVoice') ?? undefined;
-      const language = searchParams.get('language') ?? undefined;
-
-      // Validate outputType
-      const validOutputTypes: EvpOutputType[] = [
-        'external',
-        'gap_analysis',
-        'internal',
-      ];
-
-      if (
-        !outputType ||
-        !validOutputTypes.includes(outputType as EvpOutputType)
-      ) {
-        return NextResponse.json(
-          {
-            error: 'invalid_output_type',
-            message:
-              'outputType must be one of: internal, external, gap_analysis',
-          },
-          {status: 400},
-        );
-      }
-
-      // Parse optional request body for new comment
-      let commentText: string | undefined;
-
-      try {
-        const body = await request.json().catch(() => ({}));
-
-        commentText = (body as Record<string, unknown>).commentText
-          ? String((body as Record<string, unknown>).commentText)
-          : undefined;
-      } catch {
-        // If body parsing fails, continue without comment
-      }
-
-      const commentRepository = new EvpCommentRepository();
-
-      // Load existing comments (do not save new comment yet — save only on success)
-      const existingComments =
-        await commentRepository.findAllByProjectAndOutputType(
-          projectId,
-          outputType as EvpOutputType,
-        );
-
-      const commentTexts = [
-        ...existingComments.map(c => c.comment_text),
-        ...(commentText ? [commentText] : []),
-      ];
-
-      const service = new EvpOutputService();
-
-      try {
-        const text = await service.generate(
-          projectId,
-          outputType as EvpOutputType,
-          targetAudience,
-          commentTexts,
-          toneOfVoice,
-          language,
-        );
-
-        // Persist comment only after successful generation
-        if (commentText) {
-          await commentRepository.save({
-            comment_text: commentText,
-            output_type: outputType as EvpOutputType,
-            project_id: projectId,
-          });
-        }
-
-        return NextResponse.json({text});
-      } catch (error) {
-        const {message} = error as Error;
-
-        if (message === 'analysis_not_found') {
-          return NextResponse.json(
-            {
-              error: 'analysis_not_found',
-              message:
-                'No analysis result found for this project. Run /api/evp-pipeline/analyze first.',
-            },
-            {status: 400},
-          );
-        }
-
-        if (message === 'assembly_not_found') {
-          return NextResponse.json(
-            {
-              error: 'assembly_not_found',
-              message:
-                'No assembly result found for this project. Run /api/evp-pipeline/assemble first.',
-            },
-            {status: 400},
-          );
-        }
-
-        if (message === 'claude_content_filtered') {
-          return NextResponse.json(
-            {
-              error: 'generation_failed',
-              message:
-                'The generated output exceeded the token limit. Please try again or contact support.',
-            },
-            {status: 500},
-          );
-        }
-
-        throw error;
-      }
-    }
-
-    // This should never be reached due to validation above
-    return NextResponse.json(
-      {error: 'invalid_scope', message: 'Unknown scope'},
-      {status: 400},
-    );
+    return handleOutputScope(projectId, searchParams, request);
   }, 'POST /api/evp-pipeline/regenerate');
 }

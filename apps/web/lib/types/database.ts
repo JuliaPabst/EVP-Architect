@@ -96,7 +96,7 @@ export interface EvpSurveySubmission {
 
 // public.evp_survey_answers
 export interface EvpSurveyAnswer {
-  answer_json: unknown | null;
+  answer_json: unknown;
   answer_text: string | null;
   created_at: string | null;
   id: string;

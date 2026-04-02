@@ -27,13 +27,13 @@ import {EvpPipelineStep} from '@/lib/types/database';
  *     500: Internal error
  */
 
-const VALID_PIPELINE_STEPS: readonly EvpPipelineStep[] = [
+const VALID_PIPELINE_STEPS = new Set<EvpPipelineStep>([
   'assembly',
   'analysis',
   'internal',
   'external',
   'gap_analysis',
-];
+]);
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   return handleApiError(async () => {
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Validate pipeline_step if provided
     if (
       pipelineStep &&
-      !VALID_PIPELINE_STEPS.includes(pipelineStep as EvpPipelineStep)
+      !VALID_PIPELINE_STEPS.has(pipelineStep as EvpPipelineStep)
     ) {
       return NextResponse.json(
         {

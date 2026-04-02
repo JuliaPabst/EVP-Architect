@@ -54,6 +54,34 @@ function setCachedValidation(
   validationCache.set(cacheKey, cachedValidation);
 }
 
+async function fetchValidationResult(
+  projectId: string,
+  adminToken: string,
+): Promise<CachedValidation | null> {
+  const response = await fetch(
+    `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}`,
+    {headers: {'x-admin-token': adminToken}},
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || !data.valid) {
+    return null;
+  }
+
+  return {
+    companyName: data.project.company_name,
+    project: {
+      company_name: data.project.company_name,
+      employee_count: data.project.employee_count,
+      industry_name: data.project.industry_name,
+      location: data.project.location,
+      profile_image_url: data.project.profile_image_url,
+    },
+    validatedAt: Date.now(),
+  };
+}
+
 export function clearAdminValidationCacheForTests(): void {
   if (process.env.NODE_ENV === 'test') {
     validationCache.clear();
@@ -121,31 +149,7 @@ export default function useAdminTokenValidation(
         let inFlightRequest = inFlightValidationRequests.get(cacheKey);
 
         if (!inFlightRequest) {
-          inFlightRequest = (async () => {
-            const response = await fetch(
-              `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}`,
-              {headers: {'x-admin-token': adminToken}},
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.valid) {
-              return null;
-            }
-
-            return {
-              companyName: data.project.company_name,
-              project: {
-                company_name: data.project.company_name,
-                employee_count: data.project.employee_count,
-                industry_name: data.project.industry_name,
-                location: data.project.location,
-                profile_image_url: data.project.profile_image_url,
-              },
-              validatedAt: Date.now(),
-            };
-          })();
-
+          inFlightRequest = fetchValidationResult(projectId, adminToken);
           inFlightValidationRequests.set(cacheKey, inFlightRequest);
         }
 

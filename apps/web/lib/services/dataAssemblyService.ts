@@ -399,7 +399,9 @@ class DataAssemblyService {
 
     return {
       completion_rate: Math.round(completionRate * 100) / 100,
-      questions_below_threshold: questionsBelowThreshold.sort(),
+      questions_below_threshold: questionsBelowThreshold.toSorted((a, b) =>
+        a.localeCompare(b),
+      ),
       total_submissions: totalSubmissions,
     };
   }

@@ -67,6 +67,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    if (typeof commentText !== 'string') {
+      return NextResponse.json(
+        {error: 'invalid_fields', message: 'commentText must be a string'},
+        {status: 400},
+      );
+    }
+
     // Validate outputType
     const validOutputTypes: EvpOutputType[] = [
       'external',
@@ -88,7 +95,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const repository = new EvpCommentRepository();
 
     const comment = await repository.save({
-      comment_text: String(commentText),
+      comment_text: commentText,
       output_type: outputType as EvpOutputType,
       project_id: projectId,
     });

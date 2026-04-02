@@ -31,7 +31,7 @@ export default function useAdminToken(
   );
 
   useEffect(() => {
-    const {hash} = window.location;
+    const {hash} = globalThis.location;
     const hashParams = new URLSearchParams(hash.slice(1));
     const tokenFromHash = hashParams.get('admin');
 
