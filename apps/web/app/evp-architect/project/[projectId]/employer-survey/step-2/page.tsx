@@ -1,10 +1,10 @@
 'use client';
 
-import {useSearchParams} from 'next/navigation';
-
 import SurveyStepPageWrapper from '../components/SurveyStepPageWrapper';
 
 import Step2Content from './components/Step2Content';
+
+import useAdminToken from '@/app/hooks/useAdminToken';
 
 interface StepPageProps {
   readonly params: {
@@ -13,12 +13,14 @@ interface StepPageProps {
 }
 
 export default function EmployerSurveyStep2({params}: StepPageProps) {
-  const searchParams = useSearchParams();
-  const adminToken = searchParams.get('admin');
+  const adminToken = useAdminToken(params.projectId);
 
   return (
     <SurveyStepPageWrapper adminToken={adminToken} projectId={params.projectId}>
-      <Step2Content adminToken={adminToken} projectId={params.projectId} />
+      <Step2Content
+        adminToken={adminToken ?? null}
+        projectId={params.projectId}
+      />
     </SurveyStepPageWrapper>
   );
 }

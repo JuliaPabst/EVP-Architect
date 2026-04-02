@@ -336,4 +336,80 @@ describe('SurveySubmissionRepository', () => {
       );
     });
   });
+
+  describe('findAllByProject', () => {
+    const mockSubmissions: SurveySubmission[] = [
+      {
+        id: 'sub-1',
+        project_id: 'project-1',
+        respondent_meta: {},
+        started_at: '2026-01-01',
+        status: 'submitted',
+        submitted_at: '2026-01-02',
+        survey_type: 'employer',
+      },
+      {
+        id: 'sub-2',
+        project_id: 'project-1',
+        respondent_meta: {},
+        started_at: '2026-01-01',
+        status: 'submitted',
+        submitted_at: '2026-01-02',
+        survey_type: 'employee',
+      },
+      {
+        id: 'sub-3',
+        project_id: 'project-1',
+        respondent_meta: {},
+        started_at: '2026-01-01',
+        status: 'in_progress',
+        submitted_at: null,
+        survey_type: 'employee',
+      },
+    ];
+
+    it('should return all submissions for a project regardless of status or type', async () => {
+      mockEq.mockResolvedValue({data: mockSubmissions, error: null});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const result = await repository.findAllByProject('project-1');
+
+      expect(mockFrom).toHaveBeenCalledWith('evp_survey_submissions');
+      expect(mockSelect).toHaveBeenCalledWith('*');
+      expect(mockEq).toHaveBeenCalledWith('project_id', 'project-1');
+      expect(result).toEqual(mockSubmissions);
+      expect(result).toHaveLength(3);
+    });
+
+    it('should return empty array when no submissions exist', async () => {
+      mockEq.mockResolvedValue({data: [], error: null});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const result = await repository.findAllByProject('project-1');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when data is null', async () => {
+      mockEq.mockResolvedValue({data: null, error: null});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      const result = await repository.findAllByProject('project-1');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should throw when database query fails', async () => {
+      mockEq.mockResolvedValue({data: null, error: {message: 'DB error'}});
+      mockSelect.mockReturnValue({eq: mockEq});
+      mockFrom.mockReturnValue({select: mockSelect});
+
+      await expect(repository.findAllByProject('project-1')).rejects.toThrow(
+        'Failed to fetch submissions: DB error',
+      );
+    });
+  });
 });

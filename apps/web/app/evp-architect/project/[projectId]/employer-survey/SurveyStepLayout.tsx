@@ -2,9 +2,8 @@
 
 import {useEffect, useState} from 'react';
 
-import {useSearchParams} from 'next/navigation';
-
 import KununuHeader from '@/app/components/KununuHeader';
+import useAdminToken from '@/app/hooks/useAdminToken';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 
 interface SurveyStepLayoutProps {
@@ -17,8 +16,7 @@ export default function SurveyStepLayout({
   stepNumber,
 }: SurveyStepLayoutProps) {
   const [mounted, setMounted] = useState(false);
-  const searchParams = useSearchParams();
-  const adminToken = searchParams.get('admin');
+  const adminToken = useAdminToken(projectId);
 
   const {companyName, isValidating} = useAdminTokenValidation(
     projectId,

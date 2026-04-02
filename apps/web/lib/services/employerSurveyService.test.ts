@@ -1,7 +1,6 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable sort-keys */
 import EmployerSurveyService from './employerSurveyService';
 
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
@@ -40,9 +39,9 @@ describe('EmployerSurveyService', () => {
     };
 
     mockQuestionRepository = {
-      getQuestionsByStep: jest.fn(),
-      getQuestionsByIds: jest.fn(),
       getAllQuestionIds: jest.fn(),
+      getQuestionsByIds: jest.fn(),
+      getQuestionsByStep: jest.fn(),
     };
 
     mockQuestionOptionRepository = {
@@ -50,14 +49,14 @@ describe('EmployerSurveyService', () => {
     };
 
     mockSubmissionRepository = {
-      getOrCreateEmployerSubmission: jest.fn(),
       findSubmission: jest.fn(),
+      getOrCreateEmployerSubmission: jest.fn(),
       markAsSubmitted: jest.fn(),
     };
 
     mockAnswerRepository = {
-      getAnswersByQuestions: jest.fn(),
       getAnsweredQuestionIds: jest.fn(),
+      getAnswersByQuestions: jest.fn(),
       upsertAnswer: jest.fn(),
     };
 
@@ -66,8 +65,8 @@ describe('EmployerSurveyService', () => {
     };
 
     mockValueSelectionRepository = {
-      getSelectionsByAnswers: jest.fn(),
       deleteSelectionsByAnswer: jest.fn(),
+      getSelectionsByAnswers: jest.fn(),
       insertSelections: jest.fn(),
     };
 
@@ -159,7 +158,7 @@ describe('EmployerSurveyService', () => {
       );
       mockQuestionOptionRepository.getOptionsByQuestionKeys.mockResolvedValue(
         new Map([
-          ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
+          ['industry_focus', [{label: 'Technology', value_key: 'tech'}]],
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
@@ -176,33 +175,33 @@ describe('EmployerSurveyService', () => {
       expect(result.step).toBe(2);
       expect(result.questions).toHaveLength(3);
       expect(result.questions[0]).toEqual({
+        answer: null,
         id: 'q1',
         key: 'company_values',
         prompt: 'What are your company values?',
         question_type: 'long_text',
         selection_limit: null,
-        answer: null,
       });
       expect(result.questions[1]).toEqual({
+        answer: null,
         id: 'q2',
         key: 'industry_focus',
+        options: [{label: 'Technology', value_key: 'tech'}],
         prompt: 'What is your industry focus?',
         question_type: 'single_select',
         selection_limit: null,
-        answer: null,
-        options: [{value_key: 'tech', label: 'Technology'}],
       });
       expect(result.questions[2]).toEqual({
+        answer: null,
         id: 'q3',
         key: 'benefits',
+        options: [
+          {label: 'Health Insurance', value_key: 'health_insurance'},
+          {label: 'Remote Work', value_key: 'remote_work'},
+        ],
         prompt: 'Select your benefits',
         question_type: 'multi_select',
         selection_limit: 3,
-        answer: null,
-        options: [
-          {value_key: 'health_insurance', label: 'Health Insurance'},
-          {value_key: 'remote_work', label: 'Remote Work'},
-        ],
       });
     });
 
@@ -211,12 +210,12 @@ describe('EmployerSurveyService', () => {
         [
           'q1',
           {
-            id: 'a1',
             answer_text: 'Innovation and Excellence',
+            id: 'a1',
             question_id: 'q1',
           },
         ],
-        ['q2', {id: 'a2', answer_text: null, question_id: 'q2'}],
+        ['q2', {answer_text: null, id: 'a2', question_id: 'q2'}],
       ]);
 
       const mockSelections = new Map([['a2', ['tech']]]);
@@ -233,7 +232,7 @@ describe('EmployerSurveyService', () => {
       );
       mockQuestionOptionRepository.getOptionsByQuestionKeys.mockResolvedValue(
         new Map([
-          ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
+          ['industry_focus', [{label: 'Technology', value_key: 'tech'}]],
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
@@ -320,7 +319,7 @@ describe('EmployerSurveyService', () => {
         );
 
         await service.saveStepAnswers('project-123', 2, [
-          {question_id: 'q1', answer_text: 'Innovation'},
+          {answer_text: 'Innovation', question_id: 'q1'},
         ]);
 
         expect(mockAnswerRepository.upsertAnswer).toHaveBeenCalledWith(
@@ -375,8 +374,8 @@ describe('EmployerSurveyService', () => {
         await expect(
           service.saveStepAnswers('project-123', 2, [
             {
-              question_id: 'q1',
               answer_text: 'Test',
+              question_id: 'q1',
               selected_values: ['value1'],
             },
           ]),
@@ -490,8 +489,8 @@ describe('EmployerSurveyService', () => {
         await expect(
           service.saveStepAnswers('project-123', 2, [
             {
-              question_id: 'q2',
               answer_text: 'text',
+              question_id: 'q2',
               selected_values: ['option1'],
             },
           ]),
@@ -623,7 +622,7 @@ describe('EmployerSurveyService', () => {
 
         await expect(
           service.saveStepAnswers('project-123', 2, [
-            {question_id: 'nonexistent', answer_text: 'test'},
+            {answer_text: 'test', question_id: 'nonexistent'},
           ]),
         ).rejects.toThrow('Question not found: nonexistent');
       });
@@ -647,7 +646,7 @@ describe('EmployerSurveyService', () => {
 
         await expect(
           service.saveStepAnswers('project-123', 2, [
-            {question_id: 'q1', answer_text: 'test'},
+            {answer_text: 'test', question_id: 'q1'},
           ]),
         ).rejects.toThrow('Question does not belong to step 2');
       });
@@ -671,7 +670,7 @@ describe('EmployerSurveyService', () => {
 
         await expect(
           service.saveStepAnswers('project-123', 2, [
-            {question_id: 'q1', answer_text: 'test'},
+            {answer_text: 'test', question_id: 'q1'},
           ]),
         ).rejects.toThrow('Question is not an employer question');
       });
@@ -702,7 +701,7 @@ describe('EmployerSurveyService', () => {
       mockQuestionRepository.getQuestionsByIds.mockResolvedValue(questionsMap);
 
       await service.saveStepAnswers('project-123', 2, [
-        {question_id: 'q1', answer_text: 'Answer 1'},
+        {answer_text: 'Answer 1', question_id: 'q1'},
         {question_id: 'q2', selected_values: ['option1']},
       ]);
 
@@ -878,9 +877,9 @@ describe('EmployerSurveyService', () => {
     };
 
     mockQuestionRepository = {
-      getQuestionsByStep: jest.fn(),
-      getQuestionsByIds: jest.fn(),
       getAllQuestionIds: jest.fn(),
+      getQuestionsByIds: jest.fn(),
+      getQuestionsByStep: jest.fn(),
     };
 
     mockQuestionOptionRepository = {
@@ -888,14 +887,14 @@ describe('EmployerSurveyService', () => {
     };
 
     mockSubmissionRepository = {
-      getOrCreateEmployerSubmission: jest.fn(),
       findSubmission: jest.fn(),
+      getOrCreateEmployerSubmission: jest.fn(),
       markAsSubmitted: jest.fn(),
     };
 
     mockAnswerRepository = {
-      getAnswersByQuestions: jest.fn(),
       getAnsweredQuestionIds: jest.fn(),
+      getAnswersByQuestions: jest.fn(),
       upsertAnswer: jest.fn(),
     };
 
@@ -904,8 +903,8 @@ describe('EmployerSurveyService', () => {
     };
 
     mockValueSelectionRepository = {
-      getSelectionsByAnswers: jest.fn(),
       deleteSelectionsByAnswer: jest.fn(),
+      getSelectionsByAnswers: jest.fn(),
       insertSelections: jest.fn(),
     };
 
@@ -997,7 +996,7 @@ describe('EmployerSurveyService', () => {
       );
       mockQuestionOptionRepository.getOptionsByQuestionKeys.mockResolvedValue(
         new Map([
-          ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
+          ['industry_focus', [{label: 'Technology', value_key: 'tech'}]],
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
@@ -1014,33 +1013,33 @@ describe('EmployerSurveyService', () => {
       expect(result.step).toBe(2);
       expect(result.questions).toHaveLength(3);
       expect(result.questions[0]).toEqual({
+        answer: null,
         id: 'q1',
         key: 'company_values',
         prompt: 'What are your company values?',
         question_type: 'long_text',
         selection_limit: null,
-        answer: null,
       });
       expect(result.questions[1]).toEqual({
+        answer: null,
         id: 'q2',
         key: 'industry_focus',
+        options: [{label: 'Technology', value_key: 'tech'}],
         prompt: 'What is your industry focus?',
         question_type: 'single_select',
         selection_limit: null,
-        answer: null,
-        options: [{value_key: 'tech', label: 'Technology'}],
       });
       expect(result.questions[2]).toEqual({
+        answer: null,
         id: 'q3',
         key: 'benefits',
+        options: [
+          {label: 'Health Insurance', value_key: 'health_insurance'},
+          {label: 'Remote Work', value_key: 'remote_work'},
+        ],
         prompt: 'Select your benefits',
         question_type: 'multi_select',
         selection_limit: 3,
-        answer: null,
-        options: [
-          {value_key: 'health_insurance', label: 'Health Insurance'},
-          {value_key: 'remote_work', label: 'Remote Work'},
-        ],
       });
     });
 
@@ -1049,12 +1048,12 @@ describe('EmployerSurveyService', () => {
         [
           'q1',
           {
-            id: 'a1',
             answer_text: 'Innovation and Excellence',
+            id: 'a1',
             question_id: 'q1',
           },
         ],
-        ['q2', {id: 'a2', answer_text: null, question_id: 'q2'}],
+        ['q2', {answer_text: null, id: 'a2', question_id: 'q2'}],
       ]);
 
       const mockSelections = new Map([['a2', ['tech']]]);
@@ -1071,7 +1070,7 @@ describe('EmployerSurveyService', () => {
       );
       mockQuestionOptionRepository.getOptionsByQuestionKeys.mockResolvedValue(
         new Map([
-          ['industry_focus', [{value_key: 'tech', label: 'Technology'}]],
+          ['industry_focus', [{label: 'Technology', value_key: 'tech'}]],
         ]),
       );
       mockSelectionOptionRepository.getAllOptions.mockResolvedValue([
@@ -1158,7 +1157,7 @@ describe('EmployerSurveyService', () => {
         );
 
         await service.saveStepAnswers('project-123', 2, [
-          {question_id: 'q1', answer_text: 'Innovation'},
+          {answer_text: 'Innovation', question_id: 'q1'},
         ]);
 
         expect(mockAnswerRepository.upsertAnswer).toHaveBeenCalledWith(
@@ -1213,8 +1212,8 @@ describe('EmployerSurveyService', () => {
         await expect(
           service.saveStepAnswers('project-123', 2, [
             {
-              question_id: 'q1',
               answer_text: 'Test',
+              question_id: 'q1',
               selected_values: ['value1'],
             },
           ]),
@@ -1328,8 +1327,8 @@ describe('EmployerSurveyService', () => {
         await expect(
           service.saveStepAnswers('project-123', 2, [
             {
-              question_id: 'q2',
               answer_text: 'text',
+              question_id: 'q2',
               selected_values: ['option1'],
             },
           ]),
@@ -1463,7 +1462,7 @@ describe('EmployerSurveyService', () => {
 
         await expect(
           service.saveStepAnswers('project-123', 2, [
-            {question_id: 'nonexistent', answer_text: 'test'},
+            {answer_text: 'test', question_id: 'nonexistent'},
           ]),
         ).rejects.toThrow('Question not found: nonexistent');
       });
@@ -1487,7 +1486,7 @@ describe('EmployerSurveyService', () => {
 
         await expect(
           service.saveStepAnswers('project-123', 2, [
-            {question_id: 'q1', answer_text: 'test'},
+            {answer_text: 'test', question_id: 'q1'},
           ]),
         ).rejects.toThrow('Question does not belong to step 2');
       });
@@ -1511,7 +1510,7 @@ describe('EmployerSurveyService', () => {
 
         await expect(
           service.saveStepAnswers('project-123', 2, [
-            {question_id: 'q1', answer_text: 'test'},
+            {answer_text: 'test', question_id: 'q1'},
           ]),
         ).rejects.toThrow('Question is not an employer question');
       });
@@ -1544,7 +1543,7 @@ describe('EmployerSurveyService', () => {
         .mockResolvedValue(questionsMap);
 
       await service.saveStepAnswers('project-123', 2, [
-        {question_id: 'q1', answer_text: 'Answer 1'},
+        {answer_text: 'Answer 1', question_id: 'q1'},
         {question_id: 'q2', selected_values: ['option1']},
       ]);
 

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "transport": "sse",
+      "url": "https://mcp.supabase.com/sse"
+    }
+  }
+}

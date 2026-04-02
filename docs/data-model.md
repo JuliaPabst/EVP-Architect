@@ -146,22 +146,15 @@ AI-derived data is stored separately and versioned.
   in_progress
   submitted
 
-## evp_analysis_run_type
+## evp_pipeline_step
 
   Value
-  ------------------
-  embedding
-  clustering
-  theme_extraction
-
-## evp_analysis_run_status
-
-  Value
-  ---------
-  queued
-  running
-  done
-  failed
+  ------------
+  assembly
+  analysis
+  internal
+  external
+  gap_analysis
 
 ------------------------------------------------------------------------
 
@@ -374,3 +367,49 @@ Provides question-specific option lists, separate from the global selection opti
 - Selected options stored in evp_answer_selections
 - Question definitions stored in evp_survey_questions
 - Separation ensures clean data model: question definitions vs. selectable options vs. actual answers
+
+------------------------------------------------------------------------
+
+# evp_ai_results
+
+Stores all AI pipeline outputs for a project — one row per pipeline step execution.
+
+Raw survey data is never modified; AI-derived results are written here separately.
+
+## Fields
+
+  --------------------------------------------------------------------------------------------------
+  Field             Type          Constraints                         Description
+  ----------------- ------------- ----------------------------------- -----------------------------
+  id                UUID          PK, DEFAULT gen_random_uuid()       Unique result ID
+
+  project_id        UUID          FK → evp_projects(id),              Linked project
+                                  ON DELETE CASCADE, NOT NULL
+
+  pipeline_step     TEXT          NOT NULL                            Step that produced this result
+                                                                      (see evp_pipeline_step enum)
+
+  model_used        TEXT          NOT NULL                            AI model identifier
+                                                                      (e.g. gpt-4o-mini,
+                                                                      claude-sonnet-4-5)
+
+  target_audience   TEXT          NULLABLE                            Audience parameter for
+                                                                      external EVP outputs
+
+  input_snapshot    JSONB         NOT NULL                            Snapshot of input data used
+                                                                      for this run
+
+  result_json       JSONB         NULLABLE                            Structured result payload
+
+  result_text       TEXT          NULLABLE                            Generated text output
+
+  generated_at      TIMESTAMPTZ   NOT NULL, DEFAULT now()             Generation timestamp
+  --------------------------------------------------------------------------------------------------
+
+## Notes
+
+- One row per pipeline step execution; re-runs add new rows rather than overwriting
+- `pipeline_step` follows the `evp_pipeline_step` enum: `assembly`, `analysis`, `internal`, `external`, `gap_analysis`
+- `input_snapshot` records what data was used so results are traceable without re-querying
+- `target_audience` is only populated for `external` step outputs
+- All access goes through the `service_role` key; RLS blocks all public/anon access

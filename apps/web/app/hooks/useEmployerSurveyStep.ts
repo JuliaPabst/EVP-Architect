@@ -58,29 +58,28 @@ export default function useEmployerSurveyStep(
       }
 
       try {
-        const cacheKey = getCacheKey(projectId, step);
-        const cached = getCachedStepData(cacheKey);
-
-        if (cached) {
-          if (!isDisposed) {
-            setError(null);
-            setIsLoading(false);
-            setStepData(cached);
-          }
-
-          return;
-        }
-
         if (!isDisposed) {
           setIsLoading(true);
           setError(null);
         }
 
-        const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
+        const cacheKey = getCacheKey(projectId, step);
+        const cached = getCachedStepData(cacheKey);
+
+        if (cached) {
+          if (!isDisposed) {
+            setStepData(cached);
+            setIsLoading(false);
+          }
+
+          return;
+        }
+
+        const url = `/api/employer-survey/step/${step}?projectId=${projectId}`;
         let inFlightRequest = inFlightStepRequests.get(cacheKey);
 
         if (!inFlightRequest) {
-          inFlightRequest = fetchStepFromApi(url);
+          inFlightRequest = fetchStepFromApi(url, adminToken);
 
           inFlightStepRequests.set(cacheKey, inFlightRequest);
         }
@@ -126,11 +125,12 @@ export default function useEmployerSurveyStep(
       setIsSaving(true);
       setError(null);
 
-      const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
+      const url = `/api/employer-survey/step/${step}?projectId=${projectId}`;
       const response = await fetch(url, {
         body: JSON.stringify({answers}),
         headers: {
           'Content-Type': 'application/json',
+          'x-admin-token': adminToken,
         },
         method: 'POST',
       });
@@ -148,18 +148,12 @@ export default function useEmployerSurveyStep(
           return currentStepData;
         }
 
-        const updatedStepData = mergeSavedAnswers(currentStepData, answers);
+        const merged = mergeSavedAnswers(currentStepData, answers);
 
-        setCachedStepData(cacheKey, updatedStepData);
+        setCachedStepData(cacheKey, merged);
 
-        return updatedStepData;
+        return merged;
       });
-
-      const cachedStepData = getCachedStepData(cacheKey);
-
-      if (cachedStepData) {
-        setCachedStepData(cacheKey, mergeSavedAnswers(cachedStepData, answers));
-      }
 
       return true;
     } catch (error_) {

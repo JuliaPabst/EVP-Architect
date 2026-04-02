@@ -1,5 +1,6 @@
 {
   "extends": ["@kununu/eslint-config", "plugin:react/jsx-runtime"],
+  "plugins": ["sort-keys-fix"],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
@@ -7,7 +8,9 @@
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
     "import/extensions": "off",
-    "import/no-unresolved": "off"
+    "import/no-unresolved": "off",
+    "sort-keys": "off",
+    "sort-keys-fix/sort-keys-fix": ["error", "asc", {"caseSensitive": false, "natural": false}]
   },
   "overrides": [
     {

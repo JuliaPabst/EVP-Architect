@@ -26,7 +26,7 @@ export default function TextStep({
   stepNumber,
   stepTitle,
 }: TextStepProps) {
-  const {error, isLoading, isSaving, saveAnswers, stepData} =
+  const {error, isLoading, isSaving, saveAnswers, stepData, submissionId} =
     useEmployeeSurveyStep(projectId, stepNumber);
   const {setTextAnswer, textAnswers} = useSurveyStepState(stepData);
   const {navigateToComplete, navigateToNextStep, navigateToPreviousStep} =
@@ -51,6 +51,10 @@ export default function TextStep({
 
     if (saved) {
       if (isLastStep) {
+        await fetch(
+          `/api/employee-survey/complete?submission_id=${submissionId}`,
+          {method: 'POST'},
+        );
         navigateToComplete();
       } else {
         navigateToNextStep();

@@ -41,7 +41,7 @@ export function buildStepUrl(
 ): string {
   const baseUrl = `/evp-architect/project/${projectId}/employer-survey/step-${step}`;
 
-  return adminToken ? `${baseUrl}?admin=${adminToken}` : baseUrl;
+  return adminToken ? `${baseUrl}#admin=${adminToken}` : baseUrl;
 }
 
 /**

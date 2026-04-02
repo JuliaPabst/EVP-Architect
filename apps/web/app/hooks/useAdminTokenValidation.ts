@@ -54,6 +54,48 @@ function setCachedValidation(
   validationCache.set(cacheKey, cachedValidation);
 }
 
+async function fetchValidationResult(
+  projectId: string,
+  adminToken: string,
+): Promise<CachedValidation | null> {
+  const response = await fetch(
+    `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}`,
+    {headers: {'x-admin-token': adminToken}},
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || !data.valid) {
+    return null;
+  }
+
+  return {
+    companyName: data.project.company_name,
+    project: {
+      company_name: data.project.company_name,
+      employee_count: data.project.employee_count,
+      industry_name: data.project.industry_name,
+      location: data.project.location,
+      profile_image_url: data.project.profile_image_url,
+    },
+    validatedAt: Date.now(),
+  };
+}
+
+function getOrFetchValidation(
+  cacheKey: string,
+  projectId: string,
+  adminToken: string,
+): Promise<CachedValidation | null> {
+  const existing = inFlightValidationRequests.get(cacheKey);
+
+  if (existing) return existing;
+  const request = fetchValidationResult(projectId, adminToken);
+
+  inFlightValidationRequests.set(cacheKey, request);
+  return request;
+}
+
 export function clearAdminValidationCacheForTests(): void {
   if (process.env.NODE_ENV === 'test') {
     validationCache.clear();
@@ -74,7 +116,7 @@ export function clearAdminValidationCacheForTests(): void {
  */
 export default function useAdminTokenValidation(
   projectId: string,
-  adminToken: string | null,
+  adminToken: string | null | undefined,
 ): ValidationResult {
   const router = useRouter();
   const [isValidating, setIsValidating] = useState(true);
@@ -86,6 +128,11 @@ export default function useAdminTokenValidation(
     let isDisposed = false;
 
     async function validateAccess() {
+      if (adminToken === undefined) {
+        // Token not yet loaded from hash/sessionStorage — wait for next render
+        return;
+      }
+
       if (!adminToken) {
         if (!isDisposed) {
           setIsValidating(false);
@@ -113,37 +160,11 @@ export default function useAdminTokenValidation(
       }
 
       try {
-        let inFlightRequest = inFlightValidationRequests.get(cacheKey);
-
-        if (!inFlightRequest) {
-          inFlightRequest = (async () => {
-            const response = await fetch(
-              `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
-            );
-
-            const data = await response.json();
-
-            if (!response.ok || !data.valid) {
-              return null;
-            }
-
-            return {
-              companyName: data.project.company_name,
-              project: {
-                company_name: data.project.company_name,
-                employee_count: data.project.employee_count,
-                industry_name: data.project.industry_name,
-                location: data.project.location,
-                profile_image_url: data.project.profile_image_url,
-              },
-              validatedAt: Date.now(),
-            };
-          })();
-
-          inFlightValidationRequests.set(cacheKey, inFlightRequest);
-        }
-
-        const validationResult = await inFlightRequest;
+        const validationResult = await getOrFetchValidation(
+          cacheKey,
+          projectId,
+          adminToken,
+        );
 
         if (!validationResult) {
           if (!isDisposed) {

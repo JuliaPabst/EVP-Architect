@@ -15,11 +15,13 @@
     "validate": "pnpm run lint && pnpm run test:coverage"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@kununu/common": "^21.1.1",
     "@kununu/ui": "^32.10.0",
     "@supabase/supabase-js": "^2.98.0",
     "cheerio": "1.0.0-rc.12",
     "next": "14.2.35",
+    "openai": "^6.33.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "zod": "^4.3.6"
@@ -36,6 +38,7 @@
     "@types/react": "18.2.79",
     "@types/react-dom": "^18.3.7",
     "eslint": "^8.57.0",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
     "jest": "^29",
     "jest-environment-jsdom": "^29",
     "sass": "^1.97.3",

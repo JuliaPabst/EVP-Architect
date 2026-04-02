@@ -50,6 +50,7 @@ describe('EmployerSurveyStep1', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
+    window.location.hash = '#admin=test-admin-token';
     (useSearchParams as jest.Mock).mockReturnValue({
       get: jest.fn((param: string) => {
         if (param === 'admin') return 'test-admin-token';
@@ -59,6 +60,7 @@ describe('EmployerSurveyStep1', () => {
   });
 
   afterEach(() => {
+    window.location.hash = '';
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });

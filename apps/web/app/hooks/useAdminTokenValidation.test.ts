@@ -118,8 +118,50 @@ describe('useAdminTokenValidation', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        `/api/projects/validate-admin?projectId=${mockProjectId}&admin_token=${mockAdminToken}`,
+        `/api/projects/validate-admin?projectId=${mockProjectId}`,
+        {headers: {'x-admin-token': mockAdminToken}},
       );
+    });
+  });
+
+  it('should not redirect and stay in validating state when adminToken is undefined', async () => {
+    const {result} = renderHook(() =>
+      useAdminTokenValidation(mockProjectId, undefined),
+    );
+
+    // When token is undefined (not yet loaded), we stay in validating state
+    // and do not call fetch or redirect
+    expect(result.current.isValidating).toBe(true);
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('should use cached validation on second call with same credentials', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      json: async () => ({
+        project: {company_name: 'Test Company'},
+        valid: true,
+      }),
+      ok: true,
+    });
+
+    // First hook renders and populates cache
+    const {unmount} = renderHook(() =>
+      useAdminTokenValidation(mockProjectId, mockAdminToken),
+    );
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    unmount();
+
+    // Second hook should hit cache, not fetch again
+    renderHook(() => useAdminTokenValidation(mockProjectId, mockAdminToken));
+
+    await waitFor(() => {
+      // Still only 1 fetch call total (cache was used)
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
   });
 });

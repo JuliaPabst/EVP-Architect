@@ -5,6 +5,8 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
 import TextStep from '.';
 
+global.fetch = jest.fn().mockResolvedValue({ok: true});
+
 jest.mock('@/app/hooks/useEmployeeSurveyStep', () => jest.fn());
 
 jest.mock('@/app/hooks/useSurveyStepState', () => jest.fn());
@@ -304,6 +306,7 @@ describe('TextStep', () => {
       isSaving: false,
       saveAnswers: mockSaveAnswers,
       stepData: MOCK_STEP_DATA,
+      submissionId: 'test-submission-id',
     });
 
     const useSurveyStepState = jest.requireMock(

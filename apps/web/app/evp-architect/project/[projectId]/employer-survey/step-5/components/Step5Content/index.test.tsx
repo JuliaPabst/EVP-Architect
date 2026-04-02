@@ -358,7 +358,7 @@ describe('Step5Content', () => {
       expect(saveAnswers).toHaveBeenCalledTimes(1);
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/employer-survey/complete'),
-        {method: 'POST'},
+        {headers: {'x-admin-token': 'test-admin-token'}, method: 'POST'},
       );
       expect(navigateToProject).toHaveBeenCalledTimes(1);
     });
