@@ -6,7 +6,7 @@ import SharedSurveyStepPageWrapper from '@/app/components/survey/SurveyStepPageW
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 
 interface SurveyStepPageWrapperProps {
-  readonly adminToken: string | null;
+  readonly adminToken: string | null | undefined;
   readonly children: ReactNode;
   readonly projectId: string;
 }

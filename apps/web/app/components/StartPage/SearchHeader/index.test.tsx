@@ -133,7 +133,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/test-project-123/employer-survey/step-1?admin=test-admin-123',
+          '/evp-architect/project/test-project-123/employer-survey/step-1#admin=test-admin-123',
         );
       });
     });
@@ -159,7 +159,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/test-project-456/employer-survey/step-1?admin=test-admin-456',
+          '/evp-architect/project/test-project-456/employer-survey/step-1#admin=test-admin-456',
         );
       });
     });
@@ -185,7 +185,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/test-project-789/employer-survey/step-1?admin=test-admin-789',
+          '/evp-architect/project/test-project-789/employer-survey/step-1#admin=test-admin-789',
         );
       });
     });
@@ -295,7 +295,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith(
-          '/evp-architect/project/success-project-123/employer-survey/step-1?admin=success-admin-123',
+          '/evp-architect/project/success-project-123/employer-survey/step-1#admin=success-admin-123',
         );
       });
     });

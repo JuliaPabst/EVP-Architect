@@ -1,7 +1,6 @@
 'use client';
 
-import {useSearchParams} from 'next/navigation';
-
+import useAdminToken from '@/app/hooks/useAdminToken';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 import KununuHeader from '@/app/components/KununuHeader';
 
@@ -15,8 +14,7 @@ interface EvpResultPageProps {
 
 export default function EvpResultPage({params}: EvpResultPageProps) {
   const {projectId} = params;
-  const searchParams = useSearchParams();
-  const adminToken = searchParams.get('admin_token') ?? '';
+  const adminToken = useAdminToken(projectId);
   const {isValidating} = useAdminTokenValidation(projectId, adminToken);
 
   if (isValidating) {
@@ -26,7 +24,7 @@ export default function EvpResultPage({params}: EvpResultPageProps) {
   return (
     <div data-testid="evp-result-page">
       <KununuHeader />
-      <EvpResultContent adminToken={adminToken} projectId={projectId} />
+      <EvpResultContent adminToken={adminToken ?? ''} projectId={projectId} />
     </div>
   );
 }

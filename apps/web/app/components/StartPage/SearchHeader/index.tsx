@@ -62,9 +62,9 @@ export default function SearchHeader() {
         throw new Error(data.message || 'Failed to create project');
       }
 
-      // Redirect to employer survey step-1 with admin token
+      // Redirect to employer survey step-1 with admin token in hash (never sent to server)
       router.push(
-        `/evp-architect/project/${data.projectId}/employer-survey/step-1?admin=${data.adminToken}`,
+        `/evp-architect/project/${data.projectId}/employer-survey/step-1#admin=${data.adminToken}`,
       );
     } catch (error) {
       // eslint-disable-next-line no-console

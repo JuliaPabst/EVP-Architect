@@ -19,7 +19,7 @@ jest.mock(
       (projectId: string, step: number, adminToken: string | null) => {
         const base = `/evp-architect/project/${projectId}/employer-survey/step-${step}`;
 
-        return adminToken ? `${base}?admin=${adminToken}` : base;
+        return adminToken ? `${base}#admin=${adminToken}` : base;
       },
     ),
   }),
@@ -43,7 +43,7 @@ describe('useStepNavigation', () => {
     result.current.navigateToStep(3);
 
     expect(mockPush).toHaveBeenCalledWith(
-      `/evp-architect/project/${PROJECT_ID}/employer-survey/step-3?admin=${ADMIN_TOKEN}`,
+      `/evp-architect/project/${PROJECT_ID}/employer-survey/step-3#admin=${ADMIN_TOKEN}`,
     );
   });
 
@@ -55,7 +55,7 @@ describe('useStepNavigation', () => {
     result.current.navigateToNextStep();
 
     expect(mockPush).toHaveBeenCalledWith(
-      `/evp-architect/project/${PROJECT_ID}/employer-survey/step-3?admin=${ADMIN_TOKEN}`,
+      `/evp-architect/project/${PROJECT_ID}/employer-survey/step-3#admin=${ADMIN_TOKEN}`,
     );
   });
 
@@ -67,7 +67,7 @@ describe('useStepNavigation', () => {
     result.current.navigateToPreviousStep();
 
     expect(mockPush).toHaveBeenCalledWith(
-      `/evp-architect/project/${PROJECT_ID}/employer-survey/step-2?admin=${ADMIN_TOKEN}`,
+      `/evp-architect/project/${PROJECT_ID}/employer-survey/step-2#admin=${ADMIN_TOKEN}`,
     );
   });
 

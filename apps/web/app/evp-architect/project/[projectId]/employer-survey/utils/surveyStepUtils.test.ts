@@ -255,7 +255,7 @@ describe('buildStepUrl', () => {
     const url = buildStepUrl('proj-123', 2, 'my-token');
 
     expect(url).toBe(
-      '/evp-architect/project/proj-123/employer-survey/step-2?admin=my-token',
+      '/evp-architect/project/proj-123/employer-survey/step-2#admin=my-token',
     );
   });
 
@@ -269,7 +269,7 @@ describe('buildStepUrl', () => {
     const url = buildStepUrl('abc', 1, 'token');
 
     expect(url).toBe(
-      '/evp-architect/project/abc/employer-survey/step-1?admin=token',
+      '/evp-architect/project/abc/employer-survey/step-1#admin=token',
     );
   });
 });

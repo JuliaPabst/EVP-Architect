@@ -37,8 +37,17 @@ interface CachedStepData {
 export const stepDataCache = new Map<string, CachedStepData>();
 export const inFlightStepRequests = new Map<string, Promise<StepData>>();
 
-export async function fetchStepFromApi(url: string): Promise<StepData> {
-  const response = await fetch(url);
+export async function fetchStepFromApi(
+  url: string,
+  adminToken?: string | null,
+): Promise<StepData> {
+  const headers: Record<string, string> = {};
+
+  if (adminToken) {
+    headers['x-admin-token'] = adminToken;
+  }
+
+  const response = await fetch(url, {headers});
 
   if (!response.ok) {
     const errorData = await response.json();

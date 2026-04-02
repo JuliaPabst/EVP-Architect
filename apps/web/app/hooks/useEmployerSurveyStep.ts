@@ -76,11 +76,11 @@ export default function useEmployerSurveyStep(
           setError(null);
         }
 
-        const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
+        const url = `/api/employer-survey/step/${step}?projectId=${projectId}`;
         let inFlightRequest = inFlightStepRequests.get(cacheKey);
 
         if (!inFlightRequest) {
-          inFlightRequest = fetchStepFromApi(url);
+          inFlightRequest = fetchStepFromApi(url, adminToken);
 
           inFlightStepRequests.set(cacheKey, inFlightRequest);
         }
@@ -126,11 +126,12 @@ export default function useEmployerSurveyStep(
       setIsSaving(true);
       setError(null);
 
-      const url = `/api/employer-survey/step/${step}?projectId=${projectId}&admin_token=${adminToken}`;
+      const url = `/api/employer-survey/step/${step}?projectId=${projectId}`;
       const response = await fetch(url, {
         body: JSON.stringify({answers}),
         headers: {
           'Content-Type': 'application/json',
+          'x-admin-token': adminToken,
         },
         method: 'POST',
       });

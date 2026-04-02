@@ -118,7 +118,8 @@ describe('useAdminTokenValidation', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        `/api/projects/validate-admin?projectId=${mockProjectId}&admin_token=${mockAdminToken}`,
+        `/api/projects/validate-admin?projectId=${mockProjectId}`,
+        {headers: {'x-admin-token': mockAdminToken}},
       );
     });
   });

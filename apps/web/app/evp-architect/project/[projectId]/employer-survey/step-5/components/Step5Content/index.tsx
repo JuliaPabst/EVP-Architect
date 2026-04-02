@@ -178,8 +178,8 @@ export default function Step5Content({
     if (!saved) return;
 
     const response = await fetch(
-      `/api/employer-survey/complete?projectId=${projectId}&admin_token=${adminToken}`,
-      {method: 'POST'},
+      `/api/employer-survey/complete?projectId=${projectId}`,
+      {headers: {'x-admin-token': adminToken}, method: 'POST'},
     );
 
     if (!response.ok) {

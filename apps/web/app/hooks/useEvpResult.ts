@@ -51,7 +51,8 @@ export default function useEvpResult(
 
         // Fetch existing EVP result
         const resultsResponse = await fetch(
-          `/api/evp-pipeline/results?projectId=${encodeURIComponent(projectId)}&pipeline_step=${encodeURIComponent(outputType)}&admin_token=${encodeURIComponent(adminToken)}`,
+          `/api/evp-pipeline/results?projectId=${encodeURIComponent(projectId)}&pipeline_step=${encodeURIComponent(outputType)}`,
+          {headers: {'x-admin-token': adminToken}},
         );
 
         if (!resultsResponse.ok) {
@@ -74,8 +75,8 @@ export default function useEvpResult(
 
         // Run full pipeline: assemble + analyze (Step 0 & 1)
         const triggerResponse = await fetch(
-          `/api/evp-pipeline/trigger?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
-          {method: 'POST'},
+          `/api/evp-pipeline/trigger?projectId=${encodeURIComponent(projectId)}`,
+          {headers: {'x-admin-token': adminToken}, method: 'POST'},
         );
 
         if (!triggerResponse.ok) {
@@ -86,8 +87,8 @@ export default function useEvpResult(
 
         // Generate EVP output (Step 2)
         const generateResponse = await fetch(
-          `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=${encodeURIComponent(outputType)}&admin_token=${encodeURIComponent(adminToken)}`,
-          {method: 'POST'},
+          `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=${encodeURIComponent(outputType)}`,
+          {headers: {'x-admin-token': adminToken}, method: 'POST'},
         );
 
         if (!generateResponse.ok) {
@@ -129,7 +130,6 @@ export default function useEvpResult(
         setError(null);
 
         const queryParams = new URLSearchParams({
-          admin_token: adminToken,
           outputType,
           projectId,
           scope: 'output',
@@ -149,7 +149,10 @@ export default function useEvpResult(
           `/api/evp-pipeline/regenerate?${queryParams.toString()}`,
           {
             body: JSON.stringify({commentText}),
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-token': adminToken,
+            },
             method: 'POST',
           },
         );

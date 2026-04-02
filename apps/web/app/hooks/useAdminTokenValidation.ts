@@ -74,7 +74,7 @@ export function clearAdminValidationCacheForTests(): void {
  */
 export default function useAdminTokenValidation(
   projectId: string,
-  adminToken: string | null,
+  adminToken: string | null | undefined,
 ): ValidationResult {
   const router = useRouter();
   const [isValidating, setIsValidating] = useState(true);
@@ -86,6 +86,11 @@ export default function useAdminTokenValidation(
     let isDisposed = false;
 
     async function validateAccess() {
+      if (adminToken === undefined) {
+        // Token not yet loaded from hash/sessionStorage — wait for next render
+        return;
+      }
+
       if (!adminToken) {
         if (!isDisposed) {
           setIsValidating(false);
@@ -118,7 +123,8 @@ export default function useAdminTokenValidation(
         if (!inFlightRequest) {
           inFlightRequest = (async () => {
             const response = await fetch(
-              `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}&admin_token=${encodeURIComponent(adminToken)}`,
+              `/api/projects/validate-admin?projectId=${encodeURIComponent(projectId)}`,
+              {headers: {'x-admin-token': adminToken}},
             );
 
             const data = await response.json();
