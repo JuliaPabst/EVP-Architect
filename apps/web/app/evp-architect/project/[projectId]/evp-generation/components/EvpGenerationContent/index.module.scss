@@ -3,25 +3,38 @@
 
 .main {
   min-height: 100vh;
+  padding-bottom: spacings.$kun-spacing-3xl;
   background-color: colors.$kun-color-bg-soft;
 }
 
-.heroSection {
-  background-color: colors.$kun-color-base-yellow-80;
+.heroBackground {
+  position: relative;
+  height: 376px;
+  overflow: hidden;
 }
 
 .container {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-m;
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-l;
+  max-width: 1232px;
+  margin: -328px auto 0;
+  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-4xl;
+  border-radius: 8px;
+  background-color: colors.$kun-color-bg-white;
+  box-shadow: 0 8px 40px rgb(0, 0, 0, 0.08);
 }
 
 .cardHeader {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: spacings.$kun-spacing-m;
-  padding: spacings.$kun-spacing-2xl 0;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-m;
   text-align: center;
 }
 

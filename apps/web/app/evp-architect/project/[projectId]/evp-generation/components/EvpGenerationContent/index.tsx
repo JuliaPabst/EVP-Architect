@@ -6,6 +6,9 @@ import Button, {ButtonColor} from '@kununu/ui/atoms/Button';
 import FormInputWrapper from '@kununu/ui/atoms/FormInputWrapper';
 import Rocket from '@kununu/ui/atoms/Illustration/Illustrations/Spot/Rocket';
 import TextInput from '@kununu/ui/atoms/TextInput';
+import UnunuBackground, {
+  UnunuBackgroundColors,
+} from '@kununu/ui/atoms/UnunuBackground';
 import ClipboardCopy from '@kununu/ui/molecules/ClipboardCopy';
 import Select from '@kununu/ui/molecules/Select';
 import {ResultItem} from '@kununu/ui/shared/typings/resultItem';
@@ -111,22 +114,19 @@ export default function EvpGenerationContent({
 
   return (
     <main className={styles.main}>
-      <div className={styles.heroSection}>
-        <div className={styles.container}>
-          <div className={styles.cardHeader}>
-            <Rocket className={styles.rocketIcon} />
-            <h1 className={styles.heroTitle}>Employer Value Preposition</h1>
-            <p className={styles.heroSubtitle}>
-              You&apos;re all set! Your Employer Value Preposition is ready to
-              be generated. Thanks to the voices collected from your employees,
-              we can now showcase what makes your company stand out from the
-              rest.
-            </p>
-          </div>
-        </div>
+      <div className={styles.heroBackground}>
+        <UnunuBackground color={UnunuBackgroundColors.YELLOW} />
       </div>
-
       <div className={styles.container}>
+        <div className={styles.cardHeader}>
+          <Rocket className={styles.rocketIcon} />
+          <h1 className={styles.heroTitle}>Employer Value Preposition</h1>
+          <p className={styles.heroSubtitle}>
+            You&apos;re all set! Your Employer Value Preposition is ready to be
+            generated. Thanks to the voices collected from your employees, we
+            can now showcase what makes your company stand out from the rest.
+          </p>
+        </div>
         <section className={styles.card}>
           <div className={styles.cardHeading}>
             <p className={styles.cardHeadingText}>
