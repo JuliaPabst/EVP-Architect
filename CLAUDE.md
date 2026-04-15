@@ -183,6 +183,35 @@ Run frequently: `pnpm run lint`
 - Minimum 80% coverage (statements, branches, functions, lines)
 - Run: `pnpm run test:coverage`
 
+### Consistent Returns in Callbacks
+Always return a value in `.each()` callbacks — `return false` to break, `return undefined` to continue.
+
+```typescript
+$('script').each((i, el) => {
+  if (found) {
+    return false;
+  }
+  return undefined;
+});
+```
+
+### Array Destructuring
+Use array destructuring when accessing regex match groups — don't use `match[1]` directly.
+
+```typescript
+// Correct
+const [, extractedValue] = match;
+```
+
+### Module Exports
+- Named exports for utilities
+- Default exports for React components
+- If a file has only one export, provide both named and default
+
+### Accessibility
+- Never use `<a href="#">` for non-navigation actions — use `<button>` instead
+- Ensure all interactive elements have proper semantics
+
 ---
 
 ## SonarQube Code Quality Rules
@@ -190,10 +219,20 @@ Run frequently: `pnpm run lint`
 - **Exception handling:** Always log caught errors with `console.error()`. Never catch silently.
 - **Props:** Mark all component props as `readonly`.
 - **Optional chaining:** Use `match?.[1]` instead of `match && match[1]`.
+- **Non-null assertions:** Avoid `!` — prefer optional chaining or proper guards. `!` hides bugs.
 - **Regex:** Use `RegExp.exec()` instead of `String.match()`.
 - **Backslashes:** Use `String.raw` for strings with backslashes.
 - **Cognitive complexity:** Keep functions under 15. Extract helpers when needed.
 - **Control flow:** Avoid `continue` in loops — use positive conditions instead.
+
+---
+
+## General TypeScript & Next.js Best Practices
+
+- **No `any`:** Never use `any` as a type. Use proper types or `unknown` with a type guard.
+- **Minimize `'use client'`:** Prefer React Server Components. Only add `'use client'` when browser APIs or interactivity (state, effects, event handlers) are actually needed.
+- **`async/await` over promise chains:** Prefer `async/await` over `.then()/.catch()` — more readable and consistent with the early-return style.
+- **UI states:** Always show loading states during async operations and clear, user-facing error messages on failure.
 
 ---
 
