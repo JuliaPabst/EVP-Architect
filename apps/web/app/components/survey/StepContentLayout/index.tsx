@@ -24,7 +24,7 @@ interface StepContentLayoutProps {
  * @param error - Error message to display
  * @param isLoading - Whether data is being loaded
  * @param stepTitle - Title to display in the header
- * @param totalSteps - Total number of steps (default: 5)
+ * @param totalSteps - Total number of steps (default: 4)
  */
 export default function StepContentLayout({
   children,
@@ -32,7 +32,7 @@ export default function StepContentLayout({
   error,
   isLoading,
   stepTitle,
-  totalSteps = 5,
+  totalSteps = 4,
 }: StepContentLayoutProps) {
   return (
     <div className={styles.stepContent}>

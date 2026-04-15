@@ -1,18 +1,18 @@
 'use client';
 
-import EvpResultContent from './components/EvpResultContent';
+import EvpGenerationContent from './components/EvpGenerationContent';
 
 import KununuHeader from '@/app/components/KununuHeader';
 import useAdminToken from '@/app/hooks/useAdminToken';
 import useAdminTokenValidation from '@/app/hooks/useAdminTokenValidation';
 
-interface EvpResultPageProps {
+interface EvpGenerationPageProps {
   readonly params: {
     readonly projectId: string;
   };
 }
 
-export default function EvpResultPage({params}: EvpResultPageProps) {
+export default function EvpGenerationPage({params}: EvpGenerationPageProps) {
   const {projectId} = params;
   const adminToken = useAdminToken(projectId);
   const {isValidating} = useAdminTokenValidation(projectId, adminToken);
@@ -22,9 +22,12 @@ export default function EvpResultPage({params}: EvpResultPageProps) {
   }
 
   return (
-    <div data-testid="evp-result-page">
+    <div data-testid="evp-generation-page">
       <KununuHeader />
-      <EvpResultContent adminToken={adminToken ?? ''} projectId={projectId} />
+      <EvpGenerationContent
+        adminToken={adminToken ?? ''}
+        projectId={projectId}
+      />
     </div>
   );
 }

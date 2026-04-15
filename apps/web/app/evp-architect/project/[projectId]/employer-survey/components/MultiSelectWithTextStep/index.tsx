@@ -21,6 +21,7 @@ interface MultiSelectWithTextStepProps {
   readonly stepNumber: number;
   readonly stepTitle: string;
   readonly headerContent?: React.ReactNode;
+  readonly onAfterSave?: () => Promise<void>;
   readonly showBackButton?: boolean;
 }
 
@@ -43,6 +44,7 @@ interface MultiSelectWithTextStepProps {
 export default function MultiSelectWithTextStep({
   adminToken,
   headerContent,
+  onAfterSave,
   onBackNavigation,
   projectId,
   showBackButton = true,
@@ -88,7 +90,13 @@ export default function MultiSelectWithTextStep({
     });
     const saved = await saveAnswers(answers);
 
-    if (saved) navigateToNextStep();
+    if (saved) {
+      if (onAfterSave) {
+        await onAfterSave();
+      } else {
+        navigateToNextStep();
+      }
+    }
   };
 
   return (

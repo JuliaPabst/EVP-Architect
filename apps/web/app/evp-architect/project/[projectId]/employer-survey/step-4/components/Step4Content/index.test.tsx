@@ -3,6 +3,10 @@ import {render, screen} from '@testing-library/react';
 
 import Step4Content from '.';
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({push: jest.fn()}),
+}));
+
 jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
 jest.mock('../../../components/MultiSelectWithTextStep', () => {

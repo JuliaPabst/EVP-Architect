@@ -1,0 +1,62 @@
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
+.main {
+  min-height: 100vh;
+  background-color: colors.$kun-color-bg-soft;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-m;
+}
+
+.configSection {
+  padding: spacings.$kun-spacing-xl;
+  border-radius: 8px;
+  background-color: colors.$kun-color-bg-white;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+  margin-top: spacings.$kun-spacing-l;
+  margin-bottom: spacings.$kun-spacing-l;
+}
+
+.fieldWrapper {
+  width: 100%;
+}
+
+.generateButton {
+  margin-top: spacings.$kun-spacing-l;
+
+  button {
+    width: 100%;
+  }
+}
+
+.outputSection {
+  margin-top: spacings.$kun-spacing-xl;
+}
+
+.evpContent {
+  margin-top: spacings.$kun-spacing-l;
+  padding: spacings.$kun-spacing-xl;
+  white-space: pre-wrap;
+  border-radius: 8px;
+  background-color: colors.$kun-color-bg-white;
+}
+
+.loadingMessage {
+  margin-top: spacings.$kun-spacing-m;
+  color: colors.$kun-color-text-primary;
+  text-align: center;
+}
+
+.errorMessage {
+  margin-top: spacings.$kun-spacing-s;
+  color: colors.$kun-color-base-coral-100;
+}
