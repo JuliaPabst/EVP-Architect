@@ -339,14 +339,46 @@ colors.$kun-color-base-darkblue-100   // #102b69
 
 ### Typography (Mandatory)
 
-Use typography classes only. Never add `font-family` declarations in SCSS.
+Declare font properties directly in SCSS module classes. Do NOT use global typography class names (e.g. `"h2"`, `"p-base-regular"`) as `className` props — those are legacy. Instead, style text elements through their SCSS module class.
 
-```tsx
-<h1 className="h1">Heading</h1>
-<p className="p-base-regular">Body text</p>
+```scss
+// index.module.scss
+.pageTitle {
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 28px;
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  line-height: 36px;
+  letter-spacing: 0.3px;
+}
+
+.bodyText {
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
 ```
 
-Available classes: `h1`–`h6`, `h3-semibold`, `h3-medium`, `h4-semibold`, `h4-medium`, `h5`, `p-base-regular`, `p-base-semibold`, `p-base-bold`, `p-small-regular`, `p-tiny-regular`, `legend-regular`, `helper-regular`, `button`, `chip`
+```tsx
+// index.tsx
+<h1 className={styles.pageTitle}>Heading</h1>
+<p className={styles.bodyText}>Body text</p>
+```
+
+**Reference font values (from kununu/ui typography mixins):**
+
+| Style | font-family | font-weight | font-size | line-height | letter-spacing |
+|-------|-------------|-------------|-----------|-------------|----------------|
+| h2 | `'Sharp Grotesk Semibold', sans-serif` | 600 | 28px | 36px | 0.3px |
+| h3-semibold | `'Sharp Grotesk Semibold', sans-serif` | 600 | 20px | 28px | 0.2px |
+| p-base-semibold | `Inter, sans-serif` | 600 | 16px | 24px | -0.2px |
+| p-base-regular | `Inter, sans-serif` | 400 | 16px | 24px | -0.2px |
+| p-small-regular | `Inter, sans-serif` | 400 | 14px | 20px | -0.1px |
+
+Color tokens for text: `colors.$kun-color-text-title` (`#1b1c20`) for headings, `colors.$kun-color-text-primary` (`#333538`) for body.
 
 Do NOT import fonts from external sources. Do NOT modify `fonts.scss`, `globals.scss`, or `kununu-styles.scss`.
 
@@ -358,7 +390,7 @@ When implementing from Figma:
 3. Extract exact text content (no placeholders)
 4. Match DOM order to Figma layer order
 5. Use design tokens for spacing and colors
-6. Apply correct typography classes
+6. Apply font properties via SCSS module classes (not global typography class names)
 
 ### Pre-Implementation Checklist
 
@@ -367,5 +399,5 @@ When implementing from Figma:
 - [ ] Using SCSS module files (index.module.scss)
 - [ ] Importing design tokens with @use
 - [ ] Using SCSS token variables only (no hardcoded values)
-- [ ] Using typography classes only (no font-family)
+- [ ] Font properties declared in SCSS module classes (no global `"h2"` / `"p-base-regular"` classNames)
 - [ ] Not importing fonts from external sources

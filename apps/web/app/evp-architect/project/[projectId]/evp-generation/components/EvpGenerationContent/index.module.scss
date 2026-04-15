@@ -6,57 +6,159 @@
   background-color: colors.$kun-color-bg-soft;
 }
 
+.heroSection {
+  background-color: colors.$kun-color-base-yellow-80;
+}
+
 .container {
-  max-width: 800px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-m;
 }
 
-.configSection {
-  padding: spacings.$kun-spacing-xl;
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: spacings.$kun-spacing-m;
+  padding: spacings.$kun-spacing-2xl 0;
+  text-align: center;
+}
+
+.rocketIcon {
+  width: 120px;
+  height: 120px;
+}
+
+.heroTitle {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 28px;
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  line-height: 36px;
+  letter-spacing: 0.3px;
+}
+
+.heroSubtitle {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.card {
+  margin-bottom: spacings.$kun-spacing-xl;
+  border: 1px solid rgb(0, 0, 0, 0.12);
   border-radius: 8px;
   background-color: colors.$kun-color-bg-white;
+}
+
+.cardHeading {
+  padding: spacings.$kun-spacing-m spacings.$kun-spacing-xl;
+  border-bottom: 1px solid rgb(0, 0, 0, 0.08);
+}
+
+.cardHeadingText {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-l;
+  padding: spacings.$kun-spacing-xl;
+}
+
+.bodyText {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
 }
 
 .formFields {
   display: flex;
   flex-direction: column;
   gap: spacings.$kun-spacing-m;
-  margin-top: spacings.$kun-spacing-l;
-  margin-bottom: spacings.$kun-spacing-l;
 }
 
-.fieldWrapper {
-  width: 100%;
+.twoColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: spacings.$kun-spacing-m;
 }
 
-.generateButton {
-  margin-top: spacings.$kun-spacing-l;
-
-  button {
-    width: 100%;
-  }
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
 }
 
-.outputSection {
-  margin-top: spacings.$kun-spacing-xl;
+.previewLabel {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
 }
 
 .evpContent {
-  margin-top: spacings.$kun-spacing-l;
   padding: spacings.$kun-spacing-xl;
   white-space: pre-wrap;
-  border-radius: 8px;
+  border: 2px solid colors.$kun-color-base-darkblue-100;
+  border-radius: 4px;
   background-color: colors.$kun-color-bg-white;
 }
 
+.actionButtons {
+  display: flex;
+  gap: spacings.$kun-spacing-m;
+  justify-content: flex-end;
+}
+
 .loadingMessage {
-  margin-top: spacings.$kun-spacing-m;
+  margin: 0;
   color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
   text-align: center;
 }
 
 .errorMessage {
-  margin-top: spacings.$kun-spacing-s;
+  margin: 0;
   color: colors.$kun-color-base-coral-100;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.successMessage {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  text-align: right;
 }
