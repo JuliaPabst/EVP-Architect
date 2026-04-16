@@ -5,6 +5,8 @@ import {useState} from 'react';
 import Button, {ButtonColor} from '@kununu/ui/atoms/Button';
 import FormInputWrapper from '@kununu/ui/atoms/FormInputWrapper';
 import Icon from '@kununu/ui/atoms/Icon';
+import Download from '@kununu/ui/atoms/Icon/Icons/Download';
+import Share from '@kununu/ui/atoms/Icon/Icons/Share';
 import Sparks from '@kununu/ui/atoms/Icon/Icons/Sparks';
 import Rocket from '@kununu/ui/atoms/Illustration/Illustrations/Spot/Rocket';
 import TextInput from '@kununu/ui/atoms/TextInput';
@@ -254,20 +256,24 @@ export default function EvpGenerationContent({
 
                 {evpText && (
                   <>
-                    <div className={styles.evpContent}>
-                      <p className={styles.bodyText}>{evpText}</p>
+                    <div className={styles.evpContentBorder}>
+                      <div className={styles.evpContent}>
+                        <p className={styles.bodyText}>{evpText}</p>
+                      </div>
                     </div>
                     <div className={styles.actionButtons}>
                       <Button
-                        color={ButtonColor.Secondary}
+                        color={ButtonColor.SECONDARY}
                         disabled={isPublishing}
                         isLoading={isPublishing}
+                        leadingIcon={<Icon icon={Share} />}
                         loadingText="Publishing…"
                         onClick={handlePublish}
                         text="Publish on your company profile"
                       />
                       <Button
-                        color={ButtonColor.Primary}
+                        color={ButtonColor.PRIMARY}
+                        leadingIcon={<Icon icon={Download} />}
                         onClick={handleDownloadPdf}
                         text="Download Pdf"
                       />

@@ -1,3 +1,4 @@
+@use '@kununu/ui/theme/scss/mixins/ai' as ai;
 @use '@kununu/ui/theme/scss/variables/colors';
 @use '@kununu/ui/theme/scss/variables/spacings';
 
@@ -132,31 +133,28 @@
   letter-spacing: -0.2px;
 }
 
-.evpContent {
-  padding: spacings.$kun-spacing-xl;
-  white-space: pre-wrap;
+.evpContentBorder {
   border: 2px solid transparent;
   border-radius: 4px;
   background:
-    linear-gradient(colors.$kun-color-bg-white, colors.$kun-color-bg-white) padding-box,
-    colors.$kun-color-border-ai border-box;
-  animation: evp-ai-border 4s linear infinite;
+    linear-gradient(colors.$kun-color-bg-white, colors.$kun-color-bg-white)
+      padding-box,
+    linear-gradient(
+        to right,
+        colors.$kun-color-base-blue-100,
+        colors.$kun-color-base-coral-90,
+        colors.$kun-color-base-yellow-80
+      )
+      border-box;
+
+  @include ai.ai-animated(colors.$kun-color-bg-white);
 }
 
-@keyframes evp-ai-border {
-  @for $i from 0 through 100 {
-    #{$i * 1%} {
-      background:
-        linear-gradient(colors.$kun-color-bg-white, colors.$kun-color-bg-white) padding-box,
-        linear-gradient(
-            $i * 0.01turn,
-            colors.$kun-color-base-blue-100,
-            colors.$kun-color-base-coral-90,
-            colors.$kun-color-base-yellow-80
-          )
-          border-box;
-    }
-  }
+.evpContent {
+  padding: spacings.$kun-spacing-xl;
+  white-space: pre-wrap;
+  border-radius: 2px;
+  background-color: colors.$kun-color-bg-white;
 }
 
 .actionButtons {
