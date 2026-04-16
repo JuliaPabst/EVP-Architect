@@ -27,10 +27,12 @@ jest.mock('../../../components/TextStep', () => {
 describe('Step4Content', () => {
   const DEFAULT_PROPS = {projectId: 'test-project-101'};
 
-  it('renders TextStep with stepTitle "Culture Fit"', () => {
+  it('renders TextStep with stepTitle "Kulturelle Passung"', () => {
     render(<Step4Content {...DEFAULT_PROPS} />);
 
-    expect(screen.getByTestId('step-title')).toHaveTextContent('Culture Fit');
+    expect(screen.getByTestId('step-title')).toHaveTextContent(
+      'Kulturelle Passung',
+    );
   });
 
   it('renders TextStep with stepNumber 4', () => {

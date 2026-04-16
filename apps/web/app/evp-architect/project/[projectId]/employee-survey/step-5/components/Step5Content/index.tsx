@@ -11,7 +11,7 @@ export default function Step5Content({projectId}: Step5ContentProps) {
     <TextStep
       projectId={projectId}
       stepNumber={5}
-      stepTitle="Differentiation"
+      stepTitle="Differenzierung"
     />
   );
 }

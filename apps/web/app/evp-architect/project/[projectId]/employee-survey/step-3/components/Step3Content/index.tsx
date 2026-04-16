@@ -11,7 +11,7 @@ export default function Step3Content({projectId}: Step3ContentProps) {
     <TextStep
       projectId={projectId}
       stepNumber={3}
-      stepTitle="Daily Work Reality"
+      stepTitle="Arbeitsalltag"
     />
   );
 }

@@ -95,6 +95,7 @@ export default function MultiSelectStep({
       stepNumber={stepNumber}
       stepTitle={stepTitle}
       textQuestion={textQuestion}
+      totalSteps={5}
     />
   );
 }

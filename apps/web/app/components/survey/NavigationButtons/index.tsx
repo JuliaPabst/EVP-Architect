@@ -7,6 +7,7 @@ import styles from './index.module.scss';
 
 interface NavigationButtonsProps {
   readonly canContinue?: boolean;
+  readonly continueText?: string;
   readonly onBack?: () => void;
   readonly onContinue?: () => void;
   readonly showBackButton?: boolean;
@@ -14,6 +15,7 @@ interface NavigationButtonsProps {
 
 export default function NavigationButtons({
   canContinue = false,
+  continueText = 'Continue',
   onBack,
   onContinue,
   showBackButton = false,
@@ -33,7 +35,7 @@ export default function NavigationButtons({
         disabled={!canContinue}
         onClick={onContinue}
         size={ButtonSize.M}
-        text="Continue"
+        text={continueText}
       />
     </div>
   );

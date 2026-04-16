@@ -52,7 +52,7 @@ export default function TextStep({
     if (saved) {
       if (isLastStep) {
         await fetch(
-          `/api/employee-survey/complete?submission_id=${submissionId}`,
+          `/api/employee-survey/complete?project_id=${projectId}&submission_id=${submissionId}`,
           {method: 'POST'},
         );
         navigateToComplete();
@@ -69,6 +69,7 @@ export default function TextStep({
         error="Failed to load survey questions"
         isLoading={false}
         stepTitle={stepTitle}
+        totalSteps={5}
       >
         <div />
       </StepContentLayout>
@@ -81,6 +82,7 @@ export default function TextStep({
       error={error}
       isLoading={isLoading}
       stepTitle={stepTitle}
+      totalSteps={5}
     >
       {stepData && question && (
         <>
@@ -95,6 +97,7 @@ export default function TextStep({
 
           <NavigationButtons
             canContinue={canContinue && !isSaving}
+            continueText={isLastStep ? 'Abschicken' : 'Continue'}
             onBack={navigateToPreviousStep}
             onContinue={handleContinue}
             showBackButton

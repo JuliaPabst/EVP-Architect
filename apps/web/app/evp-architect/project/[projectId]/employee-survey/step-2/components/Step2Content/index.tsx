@@ -11,7 +11,7 @@ export default function Step2Content({projectId}: Step2ContentProps) {
     <TextStep
       projectId={projectId}
       stepNumber={2}
-      stepTitle="Belonging Moment"
+      stepTitle="Moment der Zugehörigkeit"
     />
   );
 }

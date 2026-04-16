@@ -8,14 +8,13 @@ export default function CompletionContent() {
       <div className={styles.container}>
         <div className={styles.completionWrapper}>
           <div className={styles.checkmark}>✓</div>
-          <h1 className={styles.title}>Vielen Dank für deine Teilnahme!</h1>
+          <h1 className={styles.title}>Thank you for your participation!</h1>
           <p className={styles.subtitle}>
-            Deine Antworten wurden erfolgreich gespeichert.
+            Your answers have been saved successfully.
           </p>
           <p className={styles.description}>
-            Dein Beitrag hilft dabei, ein authentisches und differenziertes EVP
-            zu entwickeln, das die echten Erfahrungen der Mitarbeitenden
-            widerspiegelt.
+            Your contribution helps develop an authentic and differentiated EVP
+            that reflects the real experiences of employees.
           </p>
         </div>
       </div>
