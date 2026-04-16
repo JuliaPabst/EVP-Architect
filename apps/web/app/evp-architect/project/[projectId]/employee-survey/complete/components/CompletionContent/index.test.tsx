@@ -25,7 +25,7 @@ describe('CompletionContent', () => {
     render(<CompletionContent />);
 
     expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-      'Thank you for your participation!',
+      'Vielen Dank für deine Teilnahme!',
     );
   });
 
@@ -33,7 +33,7 @@ describe('CompletionContent', () => {
     render(<CompletionContent />);
 
     expect(
-      screen.getByText('Your answers have been saved successfully.'),
+      screen.getByText('Deine Antworten wurden erfolgreich gespeichert.'),
     ).toBeInTheDocument();
   });
 
@@ -41,7 +41,7 @@ describe('CompletionContent', () => {
     render(<CompletionContent />);
 
     expect(
-      screen.getByText(/authentic and differentiated EVP/),
+      screen.getByText(/authentische und differenzierte EVP/),
     ).toBeInTheDocument();
   });
 });
