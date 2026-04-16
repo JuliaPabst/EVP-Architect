@@ -19,7 +19,7 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: spacings.$kun-spacing-l;
+  gap: spacings.$kun-spacing-xs;
   max-width: 1232px;
   margin: -328px auto 0;
   padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-4xl;
@@ -155,6 +155,48 @@
   white-space: pre-wrap;
   border-radius: 2px;
   background-color: colors.$kun-color-bg-white;
+
+  h1 {
+    margin: spacings.$kun-spacing-m 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 28px;
+    font-family: 'Sharp Grotesk Semibold', sans-serif;
+    line-height: 36px;
+    letter-spacing: 0.3px;
+  }
+
+  h2 {
+    margin: spacings.$kun-spacing-m 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 20px;
+    font-family: 'Sharp Grotesk Semibold', sans-serif;
+    line-height: 28px;
+    letter-spacing: 0.2px;
+  }
+
+  h3 {
+    margin: spacings.$kun-spacing-s 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 18px;
+    font-family: 'Sharp Grotesk Medium', sans-serif;
+    line-height: 26px;
+    letter-spacing: 0.2px;
+  }
+
+  h4,
+  h5,
+  h6 {
+    margin: spacings.$kun-spacing-s 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: Inter, sans-serif;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+  }
 }
 
 .actionButtons {

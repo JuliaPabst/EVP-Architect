@@ -39,43 +39,43 @@ const defaultTopics: Topic[] = [
     color: BadgeColor.INFO,
     icon: Group,
     id: 'teamwork',
-    label: 'Teamwork',
+    label: 'Teamarbeit',
   },
   {
     color: BadgeColor.LIGHT_BLUE,
     icon: Plant,
     id: 'sustainability',
-    label: 'Sustainability',
+    label: 'Nachhaltigkeit',
   },
   {
     color: BadgeColor.LIGHT_GREEN,
     icon: Design,
     id: 'creativity',
-    label: 'Creativity',
+    label: 'Kreativität',
   },
   {
     color: BadgeColor.LIGHT_PINK,
     icon: Handshake,
     id: 'trust',
-    label: 'Trust',
+    label: 'Vertrauen',
   },
   {
     color: BadgeColor.LIGHT_YELLOW,
     icon: Chat,
     id: 'communication',
-    label: 'Communication',
+    label: 'Kommunikation',
   },
   {
     color: BadgeColor.LIGHT_DARK_BLUE,
     icon: Target,
     id: 'goal-oriented',
-    label: 'Goal Oriented',
+    label: 'Zielorientiert',
   },
 ];
 
 export default function SelectedTopicsModule({
-  description = 'This tool analyzes honest feedback from your employees to generate an authentic Employer Value Proposition (EVP) that attracts exactly the right talent.',
-  heading = 'Stop guessing what makes your company special - let your team tell you.',
+  description = 'Dieses Tool analysiert ehrliches Feedback deiner Mitarbeiter:innen, um eine authentische Employer Value Proposition (EVP) zu erstellen, die genau die richtigen Talente anzieht.',
+  heading = 'Hör auf zu raten, was dein Unternehmen besonders macht – lass dein Team sprechen.',
   topics = defaultTopics,
 }: SelectedTopicsModuleProps) {
   return (
@@ -89,17 +89,19 @@ export default function SelectedTopicsModule({
                 <div className={styles.description}>
                   <p>{description}</p>
                   <p className={styles.stepsHeading}>
-                    How it works in 3 steps:
+                    So funktioniert es in 3 Schritten:
                   </p>
                   <ol className={styles.stepsList}>
                     <li>
-                      Choose your kununu profile here. We use this as the basis
-                      for &quot;Hard Facts&quot; (e.g., industry, location).
+                      Wähle hier dein kununu-Profil. Wir nutzen es als Basis für
+                      &quot;Hard Facts&quot; (z. B. Branche, Standort).
                     </li>
-                    <li>Survey Team: Share the survey link with your team.</li>
                     <li>
-                      Create EVP: Add your perspective and generate your EVP
-                      below.
+                      Team befragen: Teile den Umfragelink mit deinem Team.
+                    </li>
+                    <li>
+                      EVP erstellen: Füge deine Perspektive hinzu und generiere
+                      deine EVP.
                     </li>
                   </ol>
                 </div>

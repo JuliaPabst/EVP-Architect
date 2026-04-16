@@ -19,6 +19,19 @@ import styles from './index.module.scss';
 import useEvpResult from '@/app/hooks/useEvpResult';
 import useEvpSettings from '@/app/hooks/useEvpSettings';
 
+function formatEvpText(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(
+      /^(#{1,6}) (.+)$/gm,
+      (_, hashes: string, content: string) =>
+        `<h${hashes.length}>${content}</h${hashes.length}>`,
+    );
+}
+
 interface EvpGenerationContentProps {
   readonly adminToken: string;
   readonly projectId: string;
@@ -74,11 +87,6 @@ export default function EvpGenerationContent({
   const handleDownloadPdf = () => {
     if (!evpText) return;
 
-    const escaped = evpText
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
     const html = `<!DOCTYPE html>
 <html>
   <head>
@@ -86,9 +94,13 @@ export default function EvpGenerationContent({
     <style>
       @page { margin: 0; }
       body { font-family: Inter, sans-serif; padding: 40px; white-space: pre-wrap; }
+      h1 { font-family: 'Sharp Grotesk Semibold', sans-serif; font-size: 28px; font-weight: 600; letter-spacing: 0.3px; line-height: 36px; }
+      h2 { font-family: 'Sharp Grotesk Semibold', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 0.2px; line-height: 28px; }
+      h3 { font-family: 'Sharp Grotesk Medium', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 0.2px; line-height: 26px; }
+      h4, h5, h6 { font-family: Inter, sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.2px; line-height: 24px; }
     </style>
   </head>
-  <body>${escaped}</body>
+  <body>${formatEvpText(evpText)}</body>
 </html>`;
 
     const blob = new Blob([html], {type: 'text/html'});
@@ -118,25 +130,25 @@ export default function EvpGenerationContent({
       <div className={styles.container}>
         <div className={styles.cardHeader}>
           <Rocket className={styles.rocketIcon} />
-          <h1 className={styles.heroTitle}>Employer Value Preposition</h1>
+          <h1 className={styles.heroTitle}>Employer Value Proposition</h1>
           <p className={styles.heroSubtitle}>
-            You&apos;re all set! Your Employer Value Preposition is ready to be
-            generated. Thanks to the voices collected from your employees, we
-            can now showcase what makes your company stand out from the rest.
+            Alles bereit! Deine Employer Value Proposition kann jetzt generiert
+            werden. Dank der Stimmen deiner Mitarbeiter:innen können wir zeigen,
+            was dein Unternehmen einzigartig macht.
           </p>
         </div>
         <section className={styles.card}>
           <div className={styles.cardHeading}>
             <p className={styles.cardHeadingText}>
-              Collecting multiple perspectives is key to a strong EVP
+              Mehrere Perspektiven sind der Schlüssel zu einer starken EVP
             </p>
           </div>
           <div className={styles.cardContent}>
             <p className={styles.bodyText}>
-              The more employee voices you include, the more authentic and
-              representative your results will be. We recommend gathering
-              feedback from at least 5 employees to ensure meaningful insights
-              while maintaining anonymity.
+              Je mehr Mitarbeiter:innen du einbeziehst, desto authentischer und
+              repräsentativer werden deine Ergebnisse. Wir empfehlen Feedback
+              von mindestens 5 Personen, um aussagekräftige Einblicke bei
+              gleichzeitiger Wahrung der Anonymität zu erhalten.
             </p>
             <FormInputWrapper label="Link" labelId="evp-share-link-label">
               <ClipboardCopy content={shareUrl} name="evp-share-link" />
@@ -146,18 +158,19 @@ export default function EvpGenerationContent({
 
         <section className={styles.card}>
           <div className={styles.cardHeading}>
-            <p className={styles.cardHeadingText}>Your Value proposition</p>
+            <p className={styles.cardHeadingText}>Deine Value Proposition</p>
           </div>
           <div className={styles.cardContent}>
             <p className={styles.bodyText}>
-              Our AI will create a tailored draft based on your inputs. You can
-              adjust your settings at any time and regenerate the EVP until it
-              reflects your company exactly the way you want.
+              Unsere KI erstellt einen individuellen Entwurf auf Basis deiner
+              Eingaben. Du kannst deine Einstellungen jederzeit anpassen und die
+              EVP neu generieren, bis sie dein Unternehmen genau so
+              widerspiegelt, wie du es möchtest.
             </p>
 
             <div className={styles.formFields}>
               <FormInputWrapper
-                label="Target Audience"
+                label="Zielgruppe"
                 labelId="evp-gen-target-audience-label"
               >
                 <Select
@@ -187,7 +200,7 @@ export default function EvpGenerationContent({
               )}
 
               <div className={styles.twoColumns}>
-                <FormInputWrapper label="Style" labelId="evp-gen-style-label">
+                <FormInputWrapper label="Stil" labelId="evp-gen-style-label">
                   <Select
                     id="evp-gen-style"
                     items={styleOptions}
@@ -204,7 +217,7 @@ export default function EvpGenerationContent({
                 </FormInputWrapper>
 
                 <FormInputWrapper
-                  label="Language"
+                  label="Sprache"
                   labelId="evp-gen-language-label"
                 >
                   <Select
@@ -232,18 +245,18 @@ export default function EvpGenerationContent({
                 disabled={!canGenerate || isRegenerating}
                 isLoading={isRegenerating}
                 leadingIcon={<Icon icon={Sparks} />}
-                loadingText="Generating…"
+                loadingText="Wird generiert…"
                 onClick={handleGenerate}
-                text="Generate your EVP"
+                text="EVP generieren"
               />
             </div>
 
             {(isLoading || error || evpText) && (
               <div className={styles.previewSection}>
-                <p className={styles.previewLabel}>Preview</p>
+                <p className={styles.previewLabel}>Vorschau</p>
 
                 {isLoading && (
-                  <p className={styles.loadingMessage}>Generating EVP…</p>
+                  <p className={styles.loadingMessage}>EVP wird generiert…</p>
                 )}
 
                 {error && <p className={styles.errorMessage}>{error}</p>}
@@ -252,7 +265,12 @@ export default function EvpGenerationContent({
                   <>
                     <div className={styles.evpContentBorder}>
                       <div className={styles.evpContent}>
-                        <p className={styles.bodyText}>{evpText}</p>
+                        <div
+                          className={styles.bodyText}
+                          dangerouslySetInnerHTML={{
+                            __html: formatEvpText(evpText),
+                          }}
+                        />
                       </div>
                     </div>
                     <div className={styles.actionButtons}>
@@ -260,7 +278,7 @@ export default function EvpGenerationContent({
                         color={ButtonColor.PRIMARY}
                         leadingIcon={<Icon icon={Download} />}
                         onClick={handleDownloadPdf}
-                        text="Download Pdf"
+                        text="PDF herunterladen"
                       />
                     </div>
                   </>
