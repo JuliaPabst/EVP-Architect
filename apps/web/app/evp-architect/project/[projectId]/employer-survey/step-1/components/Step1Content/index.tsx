@@ -33,7 +33,7 @@ export default function Step1Content({
       projectId={projectId}
       showBackButton={false}
       stepNumber={1}
-      stepTitle="Who you are today (Culture & Values)?"
+      stepTitle="Wer ihr heute seid (Kultur & Werte)"
     />
   );
 }

@@ -53,7 +53,7 @@ export default function Step3Content({
         currentStep={3}
         error="Failed to load survey questions"
         isLoading={false}
-        stepTitle="What makes you different (Positioning)"
+        stepTitle="Was euch unterscheidet (Positionierung)"
       >
         <div />
       </StepContentLayout>
@@ -65,7 +65,7 @@ export default function Step3Content({
       currentStep={3}
       error={error}
       isLoading={isLoading}
-      stepTitle="What makes you different (Positioning)"
+      stepTitle="Was euch unterscheidet (Positionierung)"
     >
       {stepData && question && (
         <>

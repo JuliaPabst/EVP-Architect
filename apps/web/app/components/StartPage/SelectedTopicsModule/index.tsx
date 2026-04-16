@@ -74,8 +74,8 @@ const defaultTopics: Topic[] = [
 ];
 
 export default function SelectedTopicsModule({
-  description = 'Dieses Tool analysiert ehrliches Feedback deiner Mitarbeiter:innen, um eine authentische Employer Value Proposition (EVP) zu erstellen, die genau die richtigen Talente anzieht.',
-  heading = 'Hör auf zu raten, was dein Unternehmen besonders macht – lass dein Team sprechen.',
+  description = 'Dieses Tool analysiert ehrliches Feedback Ihrer Mitarbeiter:innen, um eine authentische Employer Value Proposition (EVP) zu erstellen, die genau die richtigen Talente anzieht.',
+  heading = 'Hören Sie auf zu raten, was Ihr Unternehmen besonders macht – lassen Sie Ihr Team sprechen.',
   topics = defaultTopics,
 }: SelectedTopicsModuleProps) {
   return (
@@ -95,6 +95,10 @@ export default function SelectedTopicsModule({
                     <li>
                       Wähle hier dein kununu-Profil. Wir nutzen es als Basis für
                       &quot;Hard Facts&quot; (z. B. Branche, Standort).
+                    </li>
+                    <li>
+                      EVP-Umfrage beantworten: Reflektiere über die Werte deines
+                      Unternehmens.
                     </li>
                     <li>
                       Team befragen: Teile den Umfragelink mit deinem Team.

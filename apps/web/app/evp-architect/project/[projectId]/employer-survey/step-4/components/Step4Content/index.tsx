@@ -49,7 +49,7 @@ export default function Step4Content({
         projectId={projectId}
         showBackButton
         stepNumber={4}
-        stepTitle="Guardrails (Tone & Reality Check)"
+        stepTitle="Leitplanken (Ton & Realitätscheck)"
       />
     </>
   );
