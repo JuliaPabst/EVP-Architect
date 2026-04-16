@@ -1,12 +1,9 @@
 'use client';
 
-import {useState} from 'react';
-
 import Button, {ButtonColor} from '@kununu/ui/atoms/Button';
 import FormInputWrapper from '@kununu/ui/atoms/FormInputWrapper';
 import Icon from '@kununu/ui/atoms/Icon';
 import Download from '@kununu/ui/atoms/Icon/Icons/Download';
-import Share from '@kununu/ui/atoms/Icon/Icons/Share';
 import Sparks from '@kununu/ui/atoms/Icon/Icons/Sparks';
 import Rocket from '@kununu/ui/atoms/Illustration/Illustrations/Spot/Rocket';
 import TextInput from '@kununu/ui/atoms/TextInput';
@@ -57,9 +54,6 @@ export default function EvpGenerationContent({
     outputType,
   );
 
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [publishSuccess, setPublishSuccess] = useState(false);
-
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/evp-architect/project/${projectId}/employee-survey/step-1`;
 
   const canGenerate = Boolean(
@@ -77,43 +71,43 @@ export default function EvpGenerationContent({
     await regenerate('', toSettings());
   };
 
-  const handlePublish = async () => {
-    if (!evpText) return;
-
-    setIsPublishing(true);
-    setPublishSuccess(false);
-
-    try {
-      const response = await fetch(
-        `/api/evp-pipeline/publish?projectId=${projectId}&adminToken=${adminToken}`,
-        {
-          body: JSON.stringify({evpText}),
-          headers: {'Content-Type': 'application/json'},
-          method: 'POST',
-        },
-      );
-
-      if (response.ok) {
-        setPublishSuccess(true);
-      }
-    } catch {
-      // publish error is silent — user sees no success message
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
   const handleDownloadPdf = () => {
     if (!evpText) return;
 
-    const blob = new Blob([evpText], {type: 'text/plain'});
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
+    const escaped = evpText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
 
-    anchor.download = 'evp.txt';
-    anchor.href = url;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    const html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title>EVP</title>
+    <style>
+      @page { margin: 0; }
+      body { font-family: Inter, sans-serif; padding: 40px; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>${escaped}</body>
+</html>`;
+
+    const blob = new Blob([html], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+
+    const iframe = document.createElement('iframe');
+
+    iframe.style.cssText = 'position:fixed;top:-10000px;left:-10000px;';
+    iframe.src = url;
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      iframe.contentWindow?.print();
+      URL.revokeObjectURL(url);
+
+      iframe.contentWindow?.addEventListener('afterprint', () => {
+        document.body.removeChild(iframe);
+      });
+    };
   };
 
   return (
@@ -263,26 +257,12 @@ export default function EvpGenerationContent({
                     </div>
                     <div className={styles.actionButtons}>
                       <Button
-                        color={ButtonColor.SECONDARY}
-                        disabled={isPublishing}
-                        isLoading={isPublishing}
-                        leadingIcon={<Icon icon={Share} />}
-                        loadingText="Publishing…"
-                        onClick={handlePublish}
-                        text="Publish on your company profile"
-                      />
-                      <Button
                         color={ButtonColor.PRIMARY}
                         leadingIcon={<Icon icon={Download} />}
                         onClick={handleDownloadPdf}
                         text="Download Pdf"
                       />
                     </div>
-                    {publishSuccess && (
-                      <p className={styles.successMessage}>
-                        Successfully published to your company profile.
-                      </p>
-                    )}
                   </>
                 )}
               </div>
