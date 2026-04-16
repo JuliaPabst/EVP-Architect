@@ -4,6 +4,8 @@ import {useState} from 'react';
 
 import Button, {ButtonColor} from '@kununu/ui/atoms/Button';
 import FormInputWrapper from '@kununu/ui/atoms/FormInputWrapper';
+import Icon from '@kununu/ui/atoms/Icon';
+import Sparks from '@kununu/ui/atoms/Icon/Icons/Sparks';
 import Rocket from '@kununu/ui/atoms/Illustration/Illustrations/Spot/Rocket';
 import TextInput from '@kununu/ui/atoms/TextInput';
 import UnunuBackground, {
@@ -148,7 +150,7 @@ export default function EvpGenerationContent({
 
         <section className={styles.card}>
           <div className={styles.cardHeading}>
-            <p className={styles.cardHeadingText}>Your Value preposition</p>
+            <p className={styles.cardHeadingText}>Your Value proposition</p>
           </div>
           <div className={styles.cardContent}>
             <p className={styles.bodyText}>
@@ -233,6 +235,7 @@ export default function EvpGenerationContent({
                 color={ButtonColor.AI}
                 disabled={!canGenerate || isRegenerating}
                 isLoading={isRegenerating}
+                leadingIcon={<Icon icon={Sparks} />}
                 loadingText="Generating…"
                 onClick={handleGenerate}
                 text="Generate your EVP"

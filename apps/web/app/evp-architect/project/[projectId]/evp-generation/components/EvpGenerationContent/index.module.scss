@@ -14,6 +14,8 @@
 }
 
 .container {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: spacings.$kun-spacing-l;
@@ -71,7 +73,7 @@
 }
 
 .cardHeading {
-  padding: spacings.$kun-spacing-m spacings.$kun-spacing-xl;
+  padding: spacings.$kun-spacing-s spacings.$kun-spacing-l;
   border-bottom: 1px solid rgb(0, 0, 0, 0.08);
 }
 
@@ -79,10 +81,10 @@
   margin: 0;
   color: colors.$kun-color-text-title;
   font-weight: 600;
-  font-size: 16px;
-  font-family: Inter, sans-serif;
-  line-height: 24px;
-  letter-spacing: -0.2px;
+  font-size: 18px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 26px;
+  letter-spacing: 0.2px;
 }
 
 .cardContent {
@@ -133,9 +135,28 @@
 .evpContent {
   padding: spacings.$kun-spacing-xl;
   white-space: pre-wrap;
-  border: 2px solid colors.$kun-color-base-darkblue-100;
+  border: 2px solid transparent;
   border-radius: 4px;
-  background-color: colors.$kun-color-bg-white;
+  background:
+    linear-gradient(colors.$kun-color-bg-white, colors.$kun-color-bg-white) padding-box,
+    colors.$kun-color-border-ai border-box;
+  animation: evp-ai-border 4s linear infinite;
+}
+
+@keyframes evp-ai-border {
+  @for $i from 0 through 100 {
+    #{$i * 1%} {
+      background:
+        linear-gradient(colors.$kun-color-bg-white, colors.$kun-color-bg-white) padding-box,
+        linear-gradient(
+            $i * 0.01turn,
+            colors.$kun-color-base-blue-100,
+            colors.$kun-color-base-coral-90,
+            colors.$kun-color-base-yellow-80
+          )
+          border-box;
+    }
+  }
 }
 
 .actionButtons {
