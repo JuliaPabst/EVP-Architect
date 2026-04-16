@@ -55,7 +55,9 @@ export default function MultiSelectStep({
   );
   const maxSelections = multiSelectQuestion?.selection_limit || 5;
   const canContinue =
-    selectedFactors.length >= 1 && selectedFactors.length <= maxSelections;
+    selectedFactors.length >= 1 &&
+    selectedFactors.length <= maxSelections &&
+    (!textQuestion || additionalContext.trim().length > 0);
 
   const handleContinue = async () => {
     if (!stepData || !multiSelectQuestion) {

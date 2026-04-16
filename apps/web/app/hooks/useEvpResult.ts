@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 
 import {EvpGenerationSettings} from './useEvpSettings';
 
@@ -19,17 +19,20 @@ interface UseEvpResultReturn extends EvpResultState {
 }
 
 /**
- * Custom hook to fetch, generate, and regenerate EVP results.
+ * Custom hook for on-demand EVP generation.
  *
  * Purpose:
- *   Manages the EVP generation workflow:
- *   1. Fetches existing EVP output if available
- *   2. Auto-generates if no output exists
- *   3. Provides a regenerate function for adjustments
+ *   Manages the EVP generation workflow triggered by explicit user action.
+ *   No auto-generation on mount — generation only starts when regenerate() is called.
+ *
+ * Flow on each call to regenerate():
+ *   1. POST /api/evp-pipeline/trigger  — assembles + analyzes if needed, or skips
+ *   2. POST /api/evp-pipeline/regenerate?scope=output — generates EVP text
  *
  * @param projectId - UUID of the project
  * @param adminToken - Admin token for authentication
- * @returns Object with evpText, loading/regenerating states, error, and regenerate function
+ * @param outputType - EVP output type (internal | external | gap_analysis)
+ * @returns Object with evpText, loading state, error, and regenerate function
  */
 export default function useEvpResult(
   projectId: string,
@@ -37,43 +40,16 @@ export default function useEvpResult(
   outputType: EvpOutputType = 'internal',
 ): UseEvpResultReturn {
   const [evpText, setEvpText] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isDisposed = false;
-
-    async function loadEvpResult() {
+  const regenerate = useCallback(
+    async (commentText: string, settings?: EvpGenerationSettings) => {
       try {
-        setIsLoading(true);
+        setIsRegenerating(true);
         setError(null);
 
-        // Fetch existing EVP result
-        const resultsResponse = await fetch(
-          `/api/evp-pipeline/results?projectId=${encodeURIComponent(projectId)}&pipeline_step=${encodeURIComponent(outputType)}`,
-          {headers: {'x-admin-token': adminToken}},
-        );
-
-        if (!resultsResponse.ok) {
-          const errorData = await resultsResponse.json();
-
-          throw new Error(errorData.message || 'Failed to fetch EVP results');
-        }
-
-        const resultsData = await resultsResponse.json();
-        const existingResult = resultsData.results?.[0];
-
-        // If result exists, use it
-        if (existingResult?.result_text) {
-          if (!isDisposed) {
-            setEvpText(existingResult.result_text);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        // Run full pipeline: assemble + analyze (Step 0 & 1)
+        // Step 0 & 1: Run assemble + analyze, or skip if already up-to-date
         const triggerResponse = await fetch(
           `/api/evp-pipeline/trigger?projectId=${encodeURIComponent(projectId)}`,
           {headers: {'x-admin-token': adminToken}, method: 'POST'},
@@ -85,50 +61,7 @@ export default function useEvpResult(
           throw new Error(errorData.message || 'Failed to run EVP pipeline');
         }
 
-        // Generate EVP output (Step 2)
-        const generateResponse = await fetch(
-          `/api/evp-pipeline/generate?projectId=${encodeURIComponent(projectId)}&outputType=${encodeURIComponent(outputType)}`,
-          {headers: {'x-admin-token': adminToken}, method: 'POST'},
-        );
-
-        if (!generateResponse.ok) {
-          const errorData = await generateResponse.json();
-
-          throw new Error(errorData.message || 'Failed to generate EVP');
-        }
-
-        const generateData = await generateResponse.json();
-
-        if (!isDisposed) {
-          setEvpText(generateData.text || null);
-          setIsLoading(false);
-        }
-      } catch (err) {
-        if (!isDisposed) {
-          setError(
-            err instanceof Error ? err.message : 'Unknown error occurred',
-          );
-          setIsLoading(false);
-        }
-
-        // eslint-disable-next-line no-console
-        console.error('Error loading EVP result:', err);
-      }
-    }
-
-    loadEvpResult().catch(() => undefined);
-
-    return () => {
-      isDisposed = true;
-    };
-  }, [adminToken, outputType, projectId]);
-
-  const regenerate = useCallback(
-    async (commentText: string, settings?: EvpGenerationSettings) => {
-      try {
-        setIsRegenerating(true);
-        setError(null);
-
+        // Step 2: Generate EVP output with current settings
         const queryParams = new URLSearchParams({
           outputType,
           projectId,
@@ -145,7 +78,7 @@ export default function useEvpResult(
           queryParams.append('language', settings.language);
         }
 
-        const response = await fetch(
+        const generateResponse = await fetch(
           `/api/evp-pipeline/regenerate?${queryParams.toString()}`,
           {
             body: JSON.stringify({commentText}),
@@ -157,13 +90,13 @@ export default function useEvpResult(
           },
         );
 
-        if (!response.ok) {
-          const errorData = await response.json();
+        if (!generateResponse.ok) {
+          const errorData = await generateResponse.json();
 
-          throw new Error(errorData.message || 'Failed to regenerate EVP');
+          throw new Error(errorData.message || 'Failed to generate EVP');
         }
 
-        const data = await response.json();
+        const data = await generateResponse.json();
 
         setEvpText(data.text || null);
         setIsRegenerating(false);
@@ -172,7 +105,7 @@ export default function useEvpResult(
         setIsRegenerating(false);
 
         // eslint-disable-next-line no-console
-        console.error('Error regenerating EVP:', err);
+        console.error('Error generating EVP:', err);
       }
     },
     [adminToken, outputType, projectId],
@@ -181,7 +114,7 @@ export default function useEvpResult(
   return {
     error,
     evpText,
-    isLoading,
+    isLoading: false,
     isRegenerating,
     regenerate,
   };

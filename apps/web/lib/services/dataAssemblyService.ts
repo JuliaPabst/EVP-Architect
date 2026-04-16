@@ -86,13 +86,8 @@ class DataAssemblyService {
       s => s.status === 'submitted',
     );
 
-    // 3. Enforce minimum threshold
-    if (submittedEmployeeSubmissions.length < MINIMUM_EMPLOYEE_SUBMISSIONS) {
-      throw new Error('insufficient_submissions');
-    }
-
-    const submittedEmployerSubmission =
-      employerSubmissions.find(s => s.status === 'submitted') ?? null;
+    // Use the employer submission regardless of its status (in_progress counts too)
+    const employerSubmission = employerSubmissions[0] ?? null;
 
     // 4. Compute completion rate
     const completionRate =
@@ -102,8 +97,8 @@ class DataAssemblyService {
 
     // 5. Collect all submission IDs to query answers in one pass
     const submittedEmployeeIds = submittedEmployeeSubmissions.map(s => s.id);
-    const allRelevantIds = submittedEmployerSubmission
-      ? [...submittedEmployeeIds, submittedEmployerSubmission.id]
+    const allRelevantIds = employerSubmission
+      ? [...submittedEmployeeIds, employerSubmission.id]
       : submittedEmployeeIds;
 
     // 6. Fetch all answers with question context in one query
@@ -111,10 +106,8 @@ class DataAssemblyService {
       await this.answerRepository.getAnswersWithQuestions(allRelevantIds);
 
     // Separate employer vs employee answers
-    const employerAnswerRows = submittedEmployerSubmission
-      ? allAnswers.filter(
-          a => a.submission_id === submittedEmployerSubmission.id,
-        )
+    const employerAnswerRows = employerSubmission
+      ? allAnswers.filter(a => a.submission_id === employerSubmission.id)
       : [];
     const employeeAnswerRows = allAnswers.filter(a =>
       submittedEmployeeIds.includes(a.submission_id),
@@ -170,7 +163,7 @@ class DataAssemblyService {
 
     // 9. Build employer survey data
     const employerSurveyData = DataAssemblyService.buildEmployerSurveyData(
-      submittedEmployerSubmission,
+      employerSubmission,
       employerAnswerRows,
       selectionsMap,
       questionOptionsMap,

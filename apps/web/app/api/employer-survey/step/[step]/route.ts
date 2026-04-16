@@ -2,19 +2,20 @@ import {NextRequest, NextResponse} from 'next/server';
 
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
+import {ProjectRepository, ProjectStatus} from '@/lib/repositories/projectRepository';
 import EmployerSurveyService from '@/lib/services/employerSurveyService';
 import {handleServiceError, validateStep} from '@/lib/utils/apiStepUtils';
 import {saveStepAnswersSchema} from '@/lib/validation/surveySchemas';
 
 /**
  * Validate project access and step parameter
- * Returns validated project and step, or error response
+ * Returns validated project, step, and project status, or error response
  */
 async function validateStepRequest(
   request: NextRequest,
   stepParam: string,
 ): Promise<
-  | {projectId: string; step: number; success: true}
+  | {projectId: string; projectStatus: ProjectStatus; step: number; success: true}
   | {error: NextResponse; success: false}
 > {
   const validation = await validateProjectAccess(request);
@@ -29,7 +30,12 @@ async function validateStepRequest(
     return {error: BadRequestError.invalidStep(), success: false};
   }
 
-  return {projectId: validation.project!.id, step, success: true};
+  return {
+    projectId: validation.project!.id,
+    projectStatus: validation.project!.status,
+    step,
+    success: true,
+  };
 }
 
 /**
@@ -129,7 +135,7 @@ export async function POST(
       return validation.error;
     }
 
-    const {projectId, step} = validation;
+    const {projectId, projectStatus, step} = validation;
 
     const body = await request.json();
     const parseResult = saveStepAnswersSchema.safeParse(body);
@@ -152,6 +158,14 @@ export async function POST(
       }
 
       throw error;
+    }
+
+    // If an EVP was already generated, answers have changed — invalidate it
+    // so the pipeline re-runs on the next visit to the EVP generation page.
+    if (projectStatus === 'evp_generated') {
+      const projectRepository = new ProjectRepository();
+
+      await projectRepository.updateStatus(projectId, 'employer_survey_completed');
     }
 
     return NextResponse.json({success: true});

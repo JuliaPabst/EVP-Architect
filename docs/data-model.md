@@ -105,12 +105,16 @@ Core security and lifecycle control entity of the prototype.
 # Lifecycle Control
 
   State                         Purpose
-  ----------------------------- --------------------------
-  employer_survey_in_progress   Employer survey editable
-  employer_survey_completed     Employer survey locked
-  employee_survey_active        Employee survey open
-  evp_generation_available      AI generation allowed
-  evp_generated                 EVP draft created
+  ----------------------------- -------------------------------------------------------
+  employer_survey_in_progress   Employer survey editable; pipeline has not yet run
+  employer_survey_completed     Employer changed answers after EVP was generated;
+                                pipeline will re-run on next visit to generation page
+  employee_survey_active        (legacy) Employee survey open — not used in main flow
+  evp_generation_available      (legacy) Not used in main flow
+  evp_generated                 Pipeline ran successfully; cached results are current
+
+Active flow: employer_survey_in_progress → evp_generated
+Re-run flow: evp_generated → employer_survey_completed → evp_generated
 
 ------------------------------------------------------------------------
 
