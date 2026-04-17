@@ -8,10 +8,6 @@ interface Step3ContentProps {
 
 export default function Step3Content({projectId}: Step3ContentProps) {
   return (
-    <TextStep
-      projectId={projectId}
-      stepNumber={3}
-      stepTitle="Arbeitsalltag"
-    />
+    <TextStep projectId={projectId} stepNumber={3} stepTitle="Arbeitsalltag" />
   );
 }

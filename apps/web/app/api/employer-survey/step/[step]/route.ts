@@ -2,7 +2,10 @@ import {NextRequest, NextResponse} from 'next/server';
 
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
-import {ProjectRepository, ProjectStatus} from '@/lib/repositories/projectRepository';
+import {
+  ProjectRepository,
+  ProjectStatus,
+} from '@/lib/repositories/projectRepository';
 import EmployerSurveyService from '@/lib/services/employerSurveyService';
 import {handleServiceError, validateStep} from '@/lib/utils/apiStepUtils';
 import {saveStepAnswersSchema} from '@/lib/validation/surveySchemas';
@@ -15,7 +18,12 @@ async function validateStepRequest(
   request: NextRequest,
   stepParam: string,
 ): Promise<
-  | {projectId: string; projectStatus: ProjectStatus; step: number; success: true}
+  | {
+      projectId: string;
+      projectStatus: ProjectStatus;
+      step: number;
+      success: true;
+    }
   | {error: NextResponse; success: false}
 > {
   const validation = await validateProjectAccess(request);
@@ -165,7 +173,10 @@ export async function POST(
     if (projectStatus === 'evp_generated') {
       const projectRepository = new ProjectRepository();
 
-      await projectRepository.updateStatus(projectId, 'employer_survey_completed');
+      await projectRepository.updateStatus(
+        projectId,
+        'employer_survey_completed',
+      );
     }
 
     return NextResponse.json({success: true});

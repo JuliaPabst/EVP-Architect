@@ -158,7 +158,9 @@ export default function EvpGenerationContent({
 
         <section className={styles.card}>
           <div className={styles.cardHeading}>
-            <p className={styles.cardHeadingText}>Deine Value Proposition</p>
+            <p className={styles.cardHeadingText}>
+              Deine Employer Value Proposition
+            </p>
           </div>
           <div className={styles.cardContent}>
             <p className={styles.bodyText}>

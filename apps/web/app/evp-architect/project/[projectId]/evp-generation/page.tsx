@@ -17,17 +17,14 @@ export default function EvpGenerationPage({params}: EvpGenerationPageProps) {
   const adminToken = useAdminToken(projectId);
   const {isValidating} = useAdminTokenValidation(projectId, adminToken);
 
-  if (isValidating) {
+  if (!adminToken || isValidating) {
     return null;
   }
 
   return (
-    <div data-testid="evp-generation-page">
+    <>
       <KununuHeader />
-      <EvpGenerationContent
-        adminToken={adminToken ?? ''}
-        projectId={projectId}
-      />
-    </div>
+      <EvpGenerationContent adminToken={adminToken} projectId={projectId} />
+    </>
   );
 }

@@ -30,7 +30,9 @@ describe('Step5Content', () => {
   it('renders TextStep with stepTitle "Differenzierung"', () => {
     render(<Step5Content {...DEFAULT_PROPS} />);
 
-    expect(screen.getByTestId('step-title')).toHaveTextContent('Differenzierung');
+    expect(screen.getByTestId('step-title')).toHaveTextContent(
+      'Differenzierung',
+    );
   });
 
   it('renders TextStep with stepNumber 5', () => {
