@@ -21,7 +21,11 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
-jest.mock('@/lib/tokens', () => jest.fn());
+jest.mock('@/lib/tokens', () => ({
+  __esModule: true,
+  default: jest.fn(),
+  hashToken: jest.fn((t: string) => `hashed-${t}`),
+}));
 
 describe('POST /api/projects/create', () => {
   const mockIsValidKununuUrl = isValidKununuUrl as jest.MockedFunction<
@@ -223,7 +227,7 @@ describe('POST /api/projects/create', () => {
     expect(mockGenerateSecureToken).toHaveBeenCalledTimes(2);
     expect(mockInsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        admin_token: 'mock-admin-token',
+        admin_token: 'hashed-mock-admin-token',
         company_name: 'Test Company',
         employee_count: '100-500',
         industry: 1,

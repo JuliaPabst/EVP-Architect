@@ -11,6 +11,12 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
+jest.mock('@/lib/tokens', () => ({
+  __esModule: true,
+  default: jest.fn(() => 'mock-token'),
+  hashToken: jest.fn((t: string) => `hashed-${t}`),
+}));
+
 describe('ProjectRepository', () => {
   let repository: ProjectRepository;
   let mockFrom: jest.Mock;
@@ -280,7 +286,7 @@ describe('ProjectRepository', () => {
       expect(mockFrom).toHaveBeenCalledWith('evp_projects');
       expect(mockSelect).toHaveBeenCalledWith('*');
       expect(mockEq).toHaveBeenCalledWith('id', 'project1');
-      expect(mockEq).toHaveBeenCalledWith('admin_token', 'admin123');
+      expect(mockEq).toHaveBeenCalledWith('admin_token', 'hashed-admin123');
       expect(mockSingle).toHaveBeenCalled();
       expect(result).toEqual(mockProject);
     });

@@ -86,6 +86,11 @@ class DataAssemblyService {
       s => s.status === 'submitted',
     );
 
+    // 3. Guard: require minimum employee submissions before assembling
+    if (submittedEmployeeSubmissions.length < MINIMUM_EMPLOYEE_SUBMISSIONS) {
+      throw new Error('insufficient_submissions');
+    }
+
     // Use the employer submission regardless of its status (in_progress counts too)
     const employerSubmission = employerSubmissions[0] ?? null;
 

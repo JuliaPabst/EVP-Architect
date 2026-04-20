@@ -51,7 +51,7 @@ describe('Step4Content', () => {
     render(<Step4Content {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('step-title')).toHaveTextContent(
-      'Guardrails (Tone & Reality Check)',
+      'Leitplanken (Ton & Realitätscheck)',
     );
   });
 

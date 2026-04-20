@@ -104,7 +104,7 @@ describe('EmployerSurveyStep4', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-        'Guardrails (Tone & Reality Check)',
+        'Leitplanken (Ton & Realitätscheck)',
       );
     });
   });

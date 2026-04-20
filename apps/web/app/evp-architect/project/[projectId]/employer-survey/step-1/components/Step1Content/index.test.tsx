@@ -73,7 +73,7 @@ describe('Step1Content', () => {
     render(<Step1Content {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('step-title')).toHaveTextContent(
-      'Who you are today (Culture & Values)?',
+      'Wer ihr heute seid (Kultur & Werte)',
     );
   });
 

@@ -104,7 +104,7 @@ describe('EmployerSurveyStep3', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-        'What makes you different (Positioning)',
+        'Was euch unterscheidet (Positionierung)',
       );
     });
   });

@@ -13,7 +13,7 @@ describe('SelectedTopicsModule', () => {
 
       expect(
         screen.getByText(
-          'Stop guessing what makes your company special - let your team tell you.',
+          'Hören Sie auf zu raten, was Ihr Unternehmen besonders macht – lassen Sie Ihr Team sprechen.',
         ),
       ).toBeInTheDocument();
     });
@@ -23,7 +23,7 @@ describe('SelectedTopicsModule', () => {
 
       expect(
         screen.getByText(
-          /This tool analyzes honest feedback from your employees/i,
+          /Dieses Tool analysiert ehrliches Feedback Ihrer Mitarbeiter/i,
         ),
       ).toBeInTheDocument();
     });
@@ -31,21 +31,20 @@ describe('SelectedTopicsModule', () => {
     it('should render the steps heading', () => {
       render(<SelectedTopicsModule />);
 
-      expect(screen.getByText('How it works in 3 steps:')).toBeInTheDocument();
+      expect(
+        screen.getByText('So funktioniert es in 3 Schritten:'),
+      ).toBeInTheDocument();
     });
 
-    it('should render all three steps', () => {
+    it('should render all four steps', () => {
       render(<SelectedTopicsModule />);
 
       expect(
-        screen.getByText(/Choose your kununu profile here/i),
+        screen.getByText(/Wähle hier dein kununu-Profil/i),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Survey Team: Share the survey link with your team/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Create EVP: Add your perspective/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/EVP-Umfrage beantworten/i)).toBeInTheDocument();
+      expect(screen.getByText(/Team befragen/i)).toBeInTheDocument();
+      expect(screen.getByText(/EVP erstellen/i)).toBeInTheDocument();
     });
 
     it('should render steps in an ordered list', () => {
@@ -57,7 +56,7 @@ describe('SelectedTopicsModule', () => {
 
       const listItems = screen.getAllByRole('listitem');
 
-      expect(listItems).toHaveLength(3);
+      expect(listItems).toHaveLength(4);
     });
 
     it('should render the hero image', () => {
@@ -74,19 +73,19 @@ describe('SelectedTopicsModule', () => {
     it('should render all 6 default topics', () => {
       render(<SelectedTopicsModule />);
 
-      expect(screen.getByText('Teamwork')).toBeInTheDocument();
-      expect(screen.getByText('Sustainability')).toBeInTheDocument();
-      expect(screen.getByText('Creativity')).toBeInTheDocument();
-      expect(screen.getByText('Trust')).toBeInTheDocument();
-      expect(screen.getByText('Communication')).toBeInTheDocument();
-      expect(screen.getByText('Goal Oriented')).toBeInTheDocument();
+      expect(screen.getByText('Teamarbeit')).toBeInTheDocument();
+      expect(screen.getByText('Nachhaltigkeit')).toBeInTheDocument();
+      expect(screen.getByText('Kreativität')).toBeInTheDocument();
+      expect(screen.getByText('Vertrauen')).toBeInTheDocument();
+      expect(screen.getByText('Kommunikation')).toBeInTheDocument();
+      expect(screen.getByText('Zielorientiert')).toBeInTheDocument();
     });
 
     it('should render each topic in a badge', () => {
       render(<SelectedTopicsModule />);
 
       const badges = screen.getAllByText(
-        /Teamwork|Sustainability|Creativity|Trust|Communication|Goal Oriented/,
+        /Teamarbeit|Nachhaltigkeit|Kreativität|Vertrauen|Kommunikation|Zielorientiert/,
       );
 
       expect(badges.length).toBeGreaterThanOrEqual(6);
@@ -132,8 +131,8 @@ describe('SelectedTopicsModule', () => {
       expect(screen.getByText('Flexibility')).toBeInTheDocument();
 
       // Default topics should not be present
-      expect(screen.queryByText('Teamwork')).not.toBeInTheDocument();
-      expect(screen.queryByText('Sustainability')).not.toBeInTheDocument();
+      expect(screen.queryByText('Teamarbeit')).not.toBeInTheDocument();
+      expect(screen.queryByText('Nachhaltigkeit')).not.toBeInTheDocument();
     });
 
     it('should render with all custom props', () => {
@@ -164,15 +163,15 @@ describe('SelectedTopicsModule', () => {
     it('should render empty topics array', () => {
       render(<SelectedTopicsModule topics={[]} />);
 
-      // Should still render the component structure
+      // Should still render the component structure with the default heading
       expect(
         screen.getByText(
-          'Stop guessing what makes your company special - let your team tell you.',
+          'Hören Sie auf zu raten, was Ihr Unternehmen besonders macht – lassen Sie Ihr Team sprechen.',
         ),
       ).toBeInTheDocument();
 
       // But no topic badges should be present
-      expect(screen.queryByText('Teamwork')).not.toBeInTheDocument();
+      expect(screen.queryByText('Teamarbeit')).not.toBeInTheDocument();
     });
   });
 
@@ -307,7 +306,9 @@ describe('SelectedTopicsModule', () => {
     it('should render description paragraphs', () => {
       render(<SelectedTopicsModule />);
 
-      const paragraphs = screen.getAllByText(/This tool analyzes|How it works/);
+      const paragraphs = screen.getAllByText(
+        /Dieses Tool analysiert|So funktioniert/,
+      );
 
       expect(paragraphs.length).toBeGreaterThan(0);
     });
@@ -318,7 +319,7 @@ describe('SelectedTopicsModule', () => {
       render(<SelectedTopicsModule topics={undefined} />);
 
       // Should render with default topics
-      expect(screen.getByText('Teamwork')).toBeInTheDocument();
+      expect(screen.getByText('Teamarbeit')).toBeInTheDocument();
     });
 
     it('should handle single topic', () => {

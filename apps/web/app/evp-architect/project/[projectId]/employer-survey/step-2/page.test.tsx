@@ -161,7 +161,7 @@ describe('EmployerSurveyStep2', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-          'What it takes to succeed (Expectations & Requirements)',
+          'Was es braucht, um erfolgreich zu sein (Erwartungen & Anforderungen)',
         );
       });
     });

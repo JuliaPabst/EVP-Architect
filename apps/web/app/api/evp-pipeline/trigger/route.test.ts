@@ -95,22 +95,22 @@ describe('POST /api/evp-pipeline/trigger', () => {
     expect(mockAssemble).not.toHaveBeenCalled();
   });
 
-  it('should return 400 when project status is not evp_generation_available', async () => {
-    const wrongStatusProject: ProjectContext = {
+  it('should return 200 with ran:false when project is already evp_generated', async () => {
+    const alreadyGeneratedProject: ProjectContext = {
       ...mockProject,
       status: 'evp_generated',
     };
 
     mockValidateProjectAccess.mockResolvedValue({
-      project: wrongStatusProject,
+      project: alreadyGeneratedProject,
       success: true,
     });
 
     const response = await POST(makeRequest());
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe('project_not_in_correct_state');
+    expect(response.status).toBe(200);
+    expect(data.ran).toBe(false);
     expect(mockAssemble).not.toHaveBeenCalled();
   });
 
