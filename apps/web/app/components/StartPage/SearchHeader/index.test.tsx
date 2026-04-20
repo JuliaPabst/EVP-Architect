@@ -212,6 +212,26 @@ describe('SearchHeader', () => {
       });
     });
 
+    it('should show error when URL contains spaces', async () => {
+      render(<SearchHeader />);
+
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
+
+      fireEvent.change(input, {
+        target: {value: 'https://www.kununu.com/de/my company'},
+      });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Die URL darf keine Leerzeichen enthalten'),
+        ).toBeInTheDocument();
+      });
+    });
+
     it('should clear error when user starts typing', async () => {
       render(<SearchHeader />);
 

@@ -311,6 +311,21 @@ describe('useEvpResult', () => {
       expect(result.current.isRegenerating).toBe(false);
     });
 
+    it('sets error to "Unknown error occurred" when fetch throws a non-Error value', async () => {
+      (global.fetch as jest.Mock).mockRejectedValueOnce('plain string error');
+
+      const {result} = renderHook(() =>
+        useEvpResult(mockProjectId, mockAdminToken),
+      );
+
+      await act(async () => {
+        await result.current.regenerate('');
+      });
+
+      expect(result.current.error).toBe('Unknown error occurred');
+      expect(result.current.isRegenerating).toBe(false);
+    });
+
     it('sets isRegenerating to true during regenerate and false after', async () => {
       let resolveRegen!: (v: unknown) => void;
       const regenPromise = new Promise(res => {
