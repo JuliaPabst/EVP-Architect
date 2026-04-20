@@ -1,4 +1,5 @@
 import {supabase} from '@/lib/supabase';
+import {hashToken} from '@/lib/tokens';
 
 export type ProjectStatus =
   | 'employer_survey_in_progress'
@@ -89,7 +90,7 @@ export class ProjectRepository {
       .from('evp_projects')
       .select('*')
       .eq('id', projectId)
-      .eq('admin_token', adminToken)
+      .eq('admin_token', hashToken(adminToken))
       .single();
 
     if (error) {

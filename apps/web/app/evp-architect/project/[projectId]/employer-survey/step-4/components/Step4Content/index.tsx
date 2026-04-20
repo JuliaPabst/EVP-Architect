@@ -19,7 +19,9 @@ export default function Step4Content({
   const router = useRouter();
 
   const handleAfterSave = async () => {
-    router.push(`/evp-architect/project/${projectId}/evp-generation`);
+    const hash = adminToken ? `#admin=${adminToken}` : '';
+
+    router.push(`/evp-architect/project/${projectId}/evp-generation${hash}`);
   };
 
   return (
