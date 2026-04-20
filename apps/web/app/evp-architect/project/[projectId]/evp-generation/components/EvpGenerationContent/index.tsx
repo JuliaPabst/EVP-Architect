@@ -19,7 +19,9 @@ import styles from './index.module.scss';
 import useEvpResult from '@/app/hooks/useEvpResult';
 import useEvpSettings from '@/app/hooks/useEvpSettings';
 
-function formatEvpText(text: string): string {
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+
+function formatEvpTextForPdf(text: string): string {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -30,6 +32,32 @@ function formatEvpText(text: string): string {
       (_, hashes: string, content: string) =>
         `<h${hashes.length}>${content}</h${hashes.length}>`,
     );
+}
+
+function renderBoldText(text: string): React.ReactNode[] {
+  return text
+    .split(/\*\*(.*?)\*\*/g)
+    .map((part, index) =>
+      index % 2 === 1 ? <strong key={part}>{part}</strong> : part,
+    );
+}
+
+function renderEvpText(text: string): React.ReactNode[] {
+  return text.split('\n').map((line, index) => {
+    const headingMatch = /^(#{1,6}) (.+)$/.exec(line);
+
+    if (headingMatch) {
+      const [, hashes, content] = headingMatch;
+      const Tag = `h${hashes.length}` as HeadingTag;
+
+      return <Tag key={`${Tag}-${content}`}>{renderBoldText(content)}</Tag>;
+    }
+    if (line === '') {
+      // eslint-disable-next-line react/no-array-index-key
+      return <br key={index} />;
+    }
+    return <p key={line}>{renderBoldText(line)}</p>;
+  });
 }
 
 interface EvpGenerationContentProps {
@@ -100,7 +128,7 @@ export default function EvpGenerationContent({
       h4, h5, h6 { font-family: Inter, sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.2px; line-height: 24px; }
     </style>
   </head>
-  <body>${formatEvpText(evpText)}</body>
+  <body>${formatEvpTextForPdf(evpText)}</body>
 </html>`;
 
     const blob = new Blob([html], {type: 'text/html'});
@@ -267,12 +295,9 @@ export default function EvpGenerationContent({
                   <>
                     <div className={styles.evpContentBorder}>
                       <div className={styles.evpContent}>
-                        <div
-                          className={styles.bodyText}
-                          dangerouslySetInnerHTML={{
-                            __html: formatEvpText(evpText),
-                          }}
-                        />
+                        <div className={styles.bodyText}>
+                          {renderEvpText(evpText)}
+                        </div>
                       </div>
                     </div>
                     <div className={styles.actionButtons}>
