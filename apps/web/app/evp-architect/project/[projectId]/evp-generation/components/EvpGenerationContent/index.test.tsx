@@ -509,9 +509,9 @@ describe('EvpGenerationContent', () => {
 
       render(<EvpGenerationContent {...DEFAULT_PROPS} />);
 
-      expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-        'Employer Value Proposition',
-      );
+      expect(
+        screen.getByRole('heading', {level: 1, name: 'Haupttitel'}),
+      ).toBeInTheDocument();
     });
 
     it('renders bold text as strong element', () => {
@@ -536,6 +536,9 @@ describe('EvpGenerationContent', () => {
 
   describe('PDF download', () => {
     it('creates a blob URL and sets iframe src on PDF button click', () => {
+      setupMocks({}, {evpText: 'Sample EVP text'});
+      render(<EvpGenerationContent {...DEFAULT_PROPS} />);
+
       const mockCreateObjectURL = jest
         .fn()
         .mockReturnValue('blob:http://localhost/test');
@@ -564,9 +567,6 @@ describe('EvpGenerationContent', () => {
       jest
         .spyOn(document.body, 'appendChild')
         .mockImplementation(() => mockIframe as unknown as Node);
-
-      setupMocks({}, {evpText: 'Sample EVP text'});
-      render(<EvpGenerationContent {...DEFAULT_PROPS} />);
 
       fireEvent.click(screen.getByRole('button', {name: 'PDF herunterladen'}));
 
