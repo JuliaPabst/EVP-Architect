@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import type {ReactNode} from 'react';
 
-import {render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
 import MultiSelectWithTextStep from '.';
 
@@ -251,5 +251,132 @@ describe('MultiSelectWithTextStep', () => {
 
     expect(continueButton).toBeDisabled();
     expect(continueButton).toHaveAttribute('data-can-continue', 'false');
+  });
+
+  it('disables Continue button when requireTextInput is true and additionalContext is empty', () => {
+    setupMocks({
+      additionalContext: '',
+      isLoading: false,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITH_TEXT,
+    });
+
+    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} requireTextInput />);
+
+    const continueButton = screen.getByRole('button', {name: 'Continue'});
+
+    expect(continueButton).toBeDisabled();
+    expect(continueButton).toHaveAttribute('data-can-continue', 'false');
+  });
+
+  it('enables Continue button when requireTextInput is true and additionalContext is filled', () => {
+    setupMocks({
+      additionalContext: 'Some context',
+      isLoading: false,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITH_TEXT,
+    });
+
+    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} requireTextInput />);
+
+    const continueButton = screen.getByRole('button', {name: 'Continue'});
+
+    expect(continueButton).toBeEnabled();
+    expect(continueButton).toHaveAttribute('data-can-continue', 'true');
+  });
+
+  it('calls saveAnswers when Continue button is clicked', async () => {
+    const mockSaveAnswers = jest.fn().mockResolvedValue(true);
+
+    setupMocks({
+      saveAnswers: mockSaveAnswers,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
+    });
+
+    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    await waitFor(() => {
+      expect(mockSaveAnswers).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('calls navigateToNextStep after successful save when no onAfterSave is provided', async () => {
+    const mockSaveAnswers = jest.fn().mockResolvedValue(true);
+    const mockNavigateToNextStep = jest.fn();
+
+    setupMocks({
+      saveAnswers: mockSaveAnswers,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
+    });
+
+    const useStepNavigation = jest.requireMock(
+      '@/app/hooks/useEmployerStepNavigation',
+    );
+
+    useStepNavigation.mockReturnValue({
+      navigateToNextStep: mockNavigateToNextStep,
+    });
+
+    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    await waitFor(() => {
+      expect(mockNavigateToNextStep).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('calls onAfterSave instead of navigateToNextStep when provided', async () => {
+    const mockSaveAnswers = jest.fn().mockResolvedValue(true);
+    const mockOnAfterSave = jest.fn().mockResolvedValue(undefined);
+    const mockNavigateToNextStep = jest.fn();
+
+    setupMocks({
+      saveAnswers: mockSaveAnswers,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
+    });
+
+    const useStepNavigation = jest.requireMock(
+      '@/app/hooks/useEmployerStepNavigation',
+    );
+
+    useStepNavigation.mockReturnValue({
+      navigateToNextStep: mockNavigateToNextStep,
+    });
+
+    render(
+      <MultiSelectWithTextStep
+        {...DEFAULT_PROPS}
+        onAfterSave={mockOnAfterSave}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    await waitFor(() => {
+      expect(mockOnAfterSave).toHaveBeenCalledTimes(1);
+      expect(mockNavigateToNextStep).not.toHaveBeenCalled();
+    });
+  });
+
+  it('does not call saveAnswers when adminToken is null', async () => {
+    const mockSaveAnswers = jest.fn();
+
+    setupMocks({
+      saveAnswers: mockSaveAnswers,
+      selectedFactors: ['opt-1'],
+      stepData: MOCK_STEP_DATA_WITHOUT_TEXT,
+    });
+
+    render(<MultiSelectWithTextStep {...DEFAULT_PROPS} adminToken={null} />);
+
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
+
+    expect(mockSaveAnswers).not.toHaveBeenCalled();
   });
 });

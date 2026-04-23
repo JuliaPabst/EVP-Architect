@@ -1,18 +1,25 @@
 import '@testing-library/jest-dom';
-import {render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {useRouter} from 'next/navigation';
 
 import Step4Content from '.';
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+}));
 
 jest.mock('@/app/hooks/useEmployerStepNavigation', () => jest.fn());
 
 jest.mock('../../../components/MultiSelectWithTextStep', () => {
   return function MockMultiSelectWithTextStep({
+    onAfterSave,
     showBackButton,
     stepNumber,
     stepTitle,
   }: {
     stepNumber: number;
     stepTitle: string;
+    onAfterSave?: () => Promise<void>;
     showBackButton?: boolean;
   }) {
     return (
@@ -20,6 +27,15 @@ jest.mock('../../../components/MultiSelectWithTextStep', () => {
         <span data-testid="step-title">{stepTitle}</span>
         <span data-testid="step-number">{stepNumber}</span>
         <span data-testid="show-back-button">{String(showBackButton)}</span>
+        {onAfterSave && (
+          <button
+            data-testid="trigger-after-save"
+            onClick={onAfterSave}
+            type="button"
+          >
+            Trigger AfterSave
+          </button>
+        )}
       </div>
     );
   };
@@ -31,6 +47,8 @@ const DEFAULT_PROPS = {
 };
 
 describe('Step4Content', () => {
+  const mockPush = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -41,13 +59,15 @@ describe('Step4Content', () => {
     useStepNavigation.mockReturnValue({
       navigateToPreviousStep: jest.fn(),
     });
+
+    (useRouter as jest.Mock).mockReturnValue({push: mockPush});
   });
 
   it('renders MultiSelectWithTextStep with the correct step title', () => {
     render(<Step4Content {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('step-title')).toHaveTextContent(
-      'Guardrails (Tone & Reality Check)',
+      'Leitplanken (Ton & Realitätscheck)',
     );
   });
 
@@ -69,5 +89,29 @@ describe('Step4Content', () => {
       4,
       'test-admin-token',
     );
+  });
+
+  it('navigates to evp-generation with hash when onAfterSave is triggered', async () => {
+    render(<Step4Content {...DEFAULT_PROPS} />);
+
+    fireEvent.click(screen.getByTestId('trigger-after-save'));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        '/evp-architect/project/test-project-123/evp-generation#admin=test-admin-token',
+      );
+    });
+  });
+
+  it('navigates to evp-generation without hash when adminToken is null', async () => {
+    render(<Step4Content {...DEFAULT_PROPS} adminToken={null} />);
+
+    fireEvent.click(screen.getByTestId('trigger-after-save'));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        '/evp-architect/project/test-project-123/evp-generation',
+      );
+    });
   });
 });

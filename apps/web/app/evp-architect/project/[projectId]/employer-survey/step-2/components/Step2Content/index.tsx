@@ -56,7 +56,7 @@ export default function Step2Content({
         currentStep={2}
         error="Failed to load survey questions"
         isLoading={false}
-        stepTitle="What it takes to succeed (Expectations & Requirements)"
+        stepTitle="Was es braucht, um erfolgreich zu sein (Erwartungen & Anforderungen)"
       >
         <div />
       </StepContentLayout>
@@ -68,7 +68,7 @@ export default function Step2Content({
       currentStep={2}
       error={error}
       isLoading={isLoading}
-      stepTitle="What it takes to succeed (Expectations & Requirements)"
+      stepTitle="Was es braucht, um erfolgreich zu sein (Erwartungen & Anforderungen)"
     >
       {stepData && question1 && question2 && (
         <>

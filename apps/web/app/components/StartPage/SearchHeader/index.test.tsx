@@ -31,9 +31,7 @@ describe('SearchHeader', () => {
       render(<SearchHeader />);
 
       expect(
-        screen.getByText(
-          'Do you want to find your Employer Value Proposition?',
-        ),
+        screen.getByText('Finden Sie Ihre Employer Value Proposition!'),
       ).toBeInTheDocument();
     });
 
@@ -41,14 +39,18 @@ describe('SearchHeader', () => {
       render(<SearchHeader />);
 
       expect(
-        screen.getByText('Paste your company profile URL here:'),
+        screen.getByText(
+          'Fügen Sie hier den Link Ihres kununu Unternehmensprofils ein:',
+        ),
       ).toBeInTheDocument();
     });
 
     it('should render the input field', () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
 
       expect(input).toBeInTheDocument();
     });
@@ -56,25 +58,15 @@ describe('SearchHeader', () => {
     it('should render the submit button', () => {
       render(<SearchHeader />);
 
-      const button = screen.getByText('Load EVP Project');
+      const button = screen.getByText('EVP-Projekt laden');
 
       expect(button).toBeInTheDocument();
-    });
-
-    it('should render the link for existing profiles', () => {
-      render(<SearchHeader />);
-
-      const link = screen.getByText(
-        'Do you already have an EBP or a Claimed profile?',
-      );
-
-      expect(link).toBeInTheDocument();
     });
 
     it('should have submit button disabled by default', () => {
       render(<SearchHeader />);
 
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       expect(button).toBeDisabled();
     });
@@ -84,8 +76,10 @@ describe('SearchHeader', () => {
     it('should enable button when valid URL is entered', () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/de/company-name'},
@@ -97,8 +91,10 @@ describe('SearchHeader', () => {
     it('should show error for invalid URL format', async () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.example.com/company'},
@@ -107,7 +103,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Please enter a valid kununu profile URL/i),
+          screen.getByText(/Bitte gib eine gültige kununu-Profil-URL ein/i),
         ).toBeInTheDocument();
       });
     });
@@ -123,8 +119,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/de/test-company'},
@@ -149,8 +147,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/at/oesterreichische-post'},
@@ -175,8 +175,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/ch/schweizer-post'},
@@ -193,8 +195,10 @@ describe('SearchHeader', () => {
     it('should reject URL without country code', async () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/company-name'},
@@ -203,7 +207,27 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Please enter a valid kununu profile URL/i),
+          screen.getByText(/Bitte gib eine gültige kununu-Profil-URL ein/i),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('should show error when URL contains spaces', async () => {
+      render(<SearchHeader />);
+
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
+
+      fireEvent.change(input, {
+        target: {value: 'https://www.kununu.com/de/my company'},
+      });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Die URL darf keine Leerzeichen enthalten'),
         ).toBeInTheDocument();
       });
     });
@@ -211,8 +235,10 @@ describe('SearchHeader', () => {
     it('should clear error when user starts typing', async () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       // Enter invalid URL and submit
       fireEvent.change(input, {
@@ -223,7 +249,7 @@ describe('SearchHeader', () => {
       // Wait for error to appear
       await waitFor(() => {
         expect(
-          screen.getByText(/Please enter a valid kununu profile URL/i),
+          screen.getByText(/Bitte gib eine gültige kununu-Profil-URL ein/i),
         ).toBeInTheDocument();
       });
 
@@ -234,7 +260,7 @@ describe('SearchHeader', () => {
 
       // Error should be cleared
       expect(
-        screen.queryByText(/Please enter a valid kununu profile URL/i),
+        screen.queryByText(/Bitte gib eine gültige kununu-Profil-URL ein/i),
       ).not.toBeInTheDocument();
     });
   });
@@ -248,9 +274,11 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
       const submitButton = screen.getByRole('button', {
-        name: /Load EVP Project/i,
+        name: /EVP-Projekt laden/i,
       });
 
       fireEvent.change(input, {
@@ -285,8 +313,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/de/test-company'},
@@ -314,8 +344,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/de/test-company'},
@@ -348,8 +380,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/de/test-company'},
@@ -359,7 +393,7 @@ describe('SearchHeader', () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            'Sorry, this should not have happened. Please, try again later.',
+            'Das sollte nicht passiert sein. Bitte versuche es später erneut.',
           ),
         ).toBeInTheDocument();
       });
@@ -374,8 +408,10 @@ describe('SearchHeader', () => {
 
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {
         target: {value: 'https://www.kununu.com/de/test-company'},
@@ -385,7 +421,7 @@ describe('SearchHeader', () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            'Sorry, this should not have happened. Please, try again later.',
+            'Das sollte nicht passiert sein. Bitte versuche es später erneut.',
           ),
         ).toBeInTheDocument();
       });
@@ -394,13 +430,15 @@ describe('SearchHeader', () => {
     it('should not submit when URL is empty or whitespace', () => {
       render(<SearchHeader />);
 
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       // Empty string
       expect(button).toBeDisabled();
 
       // Only whitespace should also keep button disabled
-      const input = screen.getByPlaceholderText('Company profile URL');
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
 
       fireEvent.change(input, {target: {value: '   '}});
 
@@ -414,7 +452,7 @@ describe('SearchHeader', () => {
       render(<SearchHeader />);
 
       const input = screen.getByPlaceholderText(
-        'Company profile URL',
+        'Link zum kununu Unternehmensprofil',
       ) as HTMLInputElement;
 
       fireEvent.change(input, {
@@ -427,9 +465,11 @@ describe('SearchHeader', () => {
     it('should prevent default form submission', async () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
       const submitButton = screen.getByRole('button', {
-        name: /Load EVP Project/i,
+        name: /EVP-Projekt laden/i,
       });
 
       fireEvent.change(input, {
@@ -442,7 +482,7 @@ describe('SearchHeader', () => {
 
       await waitFor(() => {
         const errorMessage = screen.getByText(
-          /Please enter a valid kununu profile URL/i,
+          /Bitte gib eine gültige kununu-Profil-URL ein/i,
         );
 
         expect(errorMessage).toBeInTheDocument();
@@ -458,22 +498,24 @@ describe('SearchHeader', () => {
       render(<SearchHeader />);
 
       expect(
-        screen.queryByText(/Please enter a valid kununu profile URL/i),
+        screen.queryByText(/Bitte gib eine gültige kununu-Profil-URL ein/i),
       ).not.toBeInTheDocument();
     });
 
     it('should show error with proper styling', async () => {
       render(<SearchHeader />);
 
-      const input = screen.getByPlaceholderText('Company profile URL');
-      const button = screen.getByRole('button', {name: /Load EVP Project/i});
+      const input = screen.getByPlaceholderText(
+        'Link zum kununu Unternehmensprofil',
+      );
+      const button = screen.getByRole('button', {name: /EVP-Projekt laden/i});
 
       fireEvent.change(input, {target: {value: 'invalid'}});
       fireEvent.click(button);
 
       await waitFor(() => {
         const errorMessage = screen.getByText(
-          /Please enter a valid kununu profile URL/i,
+          /Bitte gib eine gültige kununu-Profil-URL ein/i,
         );
 
         expect(errorMessage).toBeInTheDocument();

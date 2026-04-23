@@ -1,5 +1,14 @@
 {
   "mcpServers": {
+    "figma": {
+      "type": "http",
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "storybook": {
+      "args": ["-y", "@storybook/mcp", "--storybook-url", "http://localhost:3000"],
+      "command": "npx",
+      "type": "stdio"
+    },
     "supabase": {
       "transport": "sse",
       "url": "https://mcp.supabase.com/sse"

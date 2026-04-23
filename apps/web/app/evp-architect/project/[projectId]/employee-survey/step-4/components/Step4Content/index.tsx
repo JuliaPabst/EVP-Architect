@@ -8,6 +8,10 @@ interface Step4ContentProps {
 
 export default function Step4Content({projectId}: Step4ContentProps) {
   return (
-    <TextStep projectId={projectId} stepNumber={4} stepTitle="Culture Fit" />
+    <TextStep
+      projectId={projectId}
+      stepNumber={4}
+      stepTitle="Kulturelle Passung"
+    />
   );
 }

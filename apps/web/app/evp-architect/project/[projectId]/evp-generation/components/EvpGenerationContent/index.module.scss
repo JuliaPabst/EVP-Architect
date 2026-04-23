@@ -1,0 +1,238 @@
+@use '@kununu/ui/theme/scss/mixins/ai' as ai;
+@use '@kununu/ui/theme/scss/variables/colors';
+@use '@kununu/ui/theme/scss/variables/spacings';
+
+.main {
+  min-height: 100vh;
+  padding-bottom: spacings.$kun-spacing-3xl;
+  background-color: colors.$kun-color-bg-soft;
+}
+
+.heroBackground {
+  position: relative;
+  height: 376px;
+  overflow: hidden;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-xs;
+  max-width: 1232px;
+  margin: -328px auto 0;
+  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-4xl;
+  border-radius: 8px;
+  background-color: colors.$kun-color-bg-white;
+  box-shadow: 0 8px 40px rgb(0, 0, 0, 0.08);
+}
+
+.cardHeader {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+  align-items: center;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: spacings.$kun-spacing-2xl spacings.$kun-spacing-m;
+  text-align: center;
+}
+
+.rocketIcon {
+  width: 120px;
+  height: 120px;
+}
+
+.heroTitle {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 28px;
+  font-family: 'Sharp Grotesk Semibold', sans-serif;
+  line-height: 36px;
+  letter-spacing: 0.3px;
+}
+
+.heroSubtitle {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.card {
+  margin-bottom: spacings.$kun-spacing-xl;
+  border: 1px solid rgb(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background-color: colors.$kun-color-bg-white;
+}
+
+.cardHeading {
+  padding: spacings.$kun-spacing-s spacings.$kun-spacing-l;
+  border-bottom: 1px solid rgb(0, 0, 0, 0.08);
+}
+
+.cardHeadingText {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 18px;
+  font-family: 'Sharp Grotesk Medium', sans-serif;
+  line-height: 26px;
+  letter-spacing: 0.2px;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-l;
+  padding: spacings.$kun-spacing-xl;
+}
+
+.bodyText {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: spacings.$kun-spacing-m;
+}
+
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$kun-spacing-m;
+}
+
+.previewLabel {
+  margin: 0;
+  color: colors.$kun-color-text-title;
+  font-weight: 600;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.evpContentBorder {
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background:
+    linear-gradient(colors.$kun-color-bg-white, colors.$kun-color-bg-white)
+      padding-box,
+    linear-gradient(
+        to right,
+        colors.$kun-color-base-blue-100,
+        colors.$kun-color-base-coral-90,
+        colors.$kun-color-base-yellow-80
+      )
+      border-box;
+
+  @include ai.ai-animated(colors.$kun-color-bg-white);
+}
+
+.evpContent {
+  padding: spacings.$kun-spacing-xl;
+  white-space: pre-wrap;
+  border-radius: 2px;
+  background-color: colors.$kun-color-bg-white;
+
+  h1 {
+    margin: spacings.$kun-spacing-m 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 28px;
+    font-family: 'Sharp Grotesk Semibold', sans-serif;
+    line-height: 36px;
+    letter-spacing: 0.3px;
+  }
+
+  h2 {
+    margin: spacings.$kun-spacing-m 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 20px;
+    font-family: 'Sharp Grotesk Semibold', sans-serif;
+    line-height: 28px;
+    letter-spacing: 0.2px;
+  }
+
+  h3 {
+    margin: spacings.$kun-spacing-s 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 18px;
+    font-family: 'Sharp Grotesk Medium', sans-serif;
+    line-height: 26px;
+    letter-spacing: 0.2px;
+  }
+
+  h4,
+  h5,
+  h6 {
+    margin: spacings.$kun-spacing-s 0 0;
+    color: colors.$kun-color-text-title;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: Inter, sans-serif;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: spacings.$kun-spacing-m;
+  justify-content: flex-end;
+}
+
+.loadingMessage {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  text-align: center;
+}
+
+.errorMessage {
+  margin: 0;
+  color: colors.$kun-color-base-coral-100;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+.successMessage {
+  margin: 0;
+  color: colors.$kun-color-text-primary;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  text-align: right;
+}

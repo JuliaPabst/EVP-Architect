@@ -21,7 +21,7 @@ describe('CompletionContent', () => {
     expect(screen.getByText('✓')).toBeInTheDocument();
   });
 
-  it('renders the German thank-you heading', () => {
+  it('renders the thank-you heading', () => {
     render(<CompletionContent />);
 
     expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
@@ -41,7 +41,7 @@ describe('CompletionContent', () => {
     render(<CompletionContent />);
 
     expect(
-      screen.getByText(/ein authentisches und differenziertes EVP/),
+      screen.getByText(/authentische und differenzierte EVP/),
     ).toBeInTheDocument();
   });
 });

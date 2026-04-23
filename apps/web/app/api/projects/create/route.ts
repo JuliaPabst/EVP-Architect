@@ -8,7 +8,7 @@ import {
 } from '@/lib/errors';
 import {isValidKununuUrl, scrapeCompanyProfile} from '@/lib/scraping';
 import {supabase} from '@/lib/supabase';
-import generateSecureToken from '@/lib/tokens';
+import generateSecureToken, {hashToken} from '@/lib/tokens';
 
 /**
  * POST /api/projects/create
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     const {data, error} = await supabase
       .from('evp_projects')
       .insert({
-        admin_token: adminToken,
+        admin_token: hashToken(adminToken),
         admin_token_created_at: new Date().toISOString(),
         company_name: companyData.company_name,
         employee_count: companyData.employee_count,

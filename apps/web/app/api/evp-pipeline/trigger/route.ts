@@ -12,11 +12,13 @@ import DataAssemblyService from '@/lib/services/dataAssemblyService';
  *
  * Purpose:
  *   Orchestrate the complete EVP AI pipeline (Steps 0 & 1).
- *   Assembles survey data and performs analysis, then updates project status.
+ *   Assembles employer survey data and performs analysis, then updates project status.
  *
- * Prerequisites:
- *   - Project status must be 'evp_generation_available'
- *   - At least 3 submitted employee surveys
+ * Behaviour:
+ *   - If project status is 'evp_generated': returns { ran: false } immediately
+ *     (results are already up-to-date, skip re-assembly).
+ *   - Otherwise: runs assemble + analyze, sets status to 'evp_generated',
+ *     and returns { ran: true, analysis }.
  *
  * Input:
  *   - Query parameter: projectId (UUID)
@@ -24,13 +26,12 @@ import DataAssemblyService from '@/lib/services/dataAssemblyService';
  *
  * Output:
  *   Success (200):
- *     { analysis: AnalysisResult }
+ *     { ran: false }                      — pipeline skipped, results already current
+ *     { ran: true, analysis: AnalysisResult } — pipeline ran successfully
  *
  *   Errors:
- *     400 - project_not_in_correct_state: Project status is not evp_generation_available
- *     400 - insufficient_submissions: Fewer than 3 submitted employee surveys
  *     400 - assembly_not_found: Assembly step failed unexpectedly
- *     400 - analysis_validation_failed: OpenAI response did not match schema
+ *     400 - analysis_validation_failed: AI response did not match schema
  *     401: Authentication failed
  *     500: Internal error
  */
@@ -45,15 +46,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const {id: projectId, status} = validation.project!;
 
-    if (status !== 'evp_generation_available') {
-      return NextResponse.json(
-        {
-          error: 'project_not_in_correct_state',
-          message:
-            'Project is not in the correct state to run the pipeline. Required status: evp_generation_available.',
-        },
-        {status: 400},
-      );
+    // Skip re-assembly when results are already current
+    if (status === 'evp_generated') {
+      return NextResponse.json({ran: false});
     }
 
     const assemblyService = new DataAssemblyService();
@@ -61,16 +56,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const projectRepository = new ProjectRepository();
 
     try {
-      // Step 0: Assemble survey data
+      // Step 0: Assemble employer survey data
       await assemblyService.assemble(projectId);
 
       // Step 1: Analyze the assembled data
       const analysis = await analysisService.analyze(projectId);
 
-      // Update project status on success
+      // Mark pipeline as complete
       await projectRepository.updateStatus(projectId, 'evp_generated');
 
-      return NextResponse.json({analysis});
+      return NextResponse.json({analysis, ran: true});
     } catch (error) {
       const {message} = error as Error;
 

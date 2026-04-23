@@ -27,11 +27,11 @@ jest.mock('../../../components/TextStep', () => {
 describe('Step2Content', () => {
   const DEFAULT_PROPS = {projectId: 'test-project-456'};
 
-  it('renders TextStep with stepTitle "Belonging Moment"', () => {
+  it('renders TextStep with stepTitle "Moment der Zugehörigkeit"', () => {
     render(<Step2Content {...DEFAULT_PROPS} />);
 
     expect(screen.getByTestId('step-title')).toHaveTextContent(
-      'Belonging Moment',
+      'Moment der Zugehörigkeit',
     );
   });
 

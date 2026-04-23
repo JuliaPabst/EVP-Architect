@@ -13,8 +13,8 @@ export default function CompletionContent() {
             Deine Antworten wurden erfolgreich gespeichert.
           </p>
           <p className={styles.description}>
-            Dein Beitrag hilft dabei, ein authentisches und differenziertes EVP
-            zu entwickeln, das die echten Erfahrungen der Mitarbeitenden
+            Dein Beitrag hilft dabei, eine authentische und differenzierte EVP
+            zu entwickeln, die die realen Erfahrungen der Mitarbeitenden
             widerspiegelt.
           </p>
         </div>

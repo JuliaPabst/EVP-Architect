@@ -27,12 +27,10 @@ jest.mock('../../../components/TextStep', () => {
 describe('Step3Content', () => {
   const DEFAULT_PROPS = {projectId: 'test-project-789'};
 
-  it('renders TextStep with stepTitle "Daily Work Reality"', () => {
+  it('renders TextStep with stepTitle "Arbeitsalltag"', () => {
     render(<Step3Content {...DEFAULT_PROPS} />);
 
-    expect(screen.getByTestId('step-title')).toHaveTextContent(
-      'Daily Work Reality',
-    );
+    expect(screen.getByTestId('step-title')).toHaveTextContent('Arbeitsalltag');
   });
 
   it('renders TextStep with stepNumber 3', () => {

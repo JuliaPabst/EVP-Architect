@@ -9,10 +9,12 @@ import {
   validateProjectAccess,
   ProjectContext,
 } from '@/lib/middleware/validateProjectAccess';
+import {ProjectRepository} from '@/lib/repositories/projectRepository';
 import EmployerSurveyService from '@/lib/services/employerSurveyService';
 
 // Mock dependencies
 jest.mock('@/lib/middleware/validateProjectAccess');
+jest.mock('@/lib/repositories/projectRepository');
 jest.mock('@/lib/services/employerSurveyService');
 
 describe('GET /api/employer-survey/step/[step]', () => {
@@ -174,6 +176,7 @@ describe('POST /api/employer-survey/step/[step]', () => {
   const mockValidateProjectAccess =
     validateProjectAccess as jest.MockedFunction<typeof validateProjectAccess>;
   const mockSaveStepAnswers = jest.fn();
+  const mockUpdateStatus = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -184,6 +187,14 @@ describe('POST /api/employer-survey/step/[step]', () => {
         ({
           saveStepAnswers: mockSaveStepAnswers,
         }) as unknown as EmployerSurveyService,
+    );
+    (
+      ProjectRepository as jest.MockedClass<typeof ProjectRepository>
+    ).mockImplementation(
+      () =>
+        ({
+          updateStatus: mockUpdateStatus,
+        }) as unknown as ProjectRepository,
     );
   });
 
@@ -607,5 +618,75 @@ describe('POST /api/employer-survey/step/[step]', () => {
     expect(response.status).toBe(200);
     expect(data).toEqual({success: true});
     expect(mockSaveStepAnswers).toHaveBeenCalledWith('project-123', 2, []);
+  });
+
+  it('should reset project status to employer_survey_completed when status is evp_generated', async () => {
+    mockValidateProjectAccess.mockResolvedValue({
+      project: {
+        id: 'project-123',
+        status: 'evp_generated',
+      } as unknown as ProjectContext,
+      success: true,
+    });
+
+    mockSaveStepAnswers.mockResolvedValue(undefined);
+    mockUpdateStatus.mockResolvedValue(undefined);
+
+    const request = new NextRequest(
+      'http://localhost:3001/api/employer-survey/step/2?projectId=project-123&admin_token=valid-token',
+      {
+        body: JSON.stringify({
+          answers: [
+            {
+              answer_text: 'Test answer',
+              question_id: '550e8400-e29b-41d4-a716-446655440010',
+            },
+          ],
+        }),
+        method: 'POST',
+      },
+    );
+
+    const response = await POST(request, {params: {step: '2'}});
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual({success: true});
+    expect(mockUpdateStatus).toHaveBeenCalledWith(
+      'project-123',
+      'employer_survey_completed',
+    );
+  });
+
+  it('should not reset project status when status is not evp_generated', async () => {
+    mockValidateProjectAccess.mockResolvedValue({
+      project: {
+        id: 'project-123',
+        status: 'employer_survey_completed',
+      } as unknown as ProjectContext,
+      success: true,
+    });
+
+    mockSaveStepAnswers.mockResolvedValue(undefined);
+
+    const request = new NextRequest(
+      'http://localhost:3001/api/employer-survey/step/2?projectId=project-123&admin_token=valid-token',
+      {
+        body: JSON.stringify({
+          answers: [
+            {
+              answer_text: 'Test answer',
+              question_id: '550e8400-e29b-41d4-a716-446655440011',
+            },
+          ],
+        }),
+        method: 'POST',
+      },
+    );
+
+    const response = await POST(request, {params: {step: '2'}});
+
+    expect(response.status).toBe(200);
+    expect(mockUpdateStatus).not.toHaveBeenCalled();
   });
 });

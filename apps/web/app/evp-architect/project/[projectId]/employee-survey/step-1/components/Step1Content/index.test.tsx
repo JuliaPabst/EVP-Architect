@@ -67,14 +67,14 @@ describe('Step1Content', () => {
     });
   });
 
-  it('renders MultiSelectStep with stepTitle "Lived Values"', () => {
+  it('renders MultiSelectStep with stepTitle "Gelebte Werte"', () => {
     const useProjectInfo = jest.requireMock('@/app/hooks/useProjectInfo');
 
     useProjectInfo.mockReturnValue({isLoading: false, projectInfo: null});
 
     render(<Step1Content {...DEFAULT_PROPS} />);
 
-    expect(screen.getByTestId('step-title')).toHaveTextContent('Lived Values');
+    expect(screen.getByTestId('step-title')).toHaveTextContent('Gelebte Werte');
   });
 
   it('renders MultiSelectStep with stepNumber 1', () => {

@@ -183,7 +183,7 @@ describe('EmployerSurveyStep1', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('heading', {level: 1})).toHaveTextContent(
-          'Who you are today (Culture & Values)?',
+          'Wer ihr heute seid (Kultur & Werte)',
         );
       });
     });

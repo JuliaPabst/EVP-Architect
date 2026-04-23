@@ -42,6 +42,7 @@ export interface MultiSelectStepLayoutProps {
   readonly textQuestion: TextQuestion | undefined;
   readonly headerContent?: React.ReactNode;
   readonly showBackButton?: boolean;
+  readonly totalSteps?: number;
 }
 
 /**
@@ -69,6 +70,7 @@ export default function MultiSelectStepLayout({
   stepNumber,
   stepTitle,
   textQuestion,
+  totalSteps,
 }: MultiSelectStepLayoutProps) {
   if (!isLoading && !multiSelectQuestion) {
     return (
@@ -77,6 +79,7 @@ export default function MultiSelectStepLayout({
         error="Failed to load survey questions"
         isLoading={false}
         stepTitle={stepTitle}
+        totalSteps={totalSteps}
       >
         <div />
       </StepContentLayout>
@@ -89,6 +92,7 @@ export default function MultiSelectStepLayout({
       error={error}
       isLoading={isLoading}
       stepTitle={stepTitle}
+      totalSteps={totalSteps}
     >
       {multiSelectQuestion && (
         <>

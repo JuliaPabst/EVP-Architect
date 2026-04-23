@@ -88,6 +88,7 @@ Rules:
 - Use "we" where appropriate
 - Do not repeat ideas
 - Do not use em dashes
+- If no employee survey data is provided, output only a short message explaining that the EVP cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length constraints:
 - Total max 180 words
@@ -140,6 +141,7 @@ Rules:
 - Avoid generic phrases (e.g. "dynamic environment", "flat hierarchies")
 - Do not repeat ideas
 - Do not use em dashes
+- If no employee survey data is provided, output only a short message explaining that the EVP cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length constraints:
 - Total max 180 words
@@ -192,6 +194,7 @@ Rules:
 - Identify misalignment, blind spots, and risks
 - Provide actionable recommendations
 - Do not use em dashes
+- If no employee survey data is provided, output only a short message explaining that the gap analysis cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length guidance:
 - Summary: max 80 words

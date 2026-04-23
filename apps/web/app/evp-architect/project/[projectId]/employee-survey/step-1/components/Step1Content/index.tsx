@@ -27,7 +27,7 @@ export default function Step1Content({projectId}: Step1ContentProps) {
       projectId={projectId}
       showBackButton={false}
       stepNumber={1}
-      stepTitle="Lived Values"
+      stepTitle="Gelebte Werte"
     />
   );
 }

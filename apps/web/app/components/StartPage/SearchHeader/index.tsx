@@ -31,14 +31,14 @@ export default function SearchHeader() {
 
     // Check for spaces within the URL
     if (trimmedUrl.includes(' ')) {
-      setErrorMessage('URL cannot contain spaces');
+      setErrorMessage('Die URL darf keine Leerzeichen enthalten');
       return;
     }
 
     // Validate the URL
     if (!isValidKununuUrl(trimmedUrl)) {
       setErrorMessage(
-        'Please enter a valid kununu profile URL (e.g., https://www.kununu.com/at/company-name)',
+        'Bitte gib eine gültige kununu-Profil-URL ein (z. B. https://www.kununu.com/at/unternehmensname)',
       );
       return;
     }
@@ -70,7 +70,7 @@ export default function SearchHeader() {
       // eslint-disable-next-line no-console
       console.error('Failed to create project:', error);
       setErrorMessage(
-        'Sorry, this should not have happened. Please, try again later.',
+        'Das sollte nicht passiert sein. Bitte versuche es später erneut.',
       );
     } finally {
       setIsLoading(false);
@@ -93,13 +93,13 @@ export default function SearchHeader() {
           <div className={styles.wrapper}>
             <div className={styles.heading}>
               <h1 className={styles.mainHeading}>
-                Do you want to find your Employer Value Proposition?
+                Finden Sie Ihre Employer Value Proposition!
               </h1>
             </div>
 
             <div className={styles.subheadingWrapper}>
               <p className={styles.subheading}>
-                Paste your company profile URL here:
+                Fügen Sie hier den Link Ihres kununu Unternehmensprofils ein:
               </p>
             </div>
 
@@ -111,7 +111,7 @@ export default function SearchHeader() {
                   leadingIcon={<Icon icon={Connect} size={IconSize.M} />}
                   name="companyUrl"
                   onChange={handleUrlChange}
-                  placeholder="Company profile URL"
+                  placeholder="Link zum kununu Unternehmensprofil"
                   value={companyUrl}
                 />
               </div>
@@ -119,7 +119,7 @@ export default function SearchHeader() {
                 color={ButtonColor.PRIMARY}
                 disabled={!companyUrl.trim() || isLoading}
                 isLoading={isLoading}
-                text="Load EVP Project"
+                text="EVP-Projekt laden"
                 type={ButtonType.SUBMIT}
               />
             </form>
@@ -129,12 +129,6 @@ export default function SearchHeader() {
                 <Message type={MessageType.ERROR}>{errorMessage}</Message>
               </div>
             )}
-
-            <div className={styles.linkWrapper}>
-              <button className={styles.link} type="button">
-                Do you already have an EBP or a Claimed profile?
-              </button>
-            </div>
           </div>
         </div>
       </div>

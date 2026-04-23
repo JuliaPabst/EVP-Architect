@@ -13,3 +13,18 @@ import crypto from 'node:crypto';
 export default function generateSecureToken(byteLength = 32): string {
   return crypto.randomBytes(byteLength).toString('base64url');
 }
+
+/**
+ * Hashes a token using SHA-256.
+ *
+ * @param token - Plain token to hash
+ * @returns 64-char lowercase hex digest
+ *
+ * Purpose:
+ *   Used to store a hash of the admin_token in the database instead of
+ *   the plain token. The plain token stays in the URL hash and sessionStorage;
+ *   only its hash is persisted to the DB.
+ */
+export function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}

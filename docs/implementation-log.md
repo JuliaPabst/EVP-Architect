@@ -1,5 +1,42 @@
 # Implementation Log
 
+------------------------------------------------------------
+## Project Status & EVP Generation Flow – 2026-04-16
+
+What was implemented:
+- EVP generation is now available immediately after the employer completes step 4,
+  without requiring employee survey answers or reaching `evp_generation_available` status.
+- The pipeline trigger (`/api/evp-pipeline/trigger`) skips re-assembly when results are
+  already current (`evp_generated`) and returns `{ ran: false }`. Otherwise it runs
+  assemble + analyze and returns `{ ran: true }`.
+- `useEvpResult` calls trigger first; if `ran: true` it always generates fresh output;
+  if `ran: false` it uses the cached output (or generates if none exists yet).
+- When the employer saves answers on any survey step, the project status is reset from
+  `evp_generated` → `employer_survey_completed`, causing the pipeline to re-run on the
+  next visit to the EVP generation page.
+- The `employer-survey/complete` API call was removed from Step4Content; project status
+  is now managed entirely by the trigger and the step-save route.
+- The `insufficient_submissions` guard was removed from `DataAssemblyService`; employee
+  survey answers are not required to generate an EVP.
+- `DataAssemblyService` now uses the employer submission regardless of its `status`
+  field (in_progress counts), so saving answers without formally "completing" the
+  survey still produces correct assembly output.
+
+Files modified:
+- lib/services/dataAssemblyService.ts
+- app/api/evp-pipeline/trigger/route.ts
+- app/api/employer-survey/step/[step]/route.ts
+- app/evp-architect/project/[projectId]/employer-survey/step-4/components/Step4Content/index.tsx
+- app/hooks/useEvpResult.ts
+- docs/data-model.md
+
+Assumptions made:
+- Employee survey data is optional for EVP generation; the assembly still includes it
+  when present, contributing to data quality metrics.
+- `employee_survey_active` and `evp_generation_available` remain valid enum values in
+  the DB but are no longer part of the primary flow.
+------------------------------------------------------------
+
 ## Phase 4 – Step 2: EVP Output Generation
 
 **Date:** March 30, 2026
