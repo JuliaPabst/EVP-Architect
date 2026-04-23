@@ -23,9 +23,9 @@ type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 function formatEvpTextForPdf(text: string): string {
   return text
-    .replaceAll(/&/g, '&amp;')
-    .replaceAll(/</g, '&lt;')
-    .replaceAll(/>/g, '&gt;')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
     .replaceAll(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replaceAll(
       /^(#{1,6}) (.+)$/gm,
@@ -95,7 +95,7 @@ export default function EvpGenerationContent({
     outputType,
   );
 
-  const shareUrl = `${typeof globalThis.window === 'undefined' ? '' : globalThis.location.origin}/evp-architect/project/${projectId}/employee-survey/step-1`;
+  const shareUrl = `${globalThis.window === undefined ? '' : globalThis.location.origin}/evp-architect/project/${projectId}/employee-survey/step-1`;
 
   const canGenerate = Boolean(
     selectedTargetAudience &&
