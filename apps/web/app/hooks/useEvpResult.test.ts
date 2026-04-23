@@ -257,6 +257,25 @@ describe('useEvpResult', () => {
       expect(result.current.isRegenerating).toBe(false);
     });
 
+    it('uses fallback message when regenerate response has no message', async () => {
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({json: async () => ({ran: true}), ok: true})
+        .mockResolvedValueOnce({
+          json: async () => ({}),
+          ok: false,
+        });
+
+      const {result} = renderHook(() =>
+        useEvpResult(mockProjectId, mockAdminToken),
+      );
+
+      await act(async () => {
+        await result.current.regenerate('');
+      });
+
+      expect(result.current.error).toBe('Failed to generate EVP');
+    });
+
     it('uses fallback message when trigger response has no message', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         json: async () => ({}),

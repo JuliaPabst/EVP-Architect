@@ -528,6 +528,15 @@ describe('EvpGenerationContent', () => {
         screen.getByText('Einfacher Text ohne Formatierung.'),
       ).toBeInTheDocument();
     });
+
+    it('renders empty lines as br elements', () => {
+      setupMocks({}, {evpText: 'Erste Zeile\n\nZweite Zeile'});
+
+      render(<EvpGenerationContent {...DEFAULT_PROPS} />);
+
+      expect(screen.getByText('Erste Zeile')).toBeInTheDocument();
+      expect(screen.getByText('Zweite Zeile')).toBeInTheDocument();
+    });
   });
 
   describe('PDF download', () => {
@@ -568,6 +577,159 @@ describe('EvpGenerationContent', () => {
 
       expect(mockCreateObjectURL).toHaveBeenCalledTimes(1);
       expect(mockIframe.src).toBe('blob:http://localhost/test');
+
+      jest.restoreAllMocks();
+    });
+
+    it('converts markdown headings to HTML heading tags in PDF blob content', () => {
+      setupMocks({}, {evpText: '## Unsere Werte'});
+      render(<EvpGenerationContent {...DEFAULT_PROPS} />);
+
+      let capturedHtml = '';
+      const OriginalBlob = globalThis.Blob;
+
+      global.Blob = jest.fn((parts: BlobPart[]) => {
+        capturedHtml = String(parts?.[0] ?? '');
+
+        return new OriginalBlob(parts, {type: 'text/html'});
+      }) as unknown as typeof Blob;
+
+      global.URL.createObjectURL = jest
+        .fn()
+        .mockReturnValue('blob:http://localhost/test');
+      global.URL.revokeObjectURL = jest.fn();
+
+      const mockIframe = {
+        contentWindow: null,
+        onload: null as ((this: HTMLElement, ev: Event) => unknown) | null,
+        src: '',
+        style: {cssText: ''},
+      };
+
+      const originalCreateElement = document.createElement.bind(document);
+
+      jest.spyOn(document, 'createElement').mockImplementation(tag => {
+        if (tag === 'iframe') {
+          return mockIframe as unknown as HTMLIFrameElement;
+        }
+
+        return originalCreateElement(tag);
+      });
+
+      jest
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockIframe as unknown as Node);
+
+      fireEvent.click(screen.getByRole('button', {name: 'PDF herunterladen'}));
+
+      expect(capturedHtml).toContain('<h2>Unsere Werte</h2>');
+
+      globalThis.Blob = OriginalBlob;
+      jest.restoreAllMocks();
+    });
+
+    it('calls print and revokes blob URL when iframe loads', () => {
+      setupMocks({}, {evpText: 'Sample EVP text'});
+      render(<EvpGenerationContent {...DEFAULT_PROPS} />);
+
+      const mockPrint = jest.fn();
+      const mockAddEventListener = jest.fn();
+
+      global.URL.createObjectURL = jest
+        .fn()
+        .mockReturnValue('blob:http://localhost/test');
+      global.URL.revokeObjectURL = jest.fn();
+
+      const mockIframe = {
+        contentWindow: {
+          addEventListener: mockAddEventListener,
+          print: mockPrint,
+        },
+        onload: null as ((this: HTMLElement, ev: Event) => unknown) | null,
+        src: '',
+        style: {cssText: ''},
+      };
+
+      const originalCreateElement = document.createElement.bind(document);
+
+      jest.spyOn(document, 'createElement').mockImplementation(tag => {
+        if (tag === 'iframe') {
+          return mockIframe as unknown as HTMLIFrameElement;
+        }
+
+        return originalCreateElement(tag);
+      });
+
+      jest
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockIframe as unknown as Node);
+
+      fireEvent.click(screen.getByRole('button', {name: 'PDF herunterladen'}));
+
+      (mockIframe.onload as unknown as () => void)?.();
+
+      expect(mockPrint).toHaveBeenCalledTimes(1);
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith(
+        'blob:http://localhost/test',
+      );
+      expect(mockAddEventListener).toHaveBeenCalledWith(
+        'afterprint',
+        expect.any(Function),
+      );
+
+      jest.restoreAllMocks();
+    });
+
+    it('removes iframe element after afterprint event fires', () => {
+      setupMocks({}, {evpText: 'Sample EVP text'});
+      render(<EvpGenerationContent {...DEFAULT_PROPS} />);
+
+      const mockPrint = jest.fn();
+      const mockRemove = jest.fn();
+      let afterprintCallback: (() => void) | null = null;
+
+      const mockAddEventListener = jest
+        .fn()
+        .mockImplementation((event: string, cb: () => void) => {
+          if (event === 'afterprint') afterprintCallback = cb;
+        });
+
+      global.URL.createObjectURL = jest
+        .fn()
+        .mockReturnValue('blob:http://localhost/test');
+      global.URL.revokeObjectURL = jest.fn();
+
+      const mockIframe = {
+        contentWindow: {
+          addEventListener: mockAddEventListener,
+          print: mockPrint,
+        },
+        onload: null as ((this: HTMLElement, ev: Event) => unknown) | null,
+        remove: mockRemove,
+        src: '',
+        style: {cssText: ''},
+      };
+
+      const originalCreateElement = document.createElement.bind(document);
+
+      jest.spyOn(document, 'createElement').mockImplementation(tag => {
+        if (tag === 'iframe') {
+          return mockIframe as unknown as HTMLIFrameElement;
+        }
+
+        return originalCreateElement(tag);
+      });
+
+      jest
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockIframe as unknown as Node);
+
+      fireEvent.click(screen.getByRole('button', {name: 'PDF herunterladen'}));
+
+      (mockIframe.onload as unknown as () => void)?.();
+      afterprintCallback?.();
+
+      expect(mockRemove).toHaveBeenCalledTimes(1);
 
       jest.restoreAllMocks();
     });
