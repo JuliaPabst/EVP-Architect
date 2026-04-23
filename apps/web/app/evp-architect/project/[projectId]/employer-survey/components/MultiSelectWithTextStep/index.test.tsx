@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import type {ReactNode} from 'react';
 
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
 import MultiSelectWithTextStep from '.';
 
@@ -296,9 +296,7 @@ describe('MultiSelectWithTextStep', () => {
 
     render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
-    });
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
 
     await waitFor(() => {
       expect(mockSaveAnswers).toHaveBeenCalledTimes(1);
@@ -325,9 +323,7 @@ describe('MultiSelectWithTextStep', () => {
 
     render(<MultiSelectWithTextStep {...DEFAULT_PROPS} />);
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
-    });
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
 
     await waitFor(() => {
       expect(mockNavigateToNextStep).toHaveBeenCalledTimes(1);
@@ -360,9 +356,7 @@ describe('MultiSelectWithTextStep', () => {
       />,
     );
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
-    });
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
 
     await waitFor(() => {
       expect(mockOnAfterSave).toHaveBeenCalledTimes(1);
@@ -381,9 +375,7 @@ describe('MultiSelectWithTextStep', () => {
 
     render(<MultiSelectWithTextStep {...DEFAULT_PROPS} adminToken={null} />);
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
-    });
+    fireEvent.click(screen.getByRole('button', {name: 'Continue'}));
 
     expect(mockSaveAnswers).not.toHaveBeenCalled();
   });

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 
 import EvpGenerationContent from '.';
 
@@ -406,9 +406,7 @@ describe('EvpGenerationContent', () => {
 
       render(<EvpGenerationContent {...DEFAULT_PROPS} />);
 
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', {name: 'EVP generieren'}));
-      });
+      fireEvent.click(screen.getByRole('button', {name: 'EVP generieren'}));
 
       await waitFor(() => {
         expect(mockSaveSettings).toHaveBeenCalledTimes(1);
@@ -427,9 +425,7 @@ describe('EvpGenerationContent', () => {
 
       render(<EvpGenerationContent {...DEFAULT_PROPS} />);
 
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', {name: 'EVP generieren'}));
-      });
+      fireEvent.click(screen.getByRole('button', {name: 'EVP generieren'}));
 
       await waitFor(() => {
         expect(mockSaveSettings).toHaveBeenCalledTimes(1);

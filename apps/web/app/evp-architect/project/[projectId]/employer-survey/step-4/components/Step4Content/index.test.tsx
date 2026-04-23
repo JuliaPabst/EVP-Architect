@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {useRouter} from 'next/navigation';
 
 import Step4Content from '.';
@@ -94,9 +94,7 @@ describe('Step4Content', () => {
   it('navigates to evp-generation with hash when onAfterSave is triggered', async () => {
     render(<Step4Content {...DEFAULT_PROPS} />);
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('trigger-after-save'));
-    });
+    fireEvent.click(screen.getByTestId('trigger-after-save'));
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
@@ -108,9 +106,7 @@ describe('Step4Content', () => {
   it('navigates to evp-generation without hash when adminToken is null', async () => {
     render(<Step4Content {...DEFAULT_PROPS} adminToken={null} />);
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('trigger-after-save'));
-    });
+    fireEvent.click(screen.getByTestId('trigger-after-save'));
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
