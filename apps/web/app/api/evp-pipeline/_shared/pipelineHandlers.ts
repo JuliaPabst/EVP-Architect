@@ -72,7 +72,7 @@ export function handleAssembleAnalyzeError(error: unknown): NextResponse {
     return NextResponse.json(
       {
         error: 'insufficient_submissions',
-        message: `At least 3 submitted employee surveys are required to run the pipeline`,
+        message: `Es werden mindestens 3 eingereichte Mitarbeiterumfragen benötigt, um eine EVP zu generieren.`,
       },
       {status: 400},
     );

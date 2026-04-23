@@ -148,7 +148,9 @@ describe('POST /api/evp-pipeline/trigger', () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('insufficient_submissions');
-    expect(data.message).toContain('3 submitted');
+    expect(data.message).toContain(
+      'Es werden mindestens 3 eingereichte Mitarbeiterumfragen benötigt, um eine EVP zu generieren.',
+    );
     expect(mockAnalyze).not.toHaveBeenCalled();
     expect(mockUpdateStatus).not.toHaveBeenCalled();
   });
