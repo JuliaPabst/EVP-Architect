@@ -23,11 +23,11 @@ type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 function formatEvpTextForPdf(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(
+    .replaceAll(/&/g, '&amp;')
+    .replaceAll(/</g, '&lt;')
+    .replaceAll(/>/g, '&gt;')
+    .replaceAll(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replaceAll(
       /^(#{1,6}) (.+)$/gm,
       (_, hashes: string, content: string) =>
         `<h${hashes.length}>${content}</h${hashes.length}>`,
@@ -95,7 +95,7 @@ export default function EvpGenerationContent({
     outputType,
   );
 
-  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/evp-architect/project/${projectId}/employee-survey/step-1`;
+  const shareUrl = `${typeof globalThis.window === 'undefined' ? '' : globalThis.location.origin}/evp-architect/project/${projectId}/employee-survey/step-1`;
 
   const canGenerate = Boolean(
     selectedTargetAudience &&
@@ -145,7 +145,7 @@ export default function EvpGenerationContent({
       URL.revokeObjectURL(url);
 
       iframe.contentWindow?.addEventListener('afterprint', () => {
-        document.body.removeChild(iframe);
+        iframe.remove();
       });
     };
   };

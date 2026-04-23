@@ -76,9 +76,6 @@ class DataAssemblyService {
     const allSubmissions =
       await this.submissionRepository.findAllByProject(projectId);
 
-    const employerSubmissions = allSubmissions.filter(
-      s => s.survey_type === 'employer',
-    );
     const allEmployeeSubmissions = allSubmissions.filter(
       s => s.survey_type === 'employee',
     );
@@ -92,7 +89,8 @@ class DataAssemblyService {
     }
 
     // Use the employer submission regardless of its status (in_progress counts too)
-    const employerSubmission = employerSubmissions[0] ?? null;
+    const employerSubmission =
+      allSubmissions.find(s => s.survey_type === 'employer') ?? null;
 
     // 4. Compute completion rate
     const completionRate =
