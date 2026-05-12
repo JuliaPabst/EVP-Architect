@@ -77,7 +77,9 @@ function formatLanguageInstruction(language?: string): string {
 function buildInternalEvpSystemPrompt(language?: string): string {
   return `You are an expert EVP strategist writing for employees.
 
-Create a clear, authentic internal EVP that feels recognisable and grounded.
+Create a clear, authentic internal EVP that feels recognisable and grounded—tangible and specific, not generic.
+
+Focus on evidence-backed themes that matter most: company culture, job security, career opportunities, compensation, and family-friendliness. Use these as anchors for concrete, credible claims.
 
 Rules:
 - Base everything strictly on evidence
@@ -88,6 +90,7 @@ Rules:
 - Use "we" where appropriate
 - Do not repeat ideas
 - Do not use em dashes
+- Make claims tangible: support them with specifics (not vague terms like "dynamic" or "collaborative")
 - If no employee survey data is provided, output only a short message explaining that the EVP cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length constraints:
@@ -115,7 +118,9 @@ function buildInternalEvpUserPrompt(
 
 ${JSON.stringify(analysis, null, 2)}
 
-Focus on the strongest evidence-backed themes only.
+Focus on the strongest evidence-backed themes. Prioritise concrete, tangible topics that resonate: company culture, job security, career opportunities, compensation, and family-friendliness.
+
+Make each claim specific: support with real details instead of generic language.
 
 Avoid repetition and unnecessary structure.${formatComments(comments)}`;
 }
@@ -128,17 +133,20 @@ function buildExternalEvpSystemPrompt(
 ): string {
   return `You are an expert EVP strategist writing for candidates.
 
-Your goal: attract the right candidates while staying grounded in reality.
+Your goal: attract the right candidates while staying grounded in reality. Make the value proposition tangible and specific—not generic.
 
 Communication style: ${toneStyle}
+
+Focus on evidence-backed themes that candidates care about: company culture, job security, career opportunities, compensation, and family-friendliness. Use these as anchors for concrete, credible claims.
 
 Rules:
 - Base everything strictly on employee evidence
 - Do not invent claims
 - Allow light realism: do not overpromise, but do not state criticism explicitly
 - Omit weak or unsupported themes instead of generalising
-- Help candidates self-select through specificity
+- Help candidates self-select through specificity and tangible details
 - Avoid generic phrases (e.g. "dynamic environment", "flat hierarchies")
+- Make claims concrete: support them with specifics, not vague language
 - Do not repeat ideas
 - Do not use em dashes
 - If no employee survey data is provided, output only a short message explaining that the EVP cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
@@ -175,6 +183,8 @@ ${JSON.stringify(analysis, null, 2)}
 
 ${audienceContext}
 
+Prioritise concrete, tangible themes: company culture, job security, career opportunities, compensation, and family-friendliness. Make each claim specific with real details.
+
 Focus on clarity, specificity, and differentiation.
 
 Avoid repetition and unnecessary structure.${formatComments(comments)}`;
@@ -185,12 +195,12 @@ Avoid repetition and unnecessary structure.${formatComments(comments)}`;
 function buildGapAnalysisSystemPrompt(language?: string): string {
   return `You are an EVP analyst writing for leadership.
 
-Surface gaps between employer intent and employee reality.
+Surface gaps between employer intent and employee reality—especially across concrete themes: company culture, job security, career opportunities, compensation, and family-friendliness.
 
 Rules:
 - Be direct and analytical
 - Base everything strictly on evidence
-- Compare employer vs employee perspectives
+- Compare employer vs employee perspectives on tangible, high-impact dimensions
 - Identify misalignment, blind spots, and risks
 - Provide actionable recommendations
 - Do not use em dashes
@@ -214,13 +224,13 @@ function buildGapAnalysisUserPrompt(
 ${JSON.stringify(analysis, null, 2)}
 
 Structure:
-1. Summary  
-2. Key misalignments  
-3. Blind spots  
-4. Aspirational gaps  
+1. Summary
+2. Key misalignments (focus on concrete dimensions: culture, security, careers, compensation, family-friendliness)
+3. Blind spots
+4. Aspirational gaps
 5. Recommendations (3)
 
-Be precise and evidence-based.${formatComments(comments)}`;
+Be precise, evidence-based, and specific. Support claims with tangible details.${formatComments(comments)}`;
 }
 
 // ─── SERVICE ────────────────────────────────────────────────────────────────

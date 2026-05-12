@@ -39,6 +39,7 @@ export default function TextSection({
       <TextArea
         id={`text-section-${title.toLowerCase().replaceAll(/\s+/g, '-')}`}
         maxLength={maxLength}
+        name={`text-section-${title.toLowerCase().replaceAll(/\s+/g, '-')}`}
         onChange={e => handleChange(e.target.value)}
         placeholder={placeholder}
         rows={6}

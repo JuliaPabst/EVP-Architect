@@ -13,7 +13,10 @@ interface MultiSelectQuestion {
   readonly id: string;
   readonly prompt: string;
   readonly selection_limit: number | null;
-  readonly options?: readonly {readonly id: string; readonly label: string}[];
+  readonly options?: readonly {
+    readonly label: string;
+    readonly value_key: string;
+  }[];
 }
 
 interface TextQuestion {

@@ -1,7 +1,10 @@
 import {NextRequest, NextResponse} from 'next/server';
 
 import {AuthError} from '@/lib/errors';
-import {ProjectRepository} from '@/lib/repositories/projectRepository';
+import {
+  ProjectRepository,
+  ProjectStatus,
+} from '@/lib/repositories/projectRepository';
 
 /**
  * Project context attached to validated requests
@@ -12,7 +15,7 @@ export interface ProjectContext {
   readonly created_at: string;
   readonly id: string;
   readonly profile_url: string;
-  readonly status: string;
+  readonly status: ProjectStatus;
   readonly updated_at: string;
   readonly employee_count?: string;
   readonly industry?: number;

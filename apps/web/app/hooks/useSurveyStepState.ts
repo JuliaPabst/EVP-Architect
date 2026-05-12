@@ -67,7 +67,7 @@ export default function useSurveyStepState(
         // For backward compatibility, set the first text answer as additionalContext
         setAdditionalContext(
           currentAdditionalContext =>
-            currentAdditionalContext || question.answer.text || '',
+            currentAdditionalContext || question.answer?.text || '',
         );
       }
     });
