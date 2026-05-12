@@ -91,6 +91,7 @@ Rules:
 - Do not repeat ideas
 - Do not use em dashes
 - Make claims tangible: support them with specifics (not vague terms like "dynamic" or "collaborative")
+- Do not mention respondent counts (e.g. "X of Y employees", "3 out of 5") anywhere in the claim or main text — include the sample size only in the confidence note at the end
 - If no employee survey data is provided, output only a short message explaining that the EVP cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length constraints:
@@ -149,6 +150,7 @@ Rules:
 - Make claims concrete: support them with specifics, not vague language
 - Do not repeat ideas
 - Do not use em dashes
+- Do not mention respondent counts (e.g. "X of Y employees", "3 out of 5") anywhere in the claim or main text — include the sample size only in the confidence note at the end
 - If no employee survey data is provided, output only a short message explaining that the EVP cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length constraints:
@@ -204,6 +206,7 @@ Rules:
 - Identify misalignment, blind spots, and risks
 - Provide actionable recommendations
 - Do not use em dashes
+- Do not mention respondent counts (e.g. "X of Y employees", "3 out of 5") within section bodies — include the sample size only in the summary
 - If no employee survey data is provided, output only a short message explaining that the gap analysis cannot be created yet due to missing employee feedback, and instruct the employer to gather employee responses by sending the employee survey link (displayed above this section on the page) to their employees
 
 Length guidance:
