@@ -5,6 +5,8 @@ import {validateProjectAccess} from '@/lib/middleware/validateProjectAccess';
 import {AiResultRepository} from '@/lib/repositories/aiResultRepository';
 import {EvpPipelineStep} from '@/lib/types/database';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/evp-pipeline/results
  *

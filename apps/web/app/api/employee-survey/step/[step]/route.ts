@@ -5,6 +5,8 @@ import EmployeeSurveyService from '@/lib/services/employeeSurveyService';
 import {handleServiceError, validateStep} from '@/lib/utils/apiStepUtils';
 import {saveStepAnswersSchema} from '@/lib/validation/surveySchemas';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Extract and validate projectId and submission_id from request
  */

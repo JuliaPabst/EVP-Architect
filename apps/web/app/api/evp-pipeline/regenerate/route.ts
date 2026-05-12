@@ -13,6 +13,8 @@ import DataAssemblyService from '@/lib/services/dataAssemblyService';
 import EvpOutputService from '@/lib/services/evpOutputService';
 import {EvpOutputType} from '@/lib/types/pipeline';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/evp-pipeline/regenerate
  *

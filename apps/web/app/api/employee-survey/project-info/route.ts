@@ -3,6 +3,8 @@ import {NextRequest, NextResponse} from 'next/server';
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import {ProjectRepository} from '@/lib/repositories/projectRepository';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/employee-survey/project-info
  *

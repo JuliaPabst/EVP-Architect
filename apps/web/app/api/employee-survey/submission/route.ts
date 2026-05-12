@@ -3,6 +3,8 @@ import {NextRequest, NextResponse} from 'next/server';
 import {BadRequestError, handleApiError} from '@/lib/errors';
 import EmployeeSurveyService from '@/lib/services/employeeSurveyService';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/employee-survey/submission
  *

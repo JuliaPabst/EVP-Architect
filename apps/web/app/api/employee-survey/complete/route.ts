@@ -4,6 +4,8 @@ import {BadRequestError, handleApiError} from '@/lib/errors';
 import {SurveySubmissionRepository} from '@/lib/repositories/surveySubmissionRepository';
 import DataAssemblyService from '@/lib/services/dataAssemblyService';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/employee-survey/complete
  *
