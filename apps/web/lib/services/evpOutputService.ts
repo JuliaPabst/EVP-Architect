@@ -54,7 +54,7 @@ function formatComments(comments: string[]): string {
 
   const numbered = comments.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-  return `\n\n## Revision instructions:\n${numbered}\nApply all non-conflicting feedback.`;
+  return `## MANDATORY constraints — apply before reading the analysis data:\n${numbered}\nThese are hard rules. Exclusion instructions override everything: treat excluded concepts as if they do not exist in the data at all. Do not reference them indirectly.\n\n`;
 }
 
 // ─── Prompt helpers ─────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ function buildInternalEvpUserPrompt(
   companyName: string,
   comments: string[] = [],
 ): string {
-  return `Create an Internal EVP for ${companyName}:
+  return `${formatComments(comments)}Create an Internal EVP for ${companyName}:
 
 ${JSON.stringify(analysis, null, 2)}
 
@@ -123,7 +123,7 @@ Focus on the strongest evidence-backed themes. Prioritise concrete, tangible top
 
 Make each claim specific: support with real details instead of generic language.
 
-Avoid repetition and unnecessary structure.${formatComments(comments)}`;
+Avoid repetition and unnecessary structure.`;
 }
 
 // ─── EXTERNAL EVP ───────────────────────────────────────────────────────────
@@ -179,7 +179,7 @@ function buildExternalEvpUserPrompt(
     ? `Target audience: ${targetAudience}. Prioritise what matters most to them.`
     : `No specific audience. Focus on the most distinctive strengths.`;
 
-  return `Create an External EVP for ${companyName}:
+  return `${formatComments(comments)}Create an External EVP for ${companyName}:
 
 ${JSON.stringify(analysis, null, 2)}
 
@@ -189,7 +189,7 @@ Prioritise concrete, tangible themes: company culture, job security, career oppo
 
 Focus on clarity, specificity, and differentiation.
 
-Avoid repetition and unnecessary structure.${formatComments(comments)}`;
+Avoid repetition and unnecessary structure.`;
 }
 
 // ─── GAP ANALYSIS ───────────────────────────────────────────────────────────
@@ -222,7 +222,7 @@ function buildGapAnalysisUserPrompt(
   companyName: string,
   comments: string[] = [],
 ): string {
-  return `Create a Gap Analysis for ${companyName}:
+  return `${formatComments(comments)}Create a Gap Analysis for ${companyName}:
 
 ${JSON.stringify(analysis, null, 2)}
 
@@ -233,7 +233,7 @@ Structure:
 4. Aspirational gaps
 5. Recommendations (3)
 
-Be precise, evidence-based, and specific. Support claims with tangible details.${formatComments(comments)}`;
+Be precise, evidence-based, and specific. Support claims with tangible details.`;
 }
 
 // ─── SERVICE ────────────────────────────────────────────────────────────────
